@@ -1,0 +1,42 @@
+package com.kh.backend.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.kh.backend.common.interceptor.AuthInterceptor;
+
+@Configuration
+public class InterceptorConfig implements WebMvcConfigurer {
+
+	// 방금 만든 AuthInterceptor 객체를 받아서 요청 전 거쳐가게끔 연결하기
+	// > AuthInterceptor 객체를 주입받아두기
+	@Autowired
+	private AuthInterceptor authInterceptor;
+
+	// 요청이 인터셉터를 거쳐가게끔 연결 (등록)
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		
+		registry.addInterceptor(authInterceptor)
+				.addPathPatterns("/member/**")
+				.addPathPatterns("/notice/**")
+				.addPathPatterns("/board/**")
+				.addPathPatterns("/board/download/**")
+				.excludePathPatterns("/auth/login");
+		
+		// > /member, /notice, /board 계열의 모든 요청들은 (/**)
+		//   이 AuthInterceptor 를 거쳐가야함!! (티켓검사)
+		// > 유일하게 /auth/login 요청은 (로그인 요청)
+		//   AuthInterceptor 를 거쳐가면 안됨!! (로그인 요청 == 티켓 발급)
+		
+	}
+	
+}
+
+
+
+
+
+

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename Java project &apos;TripType_Final_Project&apos; to &apos;BackEnd_TripType_Final_Project&apos;&#x0D;&#x0A;- Original element: &apos;TripType_Final_Project&apos;&#x0D;&#x0A;- Renamed element: &apos;TripType_Final_Project&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename Java project &apos;TripType_Final_Project&apos;" flags="7" id="org.eclipse.jdt.ui.rename.java.project" input="=TripType_Final_Project" name="BackEnd_TripType_Final_Project" references="true" stamp="1765441830616" version="1.0"/>
+</session>
