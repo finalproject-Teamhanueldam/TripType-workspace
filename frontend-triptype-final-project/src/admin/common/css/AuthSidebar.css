@@ -1,0 +1,48 @@
+/* 사이드바 전체 */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0; /* 우측 구분선 */
+  padding: 20px 0px 20px 20px;
+  box-sizing: border-box;
+  
+}
+
+/* 로고 */
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin : 10px 30px 0px 0px; 
+  font-family: 'Verdana', sans-serif;
+}
+
+.logo > img {
+  width : 200px;
+}
+
+.sidebar table {
+  width: 100%;
+  border-spacing: 0 10px; /* 줄 간격 띄우기 (border-collapse 끄고 사용) */
+}
+
+.sidebar td {
+  padding: 14px 20px 14px 20px;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 12px 0px 0px 12px;
+  transition: all 0.3s;
+}
+
+/* 마우스 올렸을 때 */
+.sidebar tr:hover td {
+  background-color: #e0f2fe; /* 아주 연한 하늘색 */
+  color: #0284c7; /* 진한 파란색 글자 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 살짝 그림자 */
+}
