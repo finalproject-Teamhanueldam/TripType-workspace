@@ -1,0 +1,6 @@
+.home-container {
+  width: 100%;       /* page-wrap이 이미 80%이므로 100%로 */
+  margin: 0;         /* margin 제거 */
+  /* padding-top: 32px; 필요하면 여백 이렇게 줘 */
+  padding: 0;
+}

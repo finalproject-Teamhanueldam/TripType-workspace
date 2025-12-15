@@ -1,0 +1,19 @@
+/* 기본 여백 제거 – 필수 */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.content-area {
+  width: 100%;
+  /* background-color: #c02e2e; */
+    /* background-color: #C2E9F2; */
+    height: 150px;
+}
+
+/* .page-wrap {
+  width: 80%;
+  max-width: 1400px;
+  margin: 0 auto;   중앙 정렬 */
+/* } */
+

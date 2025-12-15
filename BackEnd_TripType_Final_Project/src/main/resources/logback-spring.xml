@@ -64,7 +64,7 @@
 			파일명만 딸랑 쓸 경우 상대경로에 의해 이 프로젝트 폴더 내부에 파일이 바로 생성됨
 			그게 싫으면 절대경로같은걸로 원하는 경로 지정 (실제 존재하는 경로로 제시)
 		-->
-		<appned>true</appned>
+		<append>true</append>
 		<!-- true 는 이어쓰기를 하겠다. / false 는 덮어쓰겠다. (보통 실무에서는 로그를 이어씀) -->
 		<encoder>
 			<pattern>%-5level - %msg : %logger %d %n</pattern>
@@ -73,7 +73,7 @@
 	
 	<!-- 날짜별 롤링 파일 Appender -->
 	<appender name="DAILY" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<flie>C:\mylog\daily.log</flie>
+		<file>C:\mylog\daily.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- 날짜별로 끊을지, 용량별로 끊을지 등의 옵션 선택 가능 -->
 			<fileNamePattern>C:\mylog\daily-%d{yyyyMMdd}.log</fileNamePattern>
@@ -106,7 +106,10 @@
 		- 위의 logger 에서 설정한 com.kh.backend 하위의 코드가 아닌
 		  다른 코드에서 발생하는 로그들은 다 막아버리겠다. (즉, 써드파티 로그는 막겠다)
 	-->
-	<root level="OFF"></root>
+	<root level="INFO">
+	    <appender-ref ref="FILE"/>
+	    <appender-ref ref="DAILY"/>   <!-- ★ 추가 -->
+	</root>
 	
 </configuration>
 

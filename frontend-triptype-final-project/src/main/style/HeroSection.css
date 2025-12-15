@@ -1,0 +1,30 @@
+/* header와 연결된 큰 배경 */
+.hero-section {
+  width: 100%;
+  background-color: #C2E9F2;  /* header와 동일 */
+  padding: 40px 0 80px;
+  box-sizing: border-box;
+}
+
+/* 중앙 정렬 (header-inner과 동일) */
+.hero-inner {
+  width: 80%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* 타이틀 */
+.hero-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #023059;
+  margin-bottom: 32px;
+}
+
+/* 필터 박스를 floating 카드처럼 */
+.hero-filter-box {
+  background: #fff;
+    padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0px 4px 14px rgba(0,0,0,0.15);
+}
