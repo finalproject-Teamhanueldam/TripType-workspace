@@ -36,7 +36,7 @@ function AuthContainer() {
       <div className="auth-card">
         <div className="auth-brand">
           <img src={logo} alt="TripType" className="auth-logo" />
-          <div className="auth-title">TripType</div>
+          <div className="auth-title">트립타임</div>
           <div className="auth-subtitle">실시간 항공권 비교 · 맞춤 추천</div>
         </div>
 
@@ -56,7 +56,7 @@ function AuthContainer() {
             <button
                 className={activeTab === "find" ? "active" : ""}
                 onClick={() => navigate("/member?tab=find")}>
-                찾기
+                계정 찾기
             </button>
         </div>
 
