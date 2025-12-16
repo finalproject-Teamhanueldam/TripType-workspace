@@ -11,6 +11,8 @@ import AirlineTicketComponent from "./admin/airlineticket/componnent/AirlineTick
 import AirlineDetailComponent from "./Airline/AirlineDetail/components/AirlineDetailComponent"
 import TravelAlertComponent from "./TravelAlert/components/TravelAlertComponent";
 
+import AuthContainer from "./member/auth/component/AuthContainer";
+
 function App() {
   const location = useLocation();
   const showHero = location.pathname === "/";
@@ -36,6 +38,9 @@ function App() {
       <Routes>
         {/* 메인 페이지 */}
         <Route path="/" element={<Home />} />
+
+        {/* 로그인 페이지(최경환) */}
+        <Route path="/member" element={<AuthContainer />} />
 
         {/* 관리자 페이지 */}
         <Route path="/admin/statistics" element={<AuthStatisticsComponent />} />
