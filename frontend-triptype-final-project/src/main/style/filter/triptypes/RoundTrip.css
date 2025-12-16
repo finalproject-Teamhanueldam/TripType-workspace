@@ -1,0 +1,39 @@
+/* ===============================
+   🔷 RoundTrip Grid Layout
+   =============================== */
+.filter-main-row.round-trip {
+  display: grid;
+
+  grid-template-columns:
+    minmax(220px, 1.4fr)   /* 출발지 */
+    48px                   /* ↔ */
+    minmax(220px, 1.4fr)   /* 도착지 */
+    minmax(160px, 1fr)     /* 가는 편 */
+    minmax(160px, 1fr)     /* 오는 편 */
+    140px;                 /* 검색 버튼 */
+
+  align-items: end;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* ===============================
+   🔷 기본 input / 버튼 안정화
+   =============================== */
+.filter-main-row.round-trip .filter-item input,
+.filter-main-row.round-trip .search-btn {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+
+/* ===============================
+   🔷 반응형
+   =============================== */
+@media (max-width: 1100px) {
+  .filter-main-row.round-trip {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
