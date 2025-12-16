@@ -1,7 +1,7 @@
 import "./App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
 
-import Header from "./common/component/header";
+import Header from "./common/component/Header";
 import HeroSection from "./main/component/HeroSection";
 import Home from "./main/component/Home";
 
