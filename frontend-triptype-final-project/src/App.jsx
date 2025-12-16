@@ -8,6 +8,9 @@ import Home from "./main/component/Home";
 import AuthStatisticsComponent from "./admin/statistics/component/AuthStatisticsComponent";
 import AirlineTicketComponent from "./admin/airlineticket/componnent/AirlineTicketComponent";
 
+import AirlineDetailComponent from "./Airline/AirlineDetail/components/AirlineDetailComponent"
+import TravelAlertComponent from "./TravelAlert/components/TravelAlertComponent";
+
 function App() {
   const location = useLocation();
   const showHero = location.pathname === "/";
@@ -26,6 +29,13 @@ function App() {
         {/* 관리자 페이지 */}
         <Route path="/admin/statistics" element={<AuthStatisticsComponent />} />
         <Route path="/admin/airlineticket" element={<AirlineTicketComponent />} />
+
+        {/* 항공권 상세 페이지 */}
+        <Route path="/airline/detail/:airlineNo" element={<AirlineDetailComponent/>}></Route>
+
+        {/* 여행 경보 페이지 */}
+        <Route path="/airline/travelAlert" element={<TravelAlertComponent/>}></Route>
+
       </Routes>
     </div>
   );
