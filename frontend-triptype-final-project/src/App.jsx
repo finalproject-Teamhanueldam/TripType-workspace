@@ -17,9 +17,7 @@ function App() {
 
   // 추가: Header 숨길 경로 (최경환)
   const hideHeaderPaths = [
-    "/member/login",
-    "/member/join",
-    "/member/find",
+    "/member",
     "/admin"
   ];
 
