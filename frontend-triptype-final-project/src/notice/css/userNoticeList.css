@@ -1,0 +1,63 @@
+.notice-page {
+  width: 80%;
+  max-width: 1200px;
+  margin: 60px auto;
+}
+
+.notice-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #023059;
+  margin-bottom: 24px;
+}
+
+.notice-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notice-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: 0.25s;
+}
+
+.notice-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+.notice-card.important {
+  border-left: 6px solid #ff6b6b;
+}
+
+.notice-card-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge {
+  background-color: #ff6b6b;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.notice-card-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.notice-card-date {
+  font-size: 13px;
+  color: #777;
+}

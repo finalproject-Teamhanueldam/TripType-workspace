@@ -1,0 +1,53 @@
+.notice-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.notice-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.notice-list {
+  border-top: 2px solid #222;
+}
+
+.notice-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.notice-item:hover {
+  background-color: #f9f9f9;
+}
+
+.notice-date {
+  font-size: 13px;
+  color: #777;
+}
+
+.notice-detail {
+  border-top: 2px solid #222;
+  padding-top: 20px;
+}
+
+.notice-content {
+  margin-top: 20px;
+  line-height: 1.6;
+}
+
+.admin-btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}

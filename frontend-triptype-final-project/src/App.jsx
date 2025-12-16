@@ -1,7 +1,9 @@
 import "./App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
 
-import Header from "./common/component/header";
+// H 대문자 수정 (12.16 김동윤)
+import Header from "./common/component/Header";
+
 import HeroSection from "./main/component/HeroSection";
 import Home from "./main/component/Home";
 
@@ -11,7 +13,15 @@ import AirlineTicketComponent from "./admin/airlineticket/componnent/AirlineTick
 import AirlineDetailComponent from "./Airline/AirlineDetail/components/AirlineDetailComponent"
 import TravelAlertComponent from "./TravelAlert/components/TravelAlertComponent";
 
+// 코드 병합 (12.16 김동윤)
 import AuthContainer from "./member/auth/component/AuthContainer";
+// 공지사항 수정 (12.16 김동윤)
+import UserNoticeList from "./notice/component/UserNoticeList";
+import UserNoticeDetail from "./notice/component/UserNoticeDetail";
+import AdminNoticeList from "./admin/notice/component/AdminNoticeList";
+import AdminNoticeForm from "./admin/notice/component/AdminNoticeForm";
+
+
 
 function App() {
   const location = useLocation();
@@ -45,6 +55,14 @@ function App() {
         {/* 관리자 페이지 */}
         <Route path="/admin/statistics" element={<AuthStatisticsComponent />} />
         <Route path="/admin/airlineticket" element={<AirlineTicketComponent />} />
+
+        {/* 관리자 공지 (12.16 김동윤)*/}
+        <Route path="/admin/notice" element={<AdminNoticeList />} />
+        <Route path="/admin/notice/write" element={<AdminNoticeForm />} />
+
+        {/* 사용자 공지 (12.16 김동윤)*/}
+        <Route path="/notice" element={<UserNoticeList />} />
+        <Route path="/notice/:noticeId" element={<UserNoticeDetail />} />
 
         {/* 항공권 상세 페이지 */}
         <Route path="/airline/detail/:airlineNo" element={<AirlineDetailComponent/>}></Route>
