@@ -17,3 +17,17 @@ html, body {
   margin: 0 auto;   중앙 정렬 */
 /* } */
 
+
+/* 관리자 페이지 */
+.admin-layout {
+  display: flex;
+  min-height: calc(100vh - 60px); /* 헤더 높이 고려 */
+}
+
+.admin-content {
+  flex: 1;
+  padding: 24px;
+  background-color: #f8f9fb;
+}
+
+

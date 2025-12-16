@@ -1,0 +1,193 @@
+/* ===== 페이지 배경 ===== */
+.auth-page {
+  min-height: 100vh;
+  background-color: #f5faff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== 카드 ===== */
+.auth-card {
+  width: 420px;
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 28px 26px 30px;
+  box-shadow: 0 8px 24px rgba(2, 48, 89, 0.12);
+}
+
+/* ===== 브랜드 영역 ===== */
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.auth-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-bottom: 6px;
+}
+
+.auth-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #023059;
+  line-height: 1.2;
+}
+
+.auth-subtitle {
+  font-size: 12px;
+  color: rgba(2, 48, 89, 0.65);
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* ===== 상단 탭 ===== */
+.auth-tab-header {
+  display: flex;
+  margin-bottom: 22px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.auth-tab-header button {
+  flex: 1;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.auth-tab-header button.active {
+  color: #023059;
+  border-bottom: 3px solid #6ebff4;
+  font-weight: 800;
+}
+
+/* ===== 탭 콘텐츠 ===== */
+.auth-tab-content {
+  margin-top: 10px;
+}
+
+/* ===== 공통 폼 ===== */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-form input {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: #6ebff4;
+  box-shadow: 0 0 0 2px rgba(110, 191, 244, 0.25);
+}
+
+/* ===== 버튼 ===== */
+.auth-form button {
+  height: 46px;
+  margin-top: 10px;
+  background-color: #6ebff4;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.auth-form button:hover {
+  background-color: #5aaee6;
+}
+
+/* ===== 성별 ===== */
+.gender-box {
+  display: flex;
+  gap: 16px;
+  margin: 6px 0 10px;
+}
+
+.gender-box label {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ===== 소셜 로그인 ===== */
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* 공통 */
+.social-btn {
+  height: 46px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+
+/* hover / active 공통 효과 */
+.social-btn:hover {
+  transform: translateY(-1px);
+}
+
+.social-btn:active {
+  transform: translateY(0);
+}
+
+/* 네이버 */
+.social-btn.naver {
+  background-color: #03c75a;
+  color: #ffffff;
+}
+
+.social-btn.naver:hover {
+  box-shadow: 0 4px 10px rgba(3, 199, 90, 0.35);
+}
+
+/* 카카오 */
+.social-btn.kakao {
+  background-color: #fee500;
+  color: #191919;
+}
+
+.social-btn.kakao:hover {
+  box-shadow: 0 4px 10px rgba(254, 229, 0, 0.45);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.divider span {
+  margin: 0 10px;
+}

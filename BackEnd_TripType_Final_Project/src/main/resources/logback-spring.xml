@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- logback 을 환경설정 (configuration) 하기 위한 파일 -->
+<!-- logback 을 환경설정 (cofiguration) 하기 위한 파일 -->
 <configuration>
 	
 	<!-- 
@@ -107,7 +107,6 @@
 		  다른 코드에서 발생하는 로그들은 다 막아버리겠다. (즉, 써드파티 로그는 막겠다)
 	-->
 	<root level="INFO">
-		<appender-ref ref="CONSOLE"/>
 	    <appender-ref ref="FILE"/>
 	    <appender-ref ref="DAILY"/>   <!-- ★ 추가 -->
 	</root>

@@ -1,0 +1,181 @@
+/* ================= 공통 ================= */
+
+body {
+  background: #f7f9fc;
+}
+
+.travel-alert-container {
+  width: 1200px;
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  font-family: Pretendard, sans-serif;
+}
+
+/* ================= 섹션 헤더 ================= */
+
+.section-header {
+  margin-bottom: 16px;
+}
+
+.section-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.section-header p {
+  font-size: 14px;
+  color: #666;
+}
+
+/* ================= 단계 안내 ================= */
+
+.alert-step-guide {
+  background: #fff;
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.step-list {
+  display: flex;
+  gap: 20px;
+}
+
+.step-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f9fafb;
+}
+
+.step-number {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 800;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.step-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.step-desc {
+    margin: 0;
+  font-size: 13px;
+  color: #555;
+}
+
+/* ================= 요약 카드 ================= */
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+.summary-card {
+  background: #64b62d;
+  color: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.summary-card .count {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.summary-card .label {
+  font-size: 14px;
+}
+
+/* ================= 필터 ================= */
+
+.continent-filter {
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.continent-filter button {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 18px;
+  background: #f2f4f7;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.continent-filter button.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* ================= 테이블 ================= */
+
+.alert-table {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.alert-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.alert-table th,
+.alert-table td {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.alert-table th {
+  background: #f9fafb;
+  font-weight: 700;
+}
+
+.alert-table tr:hover {
+  background: #f9fafb;
+}
+
+.eng {
+  font-size: 12px;
+  color: #888;
+}
+
+.detail-link {
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* ================= 뱃지 & 색상 ================= */
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.level-1 { background: #2563eb; }
+.level-2 { background: #f59e0b; }
+.level-3 { background: #f97316; }
+.level-4 { background: #ef4444; }
