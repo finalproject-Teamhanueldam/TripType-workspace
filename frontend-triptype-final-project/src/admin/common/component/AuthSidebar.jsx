@@ -10,7 +10,7 @@ const AuthSidebar =() => {
 
     return (
         <div className="sidebar">
-            <div className="logo"><img src={logo} alt="logo"/></div> 
+            <div className="logo" onClick ={ ()=> {navigate("/");}}><img src={logo} alt="logo"/></div> 
                 <table>
                     <tbody>
                         <tr onClick ={ ()=> {navigate("/admin/statistics"); }}><td>통계</td></tr> 
