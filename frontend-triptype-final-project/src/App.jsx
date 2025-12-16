@@ -15,9 +15,22 @@ function App() {
   const location = useLocation();
   const showHero = location.pathname === "/";
 
+  // 추가: Header 숨길 경로 (최경환)
+  const hideHeaderPaths = [
+    "/member/login",
+    "/member/join",
+    "/member/find",
+    "/admin"
+  ];
+
+  const hideHeader = hideHeaderPaths.some(path =>
+    location.pathname.startsWith(path)
+  );
+
   return (
     <div>
-      <Header />
+      {/* 수정 : admin and member 관련 페이지 헤더 예외 처리 (최경환)*/}
+      {!hideHeader && <Header />}
 
       {/* 메인 홈일 때만 HeroSection 표시 */}
       {showHero && <HeroSection />}
