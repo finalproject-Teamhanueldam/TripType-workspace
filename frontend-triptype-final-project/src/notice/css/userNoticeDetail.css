@@ -1,0 +1,26 @@
+.notice-detail-page {
+  width: 80%;
+  max-width: 900px;
+  margin: 60px auto;
+}
+
+.notice-detail-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #023059;
+}
+
+.notice-meta {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 30px;
+}
+
+.notice-content-box {
+  background: #ffffff;
+  padding: 28px;
+  border-radius: 16px;
+  line-height: 1.7;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
