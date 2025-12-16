@@ -1,6 +1,7 @@
 import { useState } from "react";
 import FindIdTab from "./find/FindIdTab";
 import FindPasswordTab from "./find/FindPasswordTab";
+import "../css/FindTab.css";
 
 function FindTab() {
   const [activeSubTab, setActiveSubTab] = useState("id");
