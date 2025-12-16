@@ -16,7 +16,7 @@ const AdminHeader = ({ onMenuClick }) => {
 
             <div className="admin-header-right">
 
-                <span className="admin-name">관리자</span>
+                <span className="admin-name">관리자 님</span>
                 <button className="logout-btn">로그아웃</button>
             </div>
         </div>

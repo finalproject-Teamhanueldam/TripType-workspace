@@ -14,9 +14,8 @@ const AuthStatisticsComponent = () => {
     return (
         <div className="wrap">       
             <div className="statistics-content">
-                <h2 style={{ margin : "40px 0px 0px 340px"}}> 통계 </h2>
+                <h2 className ="statistics-title"> 통계 </h2>
 
-                <br/><br/>
                 <div className ="statistics-area" >
                     <div className = "statistics-box">< TopRatingAirlineComponent /></div>
                     <div className = "statistics-box">< TopReviewAirlineComponent /></div>
