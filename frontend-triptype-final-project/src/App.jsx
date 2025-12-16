@@ -6,44 +6,38 @@ import Header from "./common/component/Header";
 import HeroSection from "./main/component/HeroSection";
 import Home from "./main/component/Home";
 
-import AdminHeader from "./admin/common/component/AdminHeader";
-import AuthSidebar from "./admin/common/component/AuthSidebar";
+import AdminLayout from "./admin/common/component/AdminLayout";
 
 import AuthStatisticsComponent from "./admin/statistics/component/AuthStatisticsComponent";
 import AirlineTicketComponent from "./admin/airlineticket/componnent/AirlineTicketComponent";
+
+import AirlineDetailComponent from "./Airline/AirlineDetail/components/AirlineDetailComponent"
+import TravelAlertComponent from "./TravelAlert/components/TravelAlertComponent";
+
+import AuthContainer from "./member/auth/component/AuthContainer";
 
 function App() {
   const location = useLocation();
   const showHero = location.pathname === "/";
 
-  const isAdminPage = location.pathname.startsWith("/admin")
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    // 로그인 페이지, 추가: Header 숨길 경로 (최경환)
+  const hideHeaderPaths = [
+    "/member",
+    "/admin",
+
+  ];
+
+  const hideHeader = hideHeaderPaths.some(path =>
+    location.pathname.startsWith(path)
+  );
+
 
   return (
-    <div>  
-
-      {/* 관리자 페이지 일 경우 관리자 페이지용 헤더와 사이드 바, 메인 내용을 표시*/}
-      {isAdminPage ? (
-        <div>
-          <AdminHeader onMenuClick={() => setIsSidebarOpen(true)} />
-        
-          <div className="admin-layout">
-          
-            < AuthSidebar isOpen={isSidebarOpen}
-                          onClose={() => setIsSidebarOpen(false)}/>
-
-            <div className="admin-content">
-
-              <Routes>
-                <Route path="/admin/statistics" element={<AuthStatisticsComponent />} />
-                <Route path="/admin/airlineticket" element={<AirlineTicketComponent />} />    
-              </Routes>
-
-            </div>
-          </div>
-        </div>)
-        :  <Header />}
+    <div> 
+    
+      {/* 수정 : admin and member 관련 페이지 헤더 예외 처리 (최경환)*/}
+      {!hideHeader && <Header />}
 
       {/* 메인 홈일 때만 HeroSection 표시 */}
       {showHero && <HeroSection />}
@@ -52,9 +46,27 @@ function App() {
         {/* 메인 페이지 */}
         <Route path="/" element={<Home />} />
 
-    
+        {/* 로그인 페이지(최경환) */}
+        <Route path="/member" element={<AuthContainer />} />
+
+        {/* 항공권 상세 페이지 */}
+        <Route path="/airline/detail/:airlineNo" element={<AirlineDetailComponent/>}></Route>
+
+        {/* 여행 경보 페이지 */}
+        <Route path="/airline/travelAlert" element={<TravelAlertComponent/>}></Route>
+
+        {/* 관리자 페이지 */}
+        <Route path="/admin" element={< AdminLayout />}>
+          <Route path="statistics" element={<AuthStatisticsComponent />} />
+          <Route path="airlineticket" element={<AirlineTicketComponent />} />  
+        </Route>
+        
+
       </Routes>
+
     </div>
+      
+
   );
 }
 

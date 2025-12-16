@@ -1,0 +1,185 @@
+/* TicketBoxComponent.css */
+
+/* --- 항공권 카드 컨테이너 --- */
+.ticket-box {
+    padding: 22px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s ease; /* transition 속성 수정 */
+    font-family: 'Pretendard', sans-serif; /* 폰트 설정 (필요에 따라 변경) */
+    margin-bottom: 50px;
+}
+
+.ticket-box:hover {
+    box-shadow: 0 6px 14px rgba(0,0,0,0.09);
+}
+
+/* --- 1. 항공사 정보 라인 --- */
+.ticket-airline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.airline-logo {
+    width: 28px;
+    height: 28px; /* 높이 추가 */
+    border-radius: 50%;
+    object-fit: contain;
+    border: 1px solid #f0f0f0; /* 로고 테두리 추가 */
+}
+
+.airline-name {
+    font-size: 15px;
+    color: #333;
+}
+
+.flight-number {
+    font-size: 13px;
+    color: #777;
+    margin-left: auto; /* 오른쪽으로 밀기 */
+    display: flex;
+    align-items: center;
+}
+
+.icon-tiny {
+    font-size: 10px;
+    margin-right: 4px;
+    color: #777;
+}
+
+/* --- 구분선 --- */
+.ticket-divider {
+    margin: 14px 0;
+    height: 1px;
+    background: #ececec;
+}
+
+/* --- 2. 출발-도착 정보 3칸 --- */
+.ticket-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+}
+
+/* 각 블록 공통 */
+.flight-block {
+    flex: 1; /* 너비 균등 분배 */
+}
+
+.flight-block .date {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 5px; /* 간격 추가 */
+}
+
+.flight-block .time {
+    font-size: 28px; /* 더 강조 */
+    font-weight: 800; /* 더 강조 */
+    margin: 0; /* 기본 margin 덮어쓰기 */
+    color: #000;
+}
+
+.flight-block .airport {
+    font-size: 14px;
+    color: #444;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+.airport-iata {
+    color: #007bff; /* IATA 코드 색상 강조 */
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+
+/* --- Duration 영역 --- */
+.duration-block {
+    flex-shrink: 0;
+    width: 130px; /* 너비 지정 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 10px;
+}
+
+/* 아이콘 대신 사용되는 비행 시간 시각화 요소 */
+.duration-line-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.flight-line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: #ccc;
+    opacity: 0.7;
+}
+
+.duration-icon-clock {
+    font-size: 16px; /* FaClock 아이콘 크기 */
+    color: #007bff; /* 아이콘 색상 변경 */
+    margin: 0 8px;
+}
+
+.duration-block .duration {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.duration-block .via { /* 기존 .via 스타일 */
+    font-size: 12px;
+    color: #777;
+    margin-top: 2px;
+}
+
+.via-tag { /* 직항/경유 태그 스타일 (추가) */
+    background-color: #e6f3ff;
+    color: #007bff;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+    display: inline-block;
+    font-size: 11px;
+}
+
+/* --- 3. 부가 정보 섹션 (추가) --- */
+.extra-info-row {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #555;
+    align-items: center;
+}
+
+.seat-status {
+    font-weight: 500;
+}
+
+.status-value.highlight {
+    color: #d9534f; /* 좌석 부족 강조 색상 */
+    font-weight: 700;
+}
+
+.terminal-info {
+    display: flex;
+    align-items: center;
+    color: #777;
+}
+
+.terminal-info .icon-tiny {
+    color: #777;
+    margin-top: -2px;
+}

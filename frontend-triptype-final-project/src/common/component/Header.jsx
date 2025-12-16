@@ -28,7 +28,8 @@ const Header = () => {
                     <Link className="heart-icon">
                         <AiFillHeart className="heart-icon-svg" />
                     </Link>
-                    <Link to="/login" className="login-btn">로그인</Link>
+                    {/* 로그인 링크 수정(최경환), 추후 회원가입 버튼 추가시 수정 필요 */}
+                    <Link to="/member" className="login-btn">로그인</Link>
                 </div>
 
             </div>
