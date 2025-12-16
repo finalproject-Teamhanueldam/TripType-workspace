@@ -1,4 +1,3 @@
-import AuthSidebar from "../../common/component/AuthSidebar";
 import LoginChartComponent from "./LoginChartComponent";
 import MonthlySignupChartComponent from "./MonthlySignupChartComponent";
 import TopRatingAirlineComponent from "./TopRatingAirlineComponent";
@@ -13,10 +12,9 @@ const AuthStatisticsComponent = () => {
     
 
     return (
-        <div className="wrap">
-            < AuthSidebar />
+        <div className="wrap">       
             <div className="statistics-content">
-                <h2 style={{ margin : "0px 0px 0px 160px"}}> 통계 </h2>
+                <h2 style={{ margin : "40px 0px 0px 340px"}}> 통계 </h2>
 
                 <br/><br/>
                 <div className ="statistics-area" >
