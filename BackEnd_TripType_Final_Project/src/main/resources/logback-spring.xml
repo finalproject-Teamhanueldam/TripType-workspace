@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- logback 을 환경설정 (cofiguration) 하기 위한 파일 -->
+<!-- logback 을 환경설정 (configuration) 하기 위한 파일 -->
 <configuration>
 	
 	<!-- 
@@ -93,7 +93,7 @@
 		  배포 전 INFO 수준으로 올려서 바로 배포함!! (DEBUG 구문이 살아있더라도 동작을 안하니깐)
 		- appender 를 여러개 셋팅하고 한번에 여러 appender 로 여러군데에 출력도 가능!!
 	-->
-	<logger name="com.kh.backend" level="INFO">
+	<logger name="com.kh.triptype" level="INFO">
 		<appender-ref ref="CONSOLE" />
 		<appender-ref ref="FILE" />
 	</logger>
@@ -107,6 +107,7 @@
 		  다른 코드에서 발생하는 로그들은 다 막아버리겠다. (즉, 써드파티 로그는 막겠다)
 	-->
 	<root level="INFO">
+		<appender-ref ref="CONSOLE"/>
 	    <appender-ref ref="FILE"/>
 	    <appender-ref ref="DAILY"/>   <!-- ★ 추가 -->
 	</root>
