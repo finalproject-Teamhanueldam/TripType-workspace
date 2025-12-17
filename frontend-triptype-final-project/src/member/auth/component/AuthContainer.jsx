@@ -34,7 +34,10 @@ function AuthContainer() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-brand">
+        <div className="auth-brand"
+             onClick={() => navigate("/")} 
+             style={{ cursor: 'pointer' }}
+        >
           <img src={logo} alt="TripType" className="auth-logo" />
           <div className="auth-title">트립타임</div>
           <div className="auth-subtitle">실시간 항공권 비교 · 맞춤 추천</div>

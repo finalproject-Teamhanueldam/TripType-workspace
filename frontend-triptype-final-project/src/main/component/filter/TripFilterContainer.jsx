@@ -6,17 +6,15 @@ import OneWayTrip from "./triptypes/OneWayTrip";
 import MultiTrip from "./triptypes/MultiTrip";
 
 const TripFilterContainer = ({
+  tripType,          // 🔥 상위(FilterSection)에서 내려옴
+  setTripType,       // 🔥 상위에서 내려옴
+
   depart,
   arrive,
   setDepart,
   setArrive,
   onSwap,
 }) => {
-  /* ===============================
-     🔑 단일 진실
-     =============================== */
-  const [tripType, setTripType] = useState("round"); // round | oneway | multi
-
   // round / oneway
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -38,8 +36,8 @@ const TripFilterContainer = ({
      🔥 날짜 변경 로직 (중앙 집중)
      =============================== */
   const handleDateChange = (start, end) => {
-    // multi
-    if (tripType === "multi" && activeSegmentId !== null) {
+    // MULTI
+    if (tripType === "MULTI" && activeSegmentId !== null) {
       setSegments((prev) =>
         prev.map((seg) =>
           seg.id === activeSegmentId ? { ...seg, date: start } : seg
@@ -48,21 +46,21 @@ const TripFilterContainer = ({
       return;
     }
 
-    // 날짜 초기화
+    // reset
     if (!start && !end) {
       setStartDate(null);
       setEndDate(null);
       return;
     }
 
-    // oneway
-    if (tripType === "oneway") {
+    // ONEWAY
+    if (tripType === "ONEWAY") {
       setStartDate(start ?? null);
       setEndDate(null);
       return;
     }
 
-    // round
+    // ROUND
     if (start && !end) {
       setStartDate(start);
       setEndDate(null);
@@ -76,19 +74,19 @@ const TripFilterContainer = ({
   };
 
   /* ===============================
-     🔥 타입 변경
+     🔥 타입 변경 (왕복 ↔ 편도 ↔ 다구간)
      =============================== */
   const handleTripTypeChange = (nextType) => {
     if (tripType === nextType) return;
 
     setTripType(nextType);
 
-    // 날짜 리셋
+    // 공통 초기화
     setStartDate(null);
     setEndDate(null);
     setActiveSegmentId(null);
 
-    if (nextType === "multi") {
+    if (nextType === "MULTI") {
       setSegments([
         {
           id: Date.now(),
@@ -101,7 +99,7 @@ const TripFilterContainer = ({
   };
 
   /* ===============================
-     🔥 달력 오픈 핸들러
+     🔥 달력 오픈
      =============================== */
   const openCalendarForSingle = () => {
     setActiveSegmentId(null);
@@ -116,9 +114,9 @@ const TripFilterContainer = ({
   return (
     <>
       {/* ===============================
-          🔹 상단 필터 UI
+          🔹 여정 타입별 입력 UI
          =============================== */}
-      {tripType === "round" && (
+      {tripType === "ROUND" && (
         <RoundTrip
           depart={depart}
           arrive={arrive}
@@ -131,7 +129,7 @@ const TripFilterContainer = ({
         />
       )}
 
-      {tripType === "oneway" && (
+      {tripType === "ONEWAY" && (
         <OneWayTrip
           depart={depart}
           arrive={arrive}
@@ -143,7 +141,7 @@ const TripFilterContainer = ({
         />
       )}
 
-      {tripType === "multi" && (
+      {tripType === "MULTI" && (
         <MultiTrip
           segments={segments}
           setSegments={setSegments}
@@ -156,14 +154,14 @@ const TripFilterContainer = ({
          =============================== */}
       <CalendarPanel
         open={calendarOpen}
-        mode={tripType === "multi" ? "oneway" : tripType}
+        tripType={tripType}
+        onTripTypeChange={handleTripTypeChange}
         startDate={
-          tripType === "multi"
+          tripType === "MULTI"
             ? segments.find((s) => s.id === activeSegmentId)?.date ?? null
             : startDate
         }
         endDate={endDate}
-        onModeChange={handleTripTypeChange}
         onChange={handleDateChange}
         onClose={() => setCalendarOpen(false)}
       />

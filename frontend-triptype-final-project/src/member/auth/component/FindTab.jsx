@@ -1,7 +1,8 @@
 import { useState } from "react";
-import FindIdTab from "./find/FindIdTab";
-import FindPasswordTab from "./find/FindPasswordTab";
-import "../css/FindTab.css";
+import FindIdTab from "./find/FindIdTab"; // ✅ 경로 확인
+import FindPasswordTab from "./find/FindPasswordTab"; // ✅ 경로 확인
+import "../css/FindTab.css"; // ✅ 경로 확인 (한 단계 위 css 폴더)
+import "react-datepicker/dist/react-datepicker.css";
 
 function FindTab() {
   const [activeSubTab, setActiveSubTab] = useState("id");

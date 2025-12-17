@@ -3,6 +3,8 @@ import { AiFillDelete } from "react-icons/ai";
 import { format } from "date-fns";
 import "../../../style/filter/triptypes/MultiTrip.css";
 
+const MAX_MULTI_SEGMENTS = 6;
+
 const MultiTrip = ({
   segments = [],
   setSegments,
@@ -11,6 +13,8 @@ const MultiTrip = ({
   const svgRefs = useRef({});
 
   const addSegment = () => {
+    if (segments.length >= MAX_MULTI_SEGMENTS) return;
+
     setSegments((prev) => [
       ...prev,
       {
@@ -42,6 +46,8 @@ const MultiTrip = ({
       { duration: 400, easing: "ease-in-out", fill: "none" }
     );
   };
+
+  const isMax = segments.length >= MAX_MULTI_SEGMENTS;
 
   return (
     <div className="multi-container">
@@ -138,11 +144,25 @@ const MultiTrip = ({
         </div>
       ))}
 
-      {/* 하단 */}
+      {/* 하단 액션 */}
       <div className="multi-action-row">
-        <button type="button" className="add-segment-btn" onClick={addSegment}>
-          + 다른 항공편 추가
-        </button>
+        <div className="add-segment-wrap">
+          <button
+            type="button"
+            className="add-segment-btn"
+            onClick={addSegment}
+            disabled={isMax}
+          >
+            + 다른 항공편 추가
+          </button>
+
+          {isMax && (
+            <p className="segment-limit-text">
+              다구간은 최대 6개까지 추가할 수 있습니다.
+            </p>
+          )}
+        </div>
+
         <button type="button" className="search-btn">
           검색
         </button>

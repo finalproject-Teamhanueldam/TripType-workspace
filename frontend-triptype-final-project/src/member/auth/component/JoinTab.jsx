@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale";
+import AuthDateInput from "../../../common/component/AuthDateInput";
 
 function JoinTab() {
   const [form, setForm] = useState({
@@ -155,11 +156,14 @@ function JoinTab() {
         <DatePicker
           selected={form.memberBirthDate}
           onChange={(date) => setForm({ ...form, memberBirthDate: date })}
-          locale={ko} dateFormat="yyyy-MM-dd"
-          className="date-input" maxDate={new Date()}
-          showYearDropdown dropdownMode="select"
+          locale={ko}
+          dateFormat="yyyy-MM-dd"
+          maxDate={new Date()}
+          showYearDropdown
+          dropdownMode="select"
           placeholderText="날짜 선택"
-          readOnly
+          shouldCloseOnSelect
+          customInput={<AuthDateInput />} // className 도 여기 들어있다.
         />
       </div>
 
@@ -195,6 +199,7 @@ function JoinTab() {
         <div className="fullscreen-overlay">
           <div className="overlay-content">
             <button className="close-overlay" onClick={() => setIsModalOpen(false)}>✕</button>
+            {/* 추후 overlay-body 부분 영재님 컴포넌트로 대체 */}
             <div className="overlay-body">
               <h2>여행 스타일 분석</h2>
               <p>어떤 여행을 선호하시나요?</p>

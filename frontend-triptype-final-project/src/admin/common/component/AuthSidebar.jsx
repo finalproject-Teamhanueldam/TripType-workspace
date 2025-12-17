@@ -23,7 +23,7 @@ const AuthSidebar =({ isOpen, onClose }) => {
                 <table>
                     <tbody>
                         <tr onClick ={ ()=> {navigate("/admin/statistics"); }}><td>통계</td></tr> 
-                        <tr onClick = { () => {navigate("/admin/airlineticket");}}><td>항공권 관리</td></tr> 
+                        <tr onClick = { () => {navigate("/admin/flight");}}><td>항공권 관리</td></tr> 
                         <tr><td>리뷰 관리</td></tr> 
                         <tr><td>회원 관리</td></tr> 
                         {/* 관리자 공지 연결 추가 (김동윤) */}

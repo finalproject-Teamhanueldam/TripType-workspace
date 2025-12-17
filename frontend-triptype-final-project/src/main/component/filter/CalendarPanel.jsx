@@ -1,22 +1,28 @@
-import { useEffect, useRef, useState } from "react";
-import DatePicker from "react-datepicker";
+import { useEffect, useRef } from "react";
+import DatePicker, { registerLocale } from "react-datepicker";
+import { ko } from "date-fns/locale";
+
 import "react-datepicker/dist/react-datepicker.css";
 import "../../style/filter/CalendarPanel.css";
 
+/* 🔥 한글 locale 등록 (한 번만) */
+registerLocale("ko", ko);
 
 const CalendarPanel = ({
   open,
   onClose,
 
-  mode = "round", // "round" | "oneway"
-  onModeChange,
+  tripType,            // "ROUND" | "ONEWAY" | "MULTI"
+  onTripTypeChange,    // ROUND <-> ONEWAY 만 처리
 
   startDate,
   endDate,
   onChange,
 }) => {
   const panelRef = useRef(null);
-  const [dateMode, setDateMode] = useState("specific");
+
+  const isRound = tripType === "ROUND";
+  const isMulti = tripType === "MULTI";
 
   /* ===============================
      🔥 외부 클릭 / ESC 닫기
@@ -55,65 +61,45 @@ const CalendarPanel = ({
          =============================== */}
       <div className="calendar-header">
         <div className="calendar-left">
-          <select
-            value={mode}
-            onChange={(e) => onModeChange(e.target.value)}
-          >
-            <option value="round">왕복</option>
-            <option value="oneway">편도</option>
-          </select>
-        </div>
-
-        <div className="calendar-modes">
-          <button
-            type="button"
-            className={dateMode === "specific" ? "active" : ""}
-            onClick={() => setDateMode("specific")}
-          >
-            특정 날짜
-          </button>
-          <button
-            type="button"
-            className={dateMode === "flexible" ? "active" : ""}
-            onClick={() => setDateMode("flexible")}
-          >
-            날짜 조정 가능
-          </button>
+          {/* MULTI일 때는 왕복/편도 전환 숨김 */}
+          {!isMulti && (
+            <select
+              value={tripType}
+              onChange={(e) => onTripTypeChange(e.target.value)}
+            >
+              <option value="ROUND">왕복</option>
+              <option value="ONEWAY">편도</option>
+            </select>
+          )}
         </div>
       </div>
 
       {/* ===============================
-          🔹 Calendar
+          🔹 Calendar (특정 날짜 전용)
          =============================== */}
-      {dateMode === "specific" && (
-        <DatePicker
-          inline
-          monthsShown={2}
-          minDate={new Date()}
+      <DatePicker
+        inline
+        locale="ko"
+        monthsShown={2}
+        minDate={new Date()}
 
-          selectsRange={mode === "round"}
-          startDate={mode === "round" ? startDate : undefined}
-          endDate={mode === "round" ? endDate : undefined}
-          selected={mode === "oneway" ? startDate : undefined}
+        /* ROUND만 range */
+        selectsRange={isRound}
+        startDate={isRound ? startDate : undefined}
+        endDate={isRound ? endDate : undefined}
 
-          onChange={(value) => {
-            if (mode === "round") {
-              const [start, end] = value || [];
-              onChange(start ?? null, end ?? null);
-            } else {
-              onChange(value ?? null, null);
-            }
-          }}
-        />
-      )}
+        /* ONEWAY / MULTI는 단일 선택 */
+        selected={!isRound ? startDate : undefined}
 
-      {dateMode === "flexible" && (
-        <div className="month-grid">
-          <div className="month-placeholder">
-            날짜 조정 가능 UI (다음 단계)
-          </div>
-        </div>
-      )}
+        onChange={(value) => {
+          if (isRound) {
+            const [start, end] = value || [];
+            onChange(start ?? null, end ?? null);
+          } else {
+            onChange(value ?? null, null);
+          }
+        }}
+      />
 
       {/* ===============================
           🔹 Footer
