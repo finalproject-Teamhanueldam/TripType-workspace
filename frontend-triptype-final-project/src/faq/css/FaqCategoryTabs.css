@@ -1,0 +1,28 @@
+.faq-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.faq-tabs button {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(128, 128, 128, 0.322);
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #374151;
+  transition: all 0.2s ease;
+}
+
+/* .faq-tabs button:hover {
+  background-color: #f3f4f6;
+} */
+
+.faq-tabs .active {
+  background-color: #023059;
+  color: #fff;
+  border-color: #023059;
+}
