@@ -1,5 +1,13 @@
 /* 사이드바 전체 */
-.sidebar {
+.admin-sidebar {
+  position: fixed;
+  top: 60px;               /* AdminHeader 높이 */
+  left: 0;
+  height: calc(100vh - 60px);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 999;
+
   width: 250px;
   height: 100vh;
   background-color: #ffffff;
@@ -7,6 +15,20 @@
   padding: 20px 0px 20px 20px;
   box-sizing: border-box;
   
+}
+
+.admin-sidebar.open {
+  transform: translateX(0);
+}
+
+/* 닫기 버튼 */
+.close-btn {
+  background: none;
+  border: none;
+  color: black;
+  font-size: 20px;
+  margin-left: 180px;
+  cursor: pointer;
 }
 
 /* 로고 */
@@ -18,7 +40,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin : 10px 30px 0px 0px; 
+  margin : 0px 30px 0px 0px; 
   font-family: 'Verdana', sans-serif;
 }
 
@@ -26,12 +48,12 @@
   width : 200px;
 }
 
-.sidebar table {
+.admin-sidebar table {
   width: 100%;
   border-spacing: 0 10px; /* 줄 간격 띄우기 (border-collapse 끄고 사용) */
 }
 
-.sidebar td {
+.admin-sidebar td {
   padding: 14px 20px 14px 20px;
   color: #64748b;
   font-weight: 600;
@@ -41,7 +63,7 @@
 }
 
 /* 마우스 올렸을 때 */
-.sidebar tr:hover td {
+.admin-sidebar tr:hover td {
   background-color: #e0f2fe; /* 아주 연한 하늘색 */
   color: #0284c7; /* 진한 파란색 글자 */
   box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 살짝 그림자 */

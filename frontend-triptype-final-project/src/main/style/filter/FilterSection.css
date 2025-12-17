@@ -1,0 +1,175 @@
+/* ============================================
+   🔷 전체 입력폼 컨테이너 (검색카드 안)
+   ============================================ */
+.filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+}
+
+/* --------------------------------------------
+   🔷 왕복 / 편도 / 다구간 선택 select
+   -------------------------------------------- */
+.trip-type-box select {
+  padding: 14px 22px;
+  border-radius: 14px;
+  border: 2px solid #6EBFE4;
+  font-size: 16px;
+  font-weight: 600;
+  background: #F4FAFD;
+  color: #023059;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 180px;
+}
+
+.trip-type-box select:hover {
+  background: #FFFFFF;
+  border-color: #4FA9CF;
+}
+
+/* --------------------------------------------
+   🔷 입력 공통 스타일
+   -------------------------------------------- */
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 라벨은 카드 위, 밝은 블루 톤 */
+.filter-item label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6EBFE4;
+  padding-left: 4px;
+}
+
+/* 🔥 찐한 청색 input */
+.filter-item input {
+  height: 56px;
+  padding: 0 18px;
+
+  background: #2694cf;               /* 🔥 딥 블루 */
+  border: 1.5px solid #0E4C6D;
+  border-radius: 14px;
+
+  font-size: 16px;
+  color: #FFFFFF;
+
+  width: 100%;
+  box-sizing: border-box;
+  cursor: text;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* placeholder 가독성 */
+.filter-item input::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* hover */
+.filter-item input:hover {
+  background: #156D99;
+}
+
+/* focus */
+.filter-item input:focus {
+  background: #156D99;
+  border-color: #6EBFE4;
+  box-shadow: 0 0 0 4px rgba(110, 191, 228, 0.35);
+  outline: none;
+}
+
+/* date input 클릭성 & 아이콘 톤 */
+.filter-item input[type="date"] {
+  cursor: pointer;
+  color-scheme: dark;   /* 캘린더 아이콘 흰색 */
+}
+
+/* --------------------------------------------
+   🔷 출발 ↔ 도착 스위치 버튼
+   -------------------------------------------- */
+.switch-icon {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #0E4C6D;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+
+  cursor: pointer;
+}
+
+/* hover는 색만 변경 (회전 ❌) */
+.switch-icon:hover {
+  background: #156D99;
+}
+
+/* active는 눌림 느낌만 */
+.switch-icon:active {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* --------------------------------------------
+   🔷 SVG (JS가 직접 제어하므로 CSS 관여 ❌)
+   -------------------------------------------- */
+.switch-svg {
+  display: block;
+  transform-origin: 50% 50%;
+}
+
+
+
+/* --------------------------------------------
+   🔷 검색 버튼 (CTA)
+   -------------------------------------------- */
+.search-btn {
+  height: 56px;
+  padding: 0 28px;
+
+  background: linear-gradient(
+    135deg,
+    #6EBFE4,
+    #4FA9CF
+  );
+
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+
+  box-shadow: 0 8px 20px rgba(79, 169, 207, 0.35);
+  transition: all 0.2s ease;
+
+  white-space: nowrap;
+}
+
+.search-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(79, 169, 207, 0.45);
+}
+
+/* --------------------------------------------
+   🔷 체크박스 (옵션)
+   -------------------------------------------- */
+.checkbox-under {
+  margin-top: 6px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

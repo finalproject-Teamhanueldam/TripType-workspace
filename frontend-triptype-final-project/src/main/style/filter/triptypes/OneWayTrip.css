@@ -1,0 +1,42 @@
+/* ============================================
+   🔷 편도 전용 레이아웃 (최종 안정 버전)
+   ============================================ */
+.filter-main-row.one-way {
+  display: grid;
+
+  grid-template-columns:
+    minmax(220px, 1.4fr)  /* 출발지 */
+    48px                  /* ↔ */
+    minmax(220px, 1.4fr)  /* 도착지 */
+    minmax(160px, 1fr)    /* 가는 편 */
+    140px;                /* 검색 버튼 */
+
+  align-items: end;
+  gap: 16px;
+  justify-content: center;
+  width: 100%;
+}
+
+/* input / 버튼 안정화 */
+.filter-main-row.one-way .filter-item,
+.filter-main-row.one-way .filter-item input,
+.filter-main-row.one-way .search-btn {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* date input 브라우저 최소폭 제거 */
+.filter-main-row.one-way input[type="date"] {
+  min-inline-size: 0;
+}
+
+/* --------------------------------------------
+   🔷 반응형
+   -------------------------------------------- */
+@media (max-width: 1100px) {
+  .filter-main-row.one-way {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}

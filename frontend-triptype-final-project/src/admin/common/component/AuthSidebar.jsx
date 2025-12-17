@@ -4,12 +4,21 @@ import logo from "../../../images/logo.png"
 
 import {useNavigate} from "react-router-dom";
 
-const AuthSidebar =() => {
+const AuthSidebar =({ isOpen, onClose }) => {
 
     const navigate = useNavigate();
 
+    // 메뉴 이동 + 사이드바 달기
+    const move = (path) => {
+        navigate(path);
+        onClose();
+    }
+
     return (
-        <div className="sidebar">
+        <div className={`admin-sidebar ${isOpen ? "open" : ""}`}>
+
+            <button className="close-btn" onClick={onClose}>✕</button>
+            
             <div className="logo" onClick ={ ()=> {navigate("/");}}><img src={logo} alt="logo"/></div> 
                 <table>
                     <tbody>

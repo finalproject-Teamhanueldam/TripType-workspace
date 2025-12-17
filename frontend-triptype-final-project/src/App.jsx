@@ -1,5 +1,6 @@
 import "./App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 // H 대문자 수정 (12.16 김동윤)
 import Header from "./common/component/Header";
@@ -7,6 +8,10 @@ import Header from "./common/component/Header";
 import HeroSection from "./main/component/HeroSection";
 import Home from "./main/component/Home";
 
+// 관리자 페이지 공통 레이아웃(헤더, 사이드바)
+import AdminLayout from "./admin/common/component/AdminLayout";
+
+// 괸리자 통계 페이지
 import AuthStatisticsComponent from "./admin/statistics/component/AuthStatisticsComponent";
 import AirlineTicketComponent from "./admin/airlineticket/componnent/AirlineTicketComponent";
 
@@ -30,18 +35,22 @@ function App() {
   const location = useLocation();
   const showHero = location.pathname === "/";
 
-  // 추가: Header 숨길 경로 (최경환)
+
+    // 로그인 페이지, 추가: Header 숨길 경로 (최경환)
   const hideHeaderPaths = [
     "/member",
-    "/admin"
+    "/admin",
+
   ];
 
   const hideHeader = hideHeaderPaths.some(path =>
     location.pathname.startsWith(path)
   );
 
+
   return (
-    <div>
+    <div> 
+    
       {/* 수정 : admin and member 관련 페이지 헤더 예외 처리 (최경환)*/}
       {!hideHeader && <Header />}
 
@@ -55,15 +64,7 @@ function App() {
         {/* 로그인 페이지(최경환) */}
         <Route path="/member" element={<AuthContainer />} />
 
-        {/* 관리자 페이지 */}
-        <Route path="/admin/statistics" element={<AuthStatisticsComponent />} />
-        <Route path="/admin/airlineticket" element={<AirlineTicketComponent />} />
-
-        {/* 관리자 공지 (12.16 김동윤) */}
-        <Route path="/admin/notice" element={<AdminNoticeList />} />
-        <Route path="/admin/notice/write" element={<AdminNoticeForm />} />
-
-        {/* 사용자 공지 (12.16 김동윤) */}
+        {/* 사용자 공지 (12.16 김동윤)*/}
         <Route path="/notice" element={<UserNoticeList />} />
         <Route path="/notice/:noticeId" element={<UserNoticeDetail />} />
 
@@ -76,8 +77,21 @@ function App() {
         {/* 여행 경보 페이지 */}
         <Route path="/airline/travelAlert" element={<TravelAlertComponent/>}></Route>
 
+        {/* 관리자 페이지 공통 Route (12-16 선종범)*/}
+        <Route path="/admin" element={< AdminLayout />}>
+          <Route path="statistics" element={<AuthStatisticsComponent />} />
+          <Route path="airlineticket" element={<AirlineTicketComponent />} />  
+          {/* 관리자 공지 (12.16 김동윤)*/}
+          <Route path="notice" element={<AdminNoticeList />} />
+          <Route path="notice/write" element={<AdminNoticeForm />} />
+        </Route>
+        
+
       </Routes>
+
     </div>
+      
+
   );
 }
 
