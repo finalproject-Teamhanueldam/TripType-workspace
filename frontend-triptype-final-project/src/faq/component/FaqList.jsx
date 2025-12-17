@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import FaqItem from "./FaqItem";
-import { faqData } from "../data/faqData";
+import { FaqData } from "../data/FaqData";
 
 const PAGE_SIZE = 10;
 
@@ -16,7 +16,7 @@ function FaqList({ category, keyword }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [category, keyword]);
 
-  const filtered = faqData.filter(f =>
+  const filtered = FaqData.filter(f =>
     (category === "ALL" || f.category === category) &&
     f.question.toLowerCase().includes(keyword.toLowerCase())
   );

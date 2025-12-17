@@ -1,4 +1,4 @@
-import "../css/userFaqPage.css";
+import "../css/UserFaqPage.css";
 import { useState } from "react";
 import FaqCategoryTabs from "./FaqCategoryTabs";
 import FaqList from "./FaqList";

@@ -25,9 +25,12 @@ import UserNoticeList from "./notice/component/UserNoticeList";
 import UserNoticeDetail from "./notice/component/UserNoticeDetail";
 import AdminNoticeList from "./admin/notice/component/AdminNoticeList";
 import AdminNoticeForm from "./admin/notice/component/AdminNoticeForm";
+// import AdminNoticeCommentList from "./admin/notice/component/AdminNoticeCommentList";
+import AdminNoticeDetail from "./admin/notice/component/AdminNoticeDetail";
 
 // 사용자 FAQ 추가 (12.16 김동윤)
 import UserFaqPage from "./faq/component/UserFaqPage";
+
 
 
 
@@ -82,8 +85,11 @@ function App() {
           <Route path="statistics" element={<AuthStatisticsComponent />} />
           <Route path="flight" element={< FlightComponent />} />  
           {/* 관리자 공지 (12.16 김동윤)*/}
-          <Route path="notice" element={<AdminNoticeList />} />
-          <Route path="notice/write" element={<AdminNoticeForm />} />
+          {/* 관리자 공지댓글 수정 (12.17 김동윤) */}
+          <Route path="/admin/notice" element={<AdminNoticeList />} />
+          <Route path="/admin/notice/write" element={<AdminNoticeForm />} />
+          <Route path="/admin/notice/:noticeId" element={<AdminNoticeDetail />} />
+          {/* <Route path="notice/comment" element={<AdminNoticeCommentList/>} /> */}
         </Route>
         
 

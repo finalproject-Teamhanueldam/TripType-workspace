@@ -1,4 +1,4 @@
-import "../css/noticeComment.css";
+import "../css/NoticeComment.css";
 
 function NoticeCommentList() {
   const comments = [

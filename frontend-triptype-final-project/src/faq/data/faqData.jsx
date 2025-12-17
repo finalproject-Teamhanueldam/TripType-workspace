@@ -1,4 +1,4 @@
-export const faqData = [
+export const FaqData = [
   // ================= 예약 =================
   {
     id: 1,

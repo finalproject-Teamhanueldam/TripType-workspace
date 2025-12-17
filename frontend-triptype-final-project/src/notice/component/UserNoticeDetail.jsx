@@ -1,4 +1,4 @@
-import "../css/userNoticeDetail.css";
+import "../css/UserNoticeDetail.css";
 import NoticeCommentList from "./NoticeCommentList";
 import NoticeCommentForm from "./NoticeCommentForm";
 

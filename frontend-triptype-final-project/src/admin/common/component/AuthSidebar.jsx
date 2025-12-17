@@ -27,8 +27,9 @@ const AuthSidebar =({ isOpen, onClose }) => {
                         <tr><td>리뷰 관리</td></tr> 
                         <tr><td>회원 관리</td></tr> 
                         {/* 관리자 공지 연결 추가 (김동윤) */}
+                        {/* 관리자 공지댓글 연결 수정 (12.17 김동윤) */}
                         <tr onClick ={ ()=> {navigate("/admin/notice"); }}><td>공지사항 관리</td></tr> 
-                        <tr onClick ={ ()=> {navigate("/admin/notice/write"); }}><td>공지사항 댓글 관리</td></tr> 
+                        {/* <tr onClick ={ ()=> {navigate("/admin/notice/comment"); }}><td>공지사항 댓글 관리</td></tr>  */}
 
                     </tbody>
                 </table>

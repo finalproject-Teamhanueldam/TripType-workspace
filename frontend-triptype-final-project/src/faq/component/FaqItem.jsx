@@ -1,5 +1,5 @@
 import "../css/FaqItem.css";
-import { highlightText } from "../util/highlightText";
+import { HighlightText } from "../util/HighlightText";
 
 function FaqItem({ faq, open, onToggle, keyword }) {
   return (
@@ -8,7 +8,7 @@ function FaqItem({ faq, open, onToggle, keyword }) {
         <div className="faq-question-left">
           <span className="q-badge">Q</span>
           <span className="question-text">
-            {highlightText(faq.question, keyword)}
+            {HighlightText(faq.question, keyword)}
           </span>
         </div>
         <span className={`toggle-icon ${open ? "" : "open"}`}>
@@ -24,7 +24,7 @@ function FaqItem({ faq, open, onToggle, keyword }) {
         }}
       >
         <div className="faq-answer">
-          {highlightText(faq.answer, keyword)}
+          {HighlightText(faq.answer, keyword)}
         </div>
       </div>
     </div>

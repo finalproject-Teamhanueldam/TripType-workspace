@@ -1,0 +1,85 @@
+/* ===== Layout ===== */
+.admin-page {
+  padding: 60px 200px 60px 340px;
+  background-color: #f5faff;
+  min-height: 100vh;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 30px;
+  border-bottom: 3px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+/* ===== Controls ===== */
+.admin-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.admin-controls .left,
+.admin-controls .right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
+
+/* ===== Button System ===== */
+.btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: 0.2s;
+}
+
+.btn-primary {
+  background: #1e3a8a;
+  color: white;
+}
+
+.btn-outline {
+  background: white;
+  border: 1px solid #d1d5db;
+}
+
+.btn-danger {
+  background: white;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+/* ===== Pagination ===== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.page-btn {
+  padding: 6px 10px;
+  margin: 0 4px;
+}
+
+/* ㅁㄴ아ㅝㅠㅁ노어ㅏㅜ */
