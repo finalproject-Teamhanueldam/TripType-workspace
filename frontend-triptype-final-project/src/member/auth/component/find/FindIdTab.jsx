@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import { ko } from "date-fns/locale";
 import "react-datepicker/dist/react-datepicker.css";
 import "../../css/AuthContainer.css";
+import AuthDateInput from "../../../../common/component/AuthDateInput";
 
 function FindIdTab() {
   const [info, setInfo] = useState({ name: "", birth: null });
@@ -48,12 +49,12 @@ function FindIdTab() {
               onChange={(date) => setInfo({ ...info, birth: date })}
               locale={ko}
               dateFormat="yyyy-MM-dd"
-              className="date-input"
               placeholderText="생년월일 선택"
               maxDate={new Date()}
               showYearDropdown
               dropdownMode="select"
-              readOnly // 회원가입과 동일하게 유지
+              shouldCloseOnSelect
+              customInput={<AuthDateInput />}
             />
           </div>
 

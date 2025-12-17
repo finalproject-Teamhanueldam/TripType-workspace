@@ -11,9 +11,9 @@ import Home from "./main/component/Home";
 // 관리자 페이지 공통 레이아웃(헤더, 사이드바)
 import AdminLayout from "./admin/common/component/AdminLayout";
 
-// 괸리자 통계 페이지
+// 괸리자 통계, 항공권 관리 페이지
 import AuthStatisticsComponent from "./admin/statistics/component/AuthStatisticsComponent";
-import AirlineTicketComponent from "./admin/airlineticket/componnent/AirlineTicketComponent";
+import FlightComponent from "./admin/flight/componnent/FlightComponent";
 
 import AirlineDetailComponent from "./Airline/AirlineDetail/components/AirlineDetailComponent"
 import TravelAlertComponent from "./TravelAlert/components/TravelAlertComponent";
@@ -80,7 +80,7 @@ function App() {
         {/* 관리자 페이지 공통 Route (12-16 선종범)*/}
         <Route path="/admin" element={< AdminLayout />}>
           <Route path="statistics" element={<AuthStatisticsComponent />} />
-          <Route path="airlineticket" element={<AirlineTicketComponent />} />  
+          <Route path="flight" element={< FlightComponent />} />  
           {/* 관리자 공지 (12.16 김동윤)*/}
           <Route path="notice" element={<AdminNoticeList />} />
           <Route path="notice/write" element={<AdminNoticeForm />} />
