@@ -1,10 +1,90 @@
+import { useState } from "react";
+import DatePicker from "react-datepicker";
+import { ko } from "date-fns/locale";
+import "react-datepicker/dist/react-datepicker.css";
+import "../../css/AuthContainer.css";
+import AuthDateInput from "../../../../common/component/AuthDateInput";
+
 function FindIdTab() {
+  const [info, setInfo] = useState({ name: "", birth: null });
+  const [resultId, setResultId] = useState(null); // 찾은 아이d 저장
+  const [error, setError] = useState("");
+
+  const handleFindId = () => {
+    // 임시 로직 (나중에 axios로 DB 연동)
+    if (info.name === "테스트" && info.birth) {
+      const foundId = "triptype123@naver.com";
+      
+      // 아이디 마스킹 처리 (앞 3글자 + @ 전까지 * + 도메인)
+      const [id, domain] = foundId.split("@");
+      const maskedId = id.substring(0, 3) + "*".repeat(id.length - 3) + "@" + domain;
+      
+      setResultId(maskedId);
+      setError("");
+    } else {
+      setResultId(null);
+      setError("일치하는 회원 정보가 없습니다.");
+    }
+  };
+
   return (
-    <form>
-      <input type="text" placeholder="이름" />
-      <input type="date" placeholder="생년월일" />
-      <button>아이디 찾기</button>
-    </form>
+    <div className="auth-form">
+      {/* 결과 화면이 없을 때만 입력창 노출 */}
+      {!resultId ? (
+        <>
+          <div className="field">
+            <label>이름</label>
+            <input 
+              type="text" 
+              placeholder="이름을 입력해주세요" 
+              value={info.name}
+              onChange={(e) => setInfo({...info, name: e.target.value})}
+            />
+          </div>
+          
+          <div className="field">
+            <label>생년월일</label>
+            <DatePicker
+              selected={info.birth}
+              onChange={(date) => setInfo({ ...info, birth: date })}
+              locale={ko}
+              dateFormat="yyyy-MM-dd"
+              placeholderText="생년월일 선택"
+              maxDate={new Date()}
+              showYearDropdown
+              dropdownMode="select"
+              shouldCloseOnSelect
+              customInput={<AuthDateInput />}
+            />
+          </div>
+
+          {error && <div className="inline-msg err" style={{ marginBottom: "10px" }}>{error}</div>}
+
+          <button type="button" className="primary-btn" onClick={handleFindId}>
+            아이디 찾기
+          </button>
+        </>
+      ) : (
+        /* 아이디 찾기 성공 결과 화면 */
+        <div className="find-result" style={{ textAlign: "center", padding: "20px 0" }}>
+          <p style={{ color: "#6B7280", marginBottom: "10px" }}>입력하신 정보와 일치하는 아이디입니다.</p>
+          <div style={{ 
+            background: "#F3F4F6", 
+            padding: "20px", 
+            borderRadius: "12px", 
+            fontSize: "18px", 
+            fontWeight: "bold",
+            color: "#111827",
+            marginBottom: "20px"
+          }}>
+            {resultId}
+          </div>
+          <button type="button" className="primary-btn" onClick={() => window.location.href = "/login"}>
+            로그인하러 가기
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 

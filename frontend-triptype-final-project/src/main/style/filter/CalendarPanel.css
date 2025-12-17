@@ -4,7 +4,7 @@
 
 .calendar-panel {
   position: absolute;
-  top: calc(70% + 12px);
+  top: calc(100% + 22px);
   left: 50%;
   transform: translateX(-50%);
 
@@ -23,14 +23,14 @@
    🔷 Header
    =============================== */
 
-.calendar-header {
+.calendar-panel .calendar-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-bottom: 16px;
 }
 
-.calendar-header select {
+.calendar-panel .calendar-header select {
   height: 36px;
   padding: 0 12px;
   border-radius: 10px;
@@ -40,61 +40,59 @@
   cursor: pointer;
 }
 
-.calendar-modes {
-  display: flex;
-  gap: 8px;
-}
-
-.calendar-modes button {
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 18px;
-  border: none;
-  background: #f2f2f2;
-  color: #555;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.calendar-modes button.active {
-  background: #0a5cff;
-  color: #fff;
-}
-
 /* ===============================
-   🔷 react-datepicker reset
+   🔷 react-datepicker reset (scoped)
    =============================== */
 
-.react-datepicker {
+.calendar-panel .react-datepicker {
   border: none;
   background: transparent;
   font-family: inherit;
 }
 
-.react-datepicker__month-container {
+.calendar-panel .react-datepicker__month-container {
   padding: 0 18px;
 }
 
-.react-datepicker__current-month {
+.calendar-panel .react-datepicker__current-month {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 12px;
 }
 
-.react-datepicker__day-names {
+/* ===============================
+   🔷 요일 정렬
+   =============================== */
+
+.calendar-panel .react-datepicker__day-names {
+  display: grid;
+  grid-template-columns: repeat(7, 40px);
+  justify-content: center;
   margin-bottom: 6px;
 }
 
-.react-datepicker__day-name {
+.calendar-panel .react-datepicker__day-name {
+  width: 40px;
+  text-align: center;
   color: #888;
   font-size: 12px;
+}
+
+/* ===============================
+   🔷 날짜 주(week) 정렬
+   =============================== */
+
+.calendar-panel .react-datepicker__week {
+  display: grid;
+  grid-template-columns: repeat(7, 40px);
+  justify-content: center;
 }
 
 /* ===============================
    🔷 Day cell base
    =============================== */
 
-.react-datepicker__day {
+.calendar-panel .react-datepicker__day {
   width: 40px;
   height: 40px;
   line-height: 40px;
@@ -107,19 +105,19 @@
   transition: background 0.2s, color 0.2s;
 }
 
-.react-datepicker__day:hover {
+.calendar-panel .react-datepicker__day:hover {
   background: #e8efff;
 }
 
-.react-datepicker__day--today {
+.calendar-panel .react-datepicker__day--today {
   font-weight: 700;
 }
 
 /* ===============================
-   🔷 ❌ 키보드 포커스 완전 제거
+   🔷 ❌ 키보드 포커스 제거
    =============================== */
 
-.react-datepicker__day--keyboard-selected {
+.calendar-panel .react-datepicker__day--keyboard-selected {
   background: transparent !important;
   box-shadow: none !important;
   outline: none !important;
@@ -127,49 +125,60 @@
 }
 
 /* ===============================
-   🔷 Range / Selected 스타일 (요구사항 반영)
+   🔷 Selected / Range
    =============================== */
 
-/* ✅ (1) 편도 선택 날짜 = 왕복 출발/복귀와 동일 */
-.react-datepicker__day--selected {
-  background-color: #0b0991 !important;
+/* ✅ 편도 + 왕복 공통 */
+.calendar-panel .react-datepicker__day--selected {
+  background-color: #6ebff4 !important;
   color: #fff !important;
   font-weight: 700;
   border-radius: 50%;
 }
 
-/* ✅ (2) 왕복 출발/복귀 날짜 (완료 상태) */
-.react-datepicker__day--range-start,
-.react-datepicker__day--range-end {
-  background-color: #0b0991 !important;
+/* 🔥 편도에서 다른 달 네모 제거 */
+.calendar-panel
+.react-datepicker__day--selected.react-datepicker__day--outside-month {
+  background: transparent !important;
+  color: #ccc !important;
+  border-radius: 50% !important;
+}
+
+/* 왕복 start / end */
+.calendar-panel .react-datepicker__day--range-start,
+.calendar-panel .react-datepicker__day--range-end {
+  background-color: #6ebff4 !important;
   color: #fff !important;
   font-weight: 700;
   border-radius: 50%;
 }
 
-/* ✅ (3) 왕복에서 "출발만 찍었을 때"도 동일하게 강조 */
-.react-datepicker__day--selecting-range-start {
-  background-color: #0b0991 !important;
+/* 왕복 출발만 선택 중 */
+.calendar-panel .react-datepicker__day--selecting-range-start {
+  background-color: #6ebff4 !important;
   color: #fff !important;
   font-weight: 700;
   border-radius: 50%;
 }
 
-/* ✅ (4) 중간 날짜: start/end 제외 + outside-month 제외 (이전 문제 유지) */
-.react-datepicker__day--in-range:not(.react-datepicker__day--range-start):not(.react-datepicker__day--range-end):not(.react-datepicker__day--outside-month) {
-  background: #dbe6ff;
-  color: #0a5cff;
+/* 왕복 중간 날짜 */
+.calendar-panel
+.react-datepicker__day--in-range:not(.react-datepicker__day--range-start)
+:not(.react-datepicker__day--range-end)
+:not(.react-datepicker__day--outside-month) {
+  background: #c0e1f7 !important;
+  color: black;
   border-radius: 0;
 }
 
-/* ❌ 다른 달 날짜는 절대 색칠 금지 (이전 문제 유지) */
-.react-datepicker__day--outside-month {
+/* 다른 달 날짜 */
+.calendar-panel .react-datepicker__day--outside-month {
   background: transparent !important;
   color: #ccc !important;
 }
 
-/* 비활성 날짜 */
-.react-datepicker__day--disabled {
+/* 비활성 */
+.calendar-panel .react-datepicker__day--disabled {
   color: #ccc;
   cursor: default;
 }
@@ -178,13 +187,13 @@
    🔷 Footer
    =============================== */
 
-.calendar-footer {
+.calendar-panel .calendar-footer {
   display: flex;
   justify-content: flex-end;
   margin-top: 12px;
 }
 
-.apply-btn {
+.calendar-panel .apply-btn {
   height: 44px;
   padding: 0 28px;
   border-radius: 22px;
@@ -197,6 +206,6 @@
   cursor: pointer;
 }
 
-.apply-btn:hover {
+.calendar-panel .apply-btn:hover {
   background: #084bd8;
 }

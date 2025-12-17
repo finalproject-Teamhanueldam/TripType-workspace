@@ -1,0 +1,63 @@
+/* 페이지 레이아웃 */
+.faq-page {
+  max-width: 1200px;
+  margin: 80px auto 120px;
+  padding: 0 20px;
+}
+
+.faq-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #023059;
+  margin-bottom: 8px;
+}
+
+.faq-desc {
+  font-size: 15px;
+  color: #6b7280;
+  margin-bottom: 32px;
+}
+
+/* 검색창 래퍼 */
+.faq-search-wrapper {
+  position: relative;
+  margin-bottom: 28px;
+}
+
+/* 돋보기 아이콘 */
+.faq-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* 검색 인풋 */
+.faq-search {
+  width: 100%;
+  padding: 18px 20px 16px 44px;
+  font-size: 15px;
+  border-radius: 30px;
+  border: 1px solid rgba(128, 128, 128, 0.336);
+  outline: none;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.faq-search:focus {
+  box-shadow: 0 0 0 3px rgba(2, 48, 89, 0.781);
+}
+
+.faq-search::placeholder {
+  color: #9ca3af;
+}
+
+.faq-empty {
+  text-align: center;
+  color: #6b7280;
+  padding: 60px 0;
+  font-size: 15px;
+}

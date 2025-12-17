@@ -1,24 +1,40 @@
 .find-sub-tabs {
   display: flex;
-  margin-bottom: 20px;
+  background: #F3F4F6;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 30px;
 }
 
 .find-sub-tabs button {
   flex: 1;
-  padding: 10px 0;
-  background: #f3f4f6;
+  padding: 12px 0;
   border: none;
-  font-size: 14px;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  color: #6B7280;
   cursor: pointer;
-  color: #374151;
+  border-radius: 8px;
+  transition: all 0.2s;
 }
 
 .find-sub-tabs button.active {
-  background: #6ebff4;
-  color: #ffffff;
-  font-weight: 600;
+  background: #6EBFF4;
+  color: #FFFFFF;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(110, 191, 2244, 0.3);
 }
 
 .find-content {
   margin-top: 10px;
+}
+
+.password-reset-area {
+  animation: findFadeIn 0.4s ease-out;
+}
+
+@keyframes findFadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
