@@ -1,5 +1,5 @@
-import "../css/adminCommon.css";
-import "../css/adminNoticeList.css";
+import "../css/AdminCommon.css";
+import "../css/AdminNoticeList.css";
 
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";

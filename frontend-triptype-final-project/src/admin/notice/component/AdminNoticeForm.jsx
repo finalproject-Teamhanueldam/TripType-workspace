@@ -1,5 +1,5 @@
-import "../css/adminCommon.css";
-import "../css/adminNoticeForm.css";
+import "../css/AdminCommon.css";
+import "../css/AdminNoticeForm.css";
 
 import { useNavigate } from "react-router-dom";
 

@@ -1,5 +1,5 @@
-import "../css/adminCommon.css";
-import "../css/adminNoticeDetail.css";
+import "../css/AdminCommon.css";
+import "../css/AdminNoticeDetail.css";
 
 const AdminNoticeDetail = () => {
   return (
