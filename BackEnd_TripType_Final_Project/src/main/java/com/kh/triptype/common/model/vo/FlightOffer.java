@@ -1,6 +1,7 @@
 package com.kh.triptype.common.model.vo;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 import org.apache.ibatis.type.Alias;
 
@@ -22,7 +23,7 @@ public class FlightOffer {
 	private String offerOneWay;		//	FLIGHT_OFFER_ONE_WAY	CHAR(1 BYTE)
 	private Date offerDepartDate;	//	FLIGHT_OFFER_DEPART_DATE	DATE
 	private Date offerReturnDate;	//	FLIGHT_OFFER_RETURN_DATE	DATE
-	private Date offerApiQueryDate; //	FLIGHT_OFFER_API_QUERY_DATE	DATE
+	private LocalDateTime offerApiQueryDate; //	FLIGHT_OFFER_API_QUERY_DATE	DATE
 	private String offerIsDell;		//	FLIGHT_OFFER_IS_DEL	CHAR(1 BYTE)
 	private int airlineId;			//	AIRLINE_ID	NUMBER
 

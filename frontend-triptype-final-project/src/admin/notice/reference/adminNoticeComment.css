@@ -1,0 +1,23 @@
+/* .comment-table {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.comment-row {
+  display: grid;
+  grid-template-columns: 40px 1.5fr 120px 120px 80px;
+  align-items: center;
+  padding: 14px 16px;
+}
+
+.comment-row.header {
+  background: #e8eaf6;
+  font-weight: 700;
+  color: #3f51b5;
+}
+
+.comment-row:not(.header):hover {
+  background: #f5f7ff;
+} */

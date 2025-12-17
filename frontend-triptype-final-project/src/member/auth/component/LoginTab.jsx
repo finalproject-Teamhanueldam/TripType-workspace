@@ -13,11 +13,15 @@ function LoginTab() {
     e.preventDefault();
     // TODO: axios.post("/auth/login", loginForm)
     console.log("로그인 시도:", loginForm);
+    navigate("/");
   };
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  console.log("API BASE:", import.meta.env.VITE_API_BASE_URL);
   const handleSocial = (provider) => {
     // TODO: 백엔드 소셜 로그인 엔드포인트로 이동 (예: /oauth2/authorization/naver)
-    console.log("social:", provider);
+    window.location.href =
+    `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/${provider}`;
   };
 
   return (

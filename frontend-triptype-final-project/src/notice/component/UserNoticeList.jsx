@@ -1,4 +1,4 @@
-import "../css/userNoticeList.css";
+import "../css/UserNoticeList.css";
 import { useNavigate } from "react-router-dom";
 
 function UserNoticeList() {
