@@ -1,7 +1,7 @@
 /* ===== Hero 전체 영역 (파란 배경) ===== */
 .hero-section {
   width: 100%;
-  background-color: #C2E9F2;
+  background-color: #CEDEF2;
   padding: 60px 0 100px; /* 위쪽 여백 넉넉 / 아래쪽 더 크게 */
   box-sizing: border-box;
 }
@@ -33,17 +33,18 @@
 /* ===== 흰색 섹션 전체 박스 ===== */
 .hero-filter-section {
   width: 100%;
-  background: #ffffff;
+  background: #023373;
   padding: 50px 0 60px;
   border-radius: 28px;
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 32px rgb(134, 161, 248);
   margin-top: 20px;
 }
 
 /* 흰색 섹션 내부 안내문구 */
 .hero-filter-sub {
   font-size: 18px;
-  color: #3a5f7d;
+  font-weight: 700;
+  color: white;
   opacity: 0.8;
   margin-bottom: 28px;
   text-align: center;
@@ -51,10 +52,10 @@
 
 /* ===== 검색 박스 (카드) ===== */
 .hero-filter-box {
-  width: 90%;
-  max-width: 950px;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  background: #fff;
+  background: #023373;
   padding: 34px 40px;
   border-radius: 18px;
   box-shadow: 0px 6px 22px rgba(0,0,0,0.08);
