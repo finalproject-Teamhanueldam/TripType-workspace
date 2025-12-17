@@ -195,6 +195,7 @@ function JoinTab() {
         <div className="fullscreen-overlay">
           <div className="overlay-content">
             <button className="close-overlay" onClick={() => setIsModalOpen(false)}>✕</button>
+            {/* 추후 overlay-body 부분 영재님 컴포넌트로 대체 */}
             <div className="overlay-body">
               <h2>여행 스타일 분석</h2>
               <p>어떤 여행을 선호하시나요?</p>
