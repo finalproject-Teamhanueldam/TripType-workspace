@@ -82,6 +82,8 @@ const CalendarPanel = ({
         locale="ko"
         monthsShown={2}
         minDate={new Date()}
+        showOutsideMonth={false}   // ✅ 이게 진짜
+         fixedHeight={false}       // 🔥 이게 결정타
 
         /* ROUND만 range */
         selectsRange={isRound}

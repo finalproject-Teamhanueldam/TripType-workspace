@@ -7,169 +7,142 @@
   top: calc(100% + 22px);
   left: 50%;
   transform: translateX(-50%);
-
   width: 100%;
   max-width: 860px;
-
-  background: #ffffff;
+  background: #fff;
   border-radius: 20px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
-
+  box-shadow: 0 12px 40px rgba(0,0,0,.18);
   padding: 20px 24px 16px;
   z-index: 100;
 }
 
 /* ===============================
-   🔷 Header
+   🔷 Header (필터 박스)
    =============================== */
 
-.calendar-panel .calendar-header {
+.calendar-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
-.calendar-panel .calendar-header select {
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 10px;
+.calendar-header select {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
   border: 1px solid #dcdcdc;
   background: #f7f7f7;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
 }
 
+.calendar-header select:focus {
+  outline: none;
+  border-color: #0a5cff;
+  background: #fff;
+}
+
 /* ===============================
-   🔷 react-datepicker reset (scoped)
+   🔷 react-datepicker base
    =============================== */
 
 .calendar-panel .react-datepicker {
   border: none;
   background: transparent;
-  font-family: inherit;
 }
 
 .calendar-panel .react-datepicker__month-container {
   padding: 0 18px;
 }
 
-.calendar-panel .react-datepicker__current-month {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
+/* 기본 range bar 제거 */
+.calendar-panel .react-datepicker__day::before {
+  display: none !important;
+  content: none !important;
 }
 
 /* ===============================
-   🔷 요일 정렬
-   =============================== */
-
-.calendar-panel .react-datepicker__day-names {
-  display: grid;
-  grid-template-columns: repeat(7, 40px);
-  justify-content: center;
-  margin-bottom: 6px;
-}
-
-.calendar-panel .react-datepicker__day-name {
-  width: 40px;
-  text-align: center;
-  color: #888;
-  font-size: 12px;
-}
-
-/* ===============================
-   🔷 날짜 주(week) 정렬
+   🔷 Week / Day
    =============================== */
 
 .calendar-panel .react-datepicker__week {
-  display: grid;
-  grid-template-columns: repeat(7, 40px);
+  display: flex;
   justify-content: center;
 }
 
-/* ===============================
-   🔷 Day cell base
-   =============================== */
-
 .calendar-panel .react-datepicker__day {
+  position: relative;              /* 🔥 중요 */
   width: 40px;
   height: 40px;
   line-height: 40px;
   margin: 2px;
-
-  border-radius: 50%;
   font-size: 14px;
   color: #333;
-
-  transition: background 0.2s, color 0.2s;
+  border-radius: 50%;
+  background: transparent;
+  z-index: 1;
 }
 
-.calendar-panel .react-datepicker__day:hover {
-  background: #e8efff;
-}
-
+/* 오늘 */
 .calendar-panel .react-datepicker__day--today {
   font-weight: 700;
 }
 
-/* ===============================
-   🔷 ❌ 키보드 포커스 제거
-   =============================== */
-
+/* 키보드 포커스 제거 */
 .calendar-panel .react-datepicker__day--keyboard-selected {
   background: transparent !important;
-  box-shadow: none !important;
   outline: none !important;
-  color: inherit !important;
+  box-shadow: none !important;
 }
 
 /* ===============================
-   🔷 Selected / Range
+   🔷 start / end (원형)
    =============================== */
 
-/* ✅ 편도 + 왕복 공통 */
-.calendar-panel .react-datepicker__day--selected {
-  background-color: #6ebff4 !important;
-  color: #fff !important;
-  font-weight: 700;
-  border-radius: 50%;
-}
-
-/* 🔥 편도에서 다른 달 네모 제거 */
-.calendar-panel
-.react-datepicker__day--selected.react-datepicker__day--outside-month {
-  background: transparent !important;
-  color: #ccc !important;
-  border-radius: 50% !important;
-}
-
-/* 왕복 start / end */
+.calendar-panel .react-datepicker__day--selected,
 .calendar-panel .react-datepicker__day--range-start,
 .calendar-panel .react-datepicker__day--range-end {
   background-color: #6ebff4 !important;
   color: #fff !important;
   font-weight: 700;
-  border-radius: 50%;
+  border-radius: 50% !important;
+  z-index: 3;
 }
 
-/* 왕복 출발만 선택 중 */
-.calendar-panel .react-datepicker__day--selecting-range-start {
-  background-color: #6ebff4 !important;
-  color: #fff !important;
-  font-weight: 700;
-  border-radius: 50%;
-}
+/* ===============================
+   🔷 왕복 중간 날짜 (🔥 핵심: ::after bar)
+   =============================== */
 
-/* 왕복 중간 날짜 */
 .calendar-panel
-.react-datepicker__day--in-range:not(.react-datepicker__day--range-start)
-:not(.react-datepicker__day--range-end)
-:not(.react-datepicker__day--outside-month) {
-  background: #c0e1f7 !important;
-  color: black;
+.react-datepicker__day--in-range:not(.react-datepicker__day--range-start):not(.react-datepicker__day--range-end)::after,
+.calendar-panel
+.react-datepicker__day--selecting-range:not(.react-datepicker__day--range-start):not(.react-datepicker__day--range-end)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #c0e1f7;
   border-radius: 0;
+  z-index: -1;
 }
+
+/* 다른 달 날짜에는 bar 생성 금지 */
+.calendar-panel .react-datepicker__day--outside-month::after {
+  display: none !important;
+}
+
+/* hover 영향 차단 */
+.calendar-panel
+.react-datepicker__day--in-range:hover,
+.calendar-panel
+.react-datepicker__day--selecting-range:hover {
+  background: transparent !important;
+}
+
+/* ===============================
+   🔷 기타
+   =============================== */
 
 /* 다른 달 날짜 */
 .calendar-panel .react-datepicker__day--outside-month {
@@ -184,21 +157,20 @@
 }
 
 /* ===============================
-   🔷 Footer
+   🔷 Footer (적용 버튼)
    =============================== */
 
-.calendar-panel .calendar-footer {
+.calendar-footer {
   display: flex;
   justify-content: flex-end;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
-.calendar-panel .apply-btn {
-  height: 44px;
-  padding: 0 28px;
-  border-radius: 22px;
+.calendar-footer .apply-btn {
+  height: 42px;
+  padding: 0 26px;
+  border-radius: 21px;
   border: none;
-
   background: #0a5cff;
   color: #fff;
   font-size: 14px;
@@ -206,6 +178,10 @@
   cursor: pointer;
 }
 
-.calendar-panel .apply-btn:hover {
+.calendar-footer .apply-btn:hover {
   background: #084bd8;
+}
+
+.calendar-footer .apply-btn:active {
+  transform: translateY(1px);
 }
