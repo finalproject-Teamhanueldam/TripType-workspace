@@ -319,49 +319,60 @@
    - 조원의 .calendar-panel 스타일과 충돌을 방지하기 위해 .auth-form 내부로 한정
    ============================================================ */
 
-/* 1. 입력창 전체 너비 및 기본 스타일 */
-.auth-form .react-datepicker-wrapper { 
-  width: 100%; 
+/* 버튼을 input처럼 가로 길이 맞추는 핵심 css */
+.auth-form .react-datepicker-wrapper,
+.auth-form .react-datepicker__input-container {
+  width: 100%;
 }
 
-.auth-form .date-input {
-  width: 100% !important;
+/* 실제 버튼 */
+.auth-form .auth-date-input {
+  width: 100%;
   height: 50px;
   padding: 0 16px;
+
+  display: flex;
+  align-items: center;
+
   border: 1.5px solid #E5E7EB;
   border-radius: 10px;
+  background-color: #ffffff;
+
   font-size: 15px;
   box-sizing: border-box;
-  outline: none;
-  background-color: #ffffff;
-  transition: all 0.2s;
-}
 
-/* 2. 입력창 상태별 스타일 (포커스 & 읽기전용) */
-.auth-form .date-input:focus { 
-  border-color: #6EBFF4; 
-  background: #F9FDFF; 
-}
-
-.auth-form .date-input[readonly] {
   cursor: pointer;
-  background-color: #ffffff;
 }
 
-/* 3. 달력 팝업 본체 (조원의 스타일 침범 방지) */
+.auth-form .auth-date-input.is-placeholder {
+  color: #9CA3AF; /* placeholder 느낌 */
+}
+
+.auth-form .auth-date-input.has-value {
+  color: #111827; /* 일반 input 텍스트 */
+}
+
+.auth-form .auth-date-input:hover {
+  border-color: #CBD5E1;
+}
+
+.auth-form .auth-date-input:focus-visible {
+  outline: none;
+  border-color: #6EBFF4;
+  background-color: #F9FDFF;
+}
+
+/* 달력 팝업 본체 (조원의 스타일 침범 방지) */
 .auth-form .react-datepicker {
-  font-family: 'Pretendard', sans-serif !important;
-  border: none !important;
-  border-radius: 16px !important;
-  box-shadow: 0 12px 40px rgba(2, 48, 89, 0.15) !important;
   background-color: #ffffff !important;
+  border: 1.5px solid #E5E7EB !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
-/* 4. 달력 헤더 및 년도 선택부 */
+/* 달력 헤더 및 년도 선택부 */
 .auth-form .react-datepicker__header {
   background-color: #ffffff !important;
-  border-bottom: 1px solid #f3f4f6 !important;
-  padding: 15px 0 !important;
 }
 
 .auth-form .react-datepicker__year-read-view {
@@ -371,7 +382,7 @@
   font-weight: 700 !important;
 }
 
-/* 5. 날짜 셀 스타일 (오늘 & 선택된 날짜) */
+/* 날짜 셀 스타일 (오늘 & 선택된 날짜) */
 .auth-form .react-datepicker__day--today {
   background-color: transparent !important;
   border: 1.5px solid #6ebff4 !important;
@@ -385,8 +396,20 @@
   border-radius: 8px !important;
 }
 
-/* 6. 팝업 위치 및 레이어 우선순위 */
+/* 내부 컨테이너와 헤더도 보이게 설정 */
+.auth-form .react-datepicker__month-container {
+  background-color: #ffffff !important;
+  float: none !important; /* 조원 코드와 간섭 방지 */
+}
+/* 팝업 위치 및 레이어 우선순위 */
 .auth-form .react-datepicker-popper {
   z-index: 9999 !important;
 }
+
+.auth-card,
+.auth-form,
+.find-tab {
+  overflow: visible !important;
+}
+
 

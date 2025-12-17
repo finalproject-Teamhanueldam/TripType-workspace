@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale";
+import AuthDateInput from "../../../common/component/AuthDateInput";
 
 function JoinTab() {
   const [form, setForm] = useState({
@@ -155,11 +156,14 @@ function JoinTab() {
         <DatePicker
           selected={form.memberBirthDate}
           onChange={(date) => setForm({ ...form, memberBirthDate: date })}
-          locale={ko} dateFormat="yyyy-MM-dd"
-          className="date-input" maxDate={new Date()}
-          showYearDropdown dropdownMode="select"
+          locale={ko}
+          dateFormat="yyyy-MM-dd"
+          maxDate={new Date()}
+          showYearDropdown
+          dropdownMode="select"
           placeholderText="날짜 선택"
-          readOnly
+          shouldCloseOnSelect
+          customInput={<AuthDateInput />} // className 도 여기 들어있다.
         />
       </div>
 
