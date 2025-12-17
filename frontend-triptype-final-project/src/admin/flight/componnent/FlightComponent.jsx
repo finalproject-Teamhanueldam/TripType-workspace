@@ -150,9 +150,9 @@ const FlightComponent = () => {
 
 
     return (
-        <div className="main-wrap">
-            <div className="airline-wrap">
-                <h2 className="main-title">항공권 관리 시스템</h2>
+        <div className="flight-wrap">
+            <div className="flight-main-wrap">
+                <h2 className="flight-main-title">항공권 관리 시스템</h2>
 
                 {/* 검색 및 버튼 영역 */}
                 <div className="controls-container">

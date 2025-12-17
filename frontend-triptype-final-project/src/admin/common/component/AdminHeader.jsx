@@ -12,7 +12,7 @@ const AdminHeader = ({ onMenuClick }) => {
                 ☰
             </button>
 
-            <div className="today-date">{today}</div>
+            <div className="admin-today-date">{today}</div>
 
             <div className="admin-header-right">
 

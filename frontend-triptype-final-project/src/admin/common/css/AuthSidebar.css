@@ -32,7 +32,7 @@
 }
 
 /* 로고 */
-.logo {
+.admin-logo {
   font-size: 24px;
   font-weight: bold;
   color: #0f172a;
@@ -44,7 +44,7 @@
   font-family: 'Verdana', sans-serif;
 }
 
-.logo > img {
+.admin-logo > img {
   width : 200px;
 }
 

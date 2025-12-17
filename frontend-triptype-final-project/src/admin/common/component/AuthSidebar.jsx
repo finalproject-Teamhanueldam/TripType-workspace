@@ -19,7 +19,7 @@ const AuthSidebar =({ isOpen, onClose }) => {
 
             <button className="close-btn" onClick={onClose}>✕</button>
             
-            <div className="logo" onClick ={ ()=> {navigate("/");}}><img src={logo} alt="logo"/></div> 
+            <div className="admin-logo" onClick ={ ()=> {navigate("/");}}><img src={logo} alt="logo"/></div> 
                 <table>
                     <tbody>
                         <tr onClick ={ ()=> {navigate("/admin/statistics"); }}><td>통계</td></tr> 
