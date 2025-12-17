@@ -14,24 +14,49 @@
 
   align-items: end;
   gap: 16px;
-  justify-content: center;
+
+  /* 🔥 핵심: 중앙 정렬 제거 (삐져나감 원인) */
+  justify-content: stretch;
+
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ===============================
    🔷 기본 input / 버튼 안정화
    =============================== */
+.filter-main-row.round-trip .filter-item,
 .filter-main-row.round-trip .filter-item input,
 .filter-main-row.round-trip .search-btn {
   width: 100%;
+  min-width: 0;            /* 🔥 grid overflow 방지 */
   box-sizing: border-box;
 }
 
-
+/* date input 브라우저 최소폭 제거 */
+.filter-main-row.round-trip input[type="date"] {
+  min-inline-size: 0;
+}
 
 /* ===============================
-   🔷 반응형
+   🔷 중간 브레이크포인트 (🔥 삐져나가기 방지)
    =============================== */
-@media (max-width: 1100px) {
+@media (max-width: 1250px) {
+  .filter-main-row.round-trip {
+    grid-template-columns:
+      minmax(180px, 1fr)
+      40px
+      minmax(180px, 1fr)
+      minmax(140px, 1fr)
+      minmax(140px, 1fr)
+      120px;
+  }
+}
+
+/* ===============================
+   🔷 내부 줄내림 (편도와 동일 UX)
+   =============================== */
+@media (max-width: 1000px) {
   .filter-main-row.round-trip {
     grid-template-columns: 1fr;
     gap: 14px;

@@ -159,41 +159,73 @@
    🔷 출발 ↔ 도착 스위치 버튼
    ============================================ */
 .switch-icon {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
 
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  background: white;
+
+  background: #fff;
   border-radius: 50%;
   border: none;
   padding: 0;
 
   cursor: pointer;
-  margin-bottom: 6px;
-}
 
-/* .switch-icon:hover {
-  background: #156D99;
-} */
+  /* margin 사용 금지 */
+  margin: 0;
+
+  /* grid 칸 기준 정중앙 */
+  justify-self: center;
+  align-self: center;
+
+  /* 레이아웃별 수직 보정용 */
+  transform: translateY(var(--switch-offset, 0px));
+}
 
 .switch-icon:active {
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
-/* SVG (JS 제어) */
 .switch-svg {
   display: block;
   transform-origin: 50% 50%;
 }
 
+/* ===============================
+   🔷 레이아웃별 보정값
+   =============================== */
+
+/* 왕복 / 편도 */
+
+.filter-main-row.one-way .switch-icon {
+  --switch-offset: 14px;
+}
+
+.filter-main-row.round-trip .switch-icon {
+  --switch-offset: -9px;
+}
+
+/* 다구간 */
+.multi-row .switch-icon {
+  --switch-offset: 18px;
+}
+
+/* 모바일에서는 보정 제거 */
+@media (max-width: 1100px) {
+  .switch-icon {
+    --switch-offset: 0px;
+  }
+}
+
+
+
 /* ============================================
    🔷 검색 버튼 (CTA)
    ============================================ */
-.search-btn {
-  height: 70px;
+.filter-section-search-btn {
+  height: 70px ;
   padding: 0 28px;
 
   /* background: linear-gradient(
@@ -217,7 +249,7 @@
   white-space: nowrap;
 }
 
-.search-btn:hover {
+.filter-section-search-btn:hover {
   transform: translateY(-1px);
   background-color: #4FA9CF;
 }
