@@ -314,9 +314,17 @@
 .survey-options button { height: 56px; border: 1.5px solid #E5E7EB; border-radius: 12px; background: #fff; font-weight: 600; cursor: pointer; }
 .survey-options button:hover { border-color: #6EBFF4; color: #6EBFF4; background-color: #F9FDFF; }
 
-/* DatePicker 디자인 통일 */
-.react-datepicker-wrapper { width: 100%; }
-.date-input {
+/* ============================================================
+   DatePicker 디자인 통일 (인증 폼 전용)
+   - 조원의 .calendar-panel 스타일과 충돌을 방지하기 위해 .auth-form 내부로 한정
+   ============================================================ */
+
+/* 1. 입력창 전체 너비 및 기본 스타일 */
+.auth-form .react-datepicker-wrapper { 
+  width: 100%; 
+}
+
+.auth-form .date-input {
   width: 100% !important;
   height: 50px;
   padding: 0 16px;
@@ -325,46 +333,60 @@
   font-size: 15px;
   box-sizing: border-box;
   outline: none;
+  background-color: #ffffff;
+  transition: all 0.2s;
 }
-.date-input:focus { border-color: #6EBFF4; background: #F9FDFF; }
 
-/* DatePicker readOnly일 때 커서 모양 변경 */
-.date-input[readonly] {
+/* 2. 입력창 상태별 스타일 (포커스 & 읽기전용) */
+.auth-form .date-input:focus { 
+  border-color: #6EBFF4; 
+  background: #F9FDFF; 
+}
+
+.auth-form .date-input[readonly] {
   cursor: pointer;
   background-color: #ffffff;
 }
 
-/* DatePicker 달력 팝업 디자인 */
-.react-datepicker {
+/* 3. 달력 팝업 본체 (조원의 스타일 침범 방지) */
+.auth-form .react-datepicker {
   font-family: 'Pretendard', sans-serif !important;
   border: none !important;
   border-radius: 16px !important;
   box-shadow: 0 12px 40px rgba(2, 48, 89, 0.15) !important;
+  background-color: #ffffff !important;
 }
 
-.react-datepicker__header {
+/* 4. 달력 헤더 및 년도 선택부 */
+.auth-form .react-datepicker__header {
   background-color: #ffffff !important;
   border-bottom: 1px solid #f3f4f6 !important;
   padding: 15px 0 !important;
 }
 
-.react-datepicker__year-read-view {
+.auth-form .react-datepicker__year-read-view {
   padding: 4px 8px !important;
   background-color: #f3f4f6 !important;
   border-radius: 6px !important;
   font-weight: 700 !important;
 }
 
-.react-datepicker__day--today {
+/* 5. 날짜 셀 스타일 (오늘 & 선택된 날짜) */
+.auth-form .react-datepicker__day--today {
   background-color: transparent !important;
   border: 1.5px solid #6ebff4 !important;
   border-radius: 8px !important;
   color: #6ebff4 !important;
 }
 
-.react-datepicker__day--selected {
+.auth-form .react-datepicker__day--selected {
   background-color: #6ebff4 !important;
   color: #ffffff !important;
   border-radius: 8px !important;
+}
+
+/* 6. 팝업 위치 및 레이어 우선순위 */
+.auth-form .react-datepicker-popper {
+  z-index: 9999 !important;
 }
 
