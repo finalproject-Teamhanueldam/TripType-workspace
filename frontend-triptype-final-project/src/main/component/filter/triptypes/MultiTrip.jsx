@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { AiFillDelete } from "react-icons/ai";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import "../../../style/filter/triptypes/MultiTrip.css";
 
 const MAX_MULTI_SEGMENTS = 6;
@@ -11,6 +12,7 @@ const MultiTrip = ({
   onOpenCalendar,
 }) => {
   const svgRefs = useRef({});
+  const navigate = useNavigate();
 
   const addSegment = () => {
     if (segments.length >= MAX_MULTI_SEGMENTS) return;
@@ -28,6 +30,7 @@ const MultiTrip = ({
 
   const removeSegment = (id) => {
     if (segments.length === 1) return;
+
     setSegments((prev) => prev.filter((seg) => seg.id !== id));
     delete svgRefs.current[id];
   };
@@ -45,6 +48,34 @@ const MultiTrip = ({
       [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
       { duration: 400, easing: "ease-in-out", fill: "none" }
     );
+  };
+
+  /* 🔥 검색 버튼 클릭 (다구간) */
+  const handleSearch = () => {
+    // 1️⃣ 모든 구간 유효성 검사
+    const isInvalid = segments.some(
+      (seg) => !seg.departure || !seg.arrival || !seg.date
+    );
+
+    if (isInvalid) {
+      alert("모든 구간의 출발지, 도착지, 날짜를 입력하세요");
+      return;
+    }
+
+    // 2️⃣ 다구간 배열 직렬화
+    const serializedSegments = segments.map((seg) => ({
+      departure: seg.departure,
+      arrival: seg.arrival,
+      date: format(seg.date, "yyyy-MM-dd"),
+    }));
+
+    const params = new URLSearchParams({
+      tripType: "multi",
+      segments: JSON.stringify(serializedSegments),
+    });
+
+    // airlineNo는 임시값 0
+    navigate(`/airline/detail/0?${params.toString()}`);
   };
 
   const isMax = segments.length >= MAX_MULTI_SEGMENTS;
@@ -163,7 +194,12 @@ const MultiTrip = ({
           )}
         </div>
 
-        <button type="button" className="search-btn">
+        {/* 🔍 검색 */}
+        <button
+          type="button"
+          className="filter-section-search-btn"
+          onClick={handleSearch}
+        >
           검색
         </button>
       </div>

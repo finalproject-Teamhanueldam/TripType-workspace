@@ -2,6 +2,7 @@
 import "../../../style/filter/triptypes/OneWayTrip.css";
 import { useRef } from "react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 const OneWayTrip = ({
   depart,
@@ -13,6 +14,7 @@ const OneWayTrip = ({
   onOpenCalendar,
 }) => {
   const svgRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleSwap = () => {
     if (!depart || !arrive) return;
@@ -27,6 +29,24 @@ const OneWayTrip = ({
         fill: "none",
       }
     );
+  };
+
+  /* 🔥 검색 버튼 클릭 (편도) */
+  const handleSearch = () => {
+    if (!depart || !arrive || !startDate) {
+      alert("출발지, 도착지, 가는 편 날짜를 선택하세요");
+      return;
+    }
+
+    const params = new URLSearchParams({
+      tripType: "oneway",
+      depart,
+      arrive,
+      startDate: format(startDate, "yyyy-MM-dd"),
+    });
+
+    // airlineNo는 아직 없으므로 임시값 0
+    navigate(`/airline/detail/0?${params.toString()}`);
   };
 
   return (
@@ -99,8 +119,12 @@ const OneWayTrip = ({
         />
       </div>
 
-      {/* 검색 */}
-      <button type="button" className="search-btn">
+      {/* 🔍 검색 */}
+      <button
+        type="button"
+        className="filter-section-search-btn"
+        onClick={handleSearch}
+      >
         검색
       </button>
     </div>

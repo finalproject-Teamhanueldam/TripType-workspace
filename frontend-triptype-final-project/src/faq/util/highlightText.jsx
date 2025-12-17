@@ -1,4 +1,4 @@
-export function highlightText(text, keyword) {
+export function HighlightText(text, keyword) {
   if (!keyword) return text;
 
   const regex = new RegExp(`(${keyword})`, "gi");
