@@ -1,4 +1,4 @@
-import "../style/Home.css";
+import "../css/Home.css";
 import CommentTopSection from "./CommentTopSection";
 import RecommendSection from "./RecommendSection";
 

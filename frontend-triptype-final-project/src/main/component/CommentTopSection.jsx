@@ -1,4 +1,4 @@
-import "../style/CommentTopSection.css";
+import "../css/CommentTopSection.css";
 
 const CommentTopSection = () => {
   return (

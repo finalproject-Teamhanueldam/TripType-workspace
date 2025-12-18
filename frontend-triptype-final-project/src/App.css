@@ -8,7 +8,8 @@ html, body {
   width: 100%;
   /* background-color: #c02e2e; */
     /* background-color: #C2E9F2; */
-    height: 150px;
+    /* height: 150px; */
+  flex: 1;
 }
 
 /* .page-wrap {
@@ -30,4 +31,9 @@ html, body {
   background-color: #f8f9fb;
 }
 
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 

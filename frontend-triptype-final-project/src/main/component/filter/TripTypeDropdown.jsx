@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { FaArrowRight, FaSyncAlt, FaRoute } from "react-icons/fa";
-import "../../style/filter/TripTypeDropdown.css";
+import "../../css/filter/TripTypeDropdown.css";
 
 const TripTypeDropdown = ({ value, onChange }) => {
   const [open, setOpen] = useState(false);

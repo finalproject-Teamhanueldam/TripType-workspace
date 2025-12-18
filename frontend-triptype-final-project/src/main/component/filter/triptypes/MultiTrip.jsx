@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { AiFillDelete } from "react-icons/ai";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import "../../../style/filter/triptypes/MultiTrip.css";
+import "../../../css/filter/triptypes/MultiTrip.css";
 
 const MAX_MULTI_SEGMENTS = 6;
 

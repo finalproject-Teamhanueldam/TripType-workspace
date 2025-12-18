@@ -1,4 +1,4 @@
-import "../../../style/filter/triptypes/RoundTrip.css";
+import "../../../css/filter/triptypes/RoundTrip.css";
 import { useRef } from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";

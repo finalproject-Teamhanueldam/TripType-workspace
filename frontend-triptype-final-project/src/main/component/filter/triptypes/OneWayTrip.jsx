@@ -1,5 +1,5 @@
 // OneWayTrip.jsx
-import "../../../style/filter/triptypes/OneWayTrip.css";
+import "../../../css/filter/triptypes/OneWayTrip.css";
 import { useRef } from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";

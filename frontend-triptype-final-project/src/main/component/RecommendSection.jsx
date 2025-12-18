@@ -1,4 +1,4 @@
-import "../style/RecommendSection.css";
+import "../css/RecommendSection.css";
 
 const RecommendSection = () => {
   return (

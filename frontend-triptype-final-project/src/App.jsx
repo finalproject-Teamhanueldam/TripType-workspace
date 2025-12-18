@@ -4,6 +4,7 @@ import { useState } from "react";
 
 // H 대문자 수정 (12.16 김동윤)
 import Header from "./common/component/Header";
+import Footer from "./common/component/Footer";
 
 import HeroSection from "./main/component/HeroSection";
 import Home from "./main/component/Home";
@@ -93,7 +94,11 @@ function App() {
         </Route>
         
 
+
       </Routes>
+
+      {/* 헤더 - 지영재 - */}
+      <Footer />
 
     </div>
       
