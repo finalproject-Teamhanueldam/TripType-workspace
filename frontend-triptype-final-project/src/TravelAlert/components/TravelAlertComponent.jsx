@@ -1,13 +1,17 @@
 import "../css/TravelAlertComponent.css";
 
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import WorldMapComponent from "./WorldMapComponent";
+import TravelInfoModalComponent from "./TravelInfoModalComponent";
 
 const TravelAlert = () => {
   /* ================= 상태 ================= */
   const [continent, setContinent] = useState("아시아");
+  const [open, setOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [travelInform, setTravelInform] = useState([]);
 
   /* ================= 여행경보 단계 정의 (고정값) ================= */
   const ALERT_STEP = {
@@ -25,10 +29,10 @@ const TravelAlert = () => {
   useEffect(() => {
     // 스프링 부트로 요청 시도하기
     const callApi = async () => {
-      let url = "http://localhost:8001/triptype/travelAlert/get";
-      const method = "get";
-
       try {
+        let url = "http://localhost:8001/triptype/travelAlert/getTravelAlert";
+        const method = "get";
+
         const response = await axios({
           url,
           method,
@@ -84,7 +88,51 @@ const TravelAlert = () => {
         console.log(error);
       }
     };
+
+    let countryTravelInfo = {};
+
+    const callTravelInfoApi = async () => {
+      try {
+        const url = "http://localhost:8001/triptype/travelAlert/getTravelInfo";
+        const method = "get";
+
+        const response = await axios({
+          url,
+          method
+        });
+
+        // 여행 경보 조정 정보
+        let travelInfo = response.data.response.body.items.item;
+
+        travelInfo.map((item, index) => {
+          let { txt_origin_cn, country_iso_alp2 } = item;
+
+          let key = country_iso_alp2;
+
+         
+
+          if(!countryTravelInfo[key]) {
+            countryTravelInfo[key] = {
+              levels : [txt_origin_cn],
+            }
+          }
+          else {
+            countryTravelInfo[key].levels.push(txt_origin_cn);
+          }
+        });
+        setTravelInform(countryTravelInfo);
+
+      } 
+      catch(error) {
+
+        console.log(error);
+
+      }
+    };
+
+
     callApi();
+    callTravelInfoApi();
   }, []);
 
   /* ================= 대륙별 필터링된 데이터 리스트 ================= */
@@ -156,7 +204,6 @@ const TravelAlert = () => {
   });
 
 
-
   return (
     <div className="travel-alert-container">
       {/* ================= 여행경보 단계 안내 ================= */}
@@ -207,6 +254,14 @@ const TravelAlert = () => {
         <WorldMapComponent travel={travel} />
       </div>
 
+      <TravelInfoModalComponent 
+          open={open}
+          onClose={() => setOpen(false)}
+          country={selectedCountry}
+          travelInform={travelInform}
+      >
+      </TravelInfoModalComponent>
+
       {/* ================= 대륙 필터 ================= */}
       {/* 버튼을 누르면 색상이 파란색으로 */}
       <section className="continent-filter">
@@ -232,7 +287,6 @@ const TravelAlert = () => {
               <th>대륙</th>
               <th>경보단계</th>
               <th>주요 내용</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -259,7 +313,15 @@ const TravelAlert = () => {
                       {getAlertLevel(item)} {ALERT_STEP[getAlertLevel(item)].label}
                     </span>
                   </td>
-                  <td className="detail-link">보기</td>
+                  <td className="detail-link">
+                    <button onClick={() => {
+                      setOpen(true);
+                      setSelectedCountry(item);
+                    }}
+                    >       
+                      상세보기
+                    </button>
+                  </td>
                 </tr>
               ))
             )}

@@ -44,7 +44,6 @@ function App() {
   const hideHeaderPaths = [
     "/member",
     "/admin",
-
   ];
 
   const hideHeader = hideHeaderPaths.some(path =>
