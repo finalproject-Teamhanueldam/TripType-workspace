@@ -81,7 +81,7 @@
   border: 1px solid #dcdcdc;    /* 🔥 드롭다운과 동일 */
   border-radius: 10px;
 
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #111;
 
@@ -98,7 +98,7 @@
 .passenger-summary-box::after {
   content: "▾";
   margin-left: 8px;
-  font-size: 12px;
+  font-size: 16px;
   color: #555;
 }
 
@@ -128,8 +128,8 @@
   background: white;
   border: 1.5px solid #0E4C6D;
   border-radius: 14px;
-
-  font-size: 16px;
+  
+  font-size: 18px;
   color: black;
   font-weight: 700;
   width: 100%;
@@ -144,10 +144,27 @@
 
 /* placeholder */
 .filter-item input::placeholder {
-  color: black;
+  color: gray;
 }
 
+/* 출발지 */
+.filter-main-row .filter-item:nth-child(1) input {
+  cursor: text;
+}
 
+/* 도착지 */
+.filter-main-row .filter-item:nth-child(3) input {
+  cursor: text;
+}
+/* 다구간: 출발지 / 도착지만 text */
+.multi-row .filter-item:not(.date-box) input {
+  cursor: text;
+}
+
+/* 날짜는 항상 pointer */
+.multi-row .filter-item.date-box input {
+  cursor: pointer;
+}
 
 /* date input 아이콘 톤 */
 .filter-item input[type="date"] {
@@ -209,7 +226,7 @@
 
 /* 다구간 */
 .multi-row .switch-icon {
-  --switch-offset: 18px;
+  --switch-offset: 16px;
 }
 
 /* 모바일에서는 보정 제거 */
@@ -233,7 +250,7 @@
     #6EBFE4,
     #4FA9CF
   ); */
-  background: blue;
+  background: rgb(66, 132, 255);
 
   color: white;
   font-size: 17px;
@@ -251,5 +268,5 @@
 
 .filter-section-search-btn:hover {
   transform: translateY(-1px);
-  background-color: #4FA9CF;
+  background-color: rgb(20, 102, 255);
 }

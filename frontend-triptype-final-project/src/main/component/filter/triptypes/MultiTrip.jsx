@@ -158,7 +158,7 @@ const MultiTrip = ({
             <input
               readOnly
               tabIndex={-1}
-              value={seg.date ? format(seg.date, "yyyy.MM.dd") : "연도-월-일"}
+              value={seg.date ? format(seg.date, "yyyy.MM.dd") : "연도 - 월 - 일"}
             />
           </div>
 

@@ -115,7 +115,7 @@ const OneWayTrip = ({
         <input
           readOnly
           tabIndex={-1}
-          value={startDate ? format(startDate, "yyyy.MM.dd") : "연도-월-일"}
+          value={startDate ? format(startDate, "yyyy.MM.dd") : "연도 - 월 - 일"}
         />
       </div>
 
