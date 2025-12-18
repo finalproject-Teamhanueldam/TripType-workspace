@@ -1,0 +1,220 @@
+/* ===============================
+   섹션 래퍼
+================================ */
+.insight {
+  width: 95%;
+  margin: 120px auto 0;
+}
+
+/* ===============================
+   섹션 헤더
+================================ */
+.insight-head {
+  margin-bottom: 40px;
+  margin-left: 65px;
+}
+
+.insight-head h2 {
+  font-size: 32px;
+  font-weight: 800;
+  color: #023059;
+}
+
+.insight-head p {
+  margin-top: 8px;
+  font-size: 17px;
+  color: #6b7f90;
+}
+
+/* ===============================
+   카드 그리드
+================================ */
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px; /* 🔥 카드 간격 살짝 증가 */
+  padding: 0 64px;
+}
+
+/* ===============================
+   카드 (🔥 핵심 수정 영역)
+================================ */
+.insight-card {
+  background: #ffffff; /* 🔥 배경 완전 분리 */
+  border-radius: 22px;
+  padding: 30px 28px;
+
+  /* 🔥 명확한 카드 경계 */
+  border: 1px solid rgba(2, 48, 89, 0.08);
+
+  /* 🔥 깊이감 있는 다층 그림자 */
+  box-shadow:
+    0 20px 45px rgba(2, 48, 89, 0.18),
+    0 6px 14px rgba(2, 48, 89, 0.10);
+
+  display: grid;
+  grid-template-columns: 1fr 140px; /* 🔥 우측 앵커 공간 확보 */
+  column-gap: 24px;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.insight-card:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 32px 60px rgba(2, 48, 89, 0.25),
+    0 10px 20px rgba(2, 48, 89, 0.12);
+}
+
+/* ===============================
+   좌측 콘텐츠 영역
+================================ */
+.insight-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ===============================
+   아이콘
+================================ */
+.insight-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+
+  background: #023059;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+}
+
+/* ===============================
+   텍스트
+================================ */
+.insight-title {
+  font-size: 21px;
+  font-weight: 700;
+  color: #023059;
+}
+
+.insight-desc {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #425b73;
+}
+
+.insight-sub {
+  margin-top: auto;
+  font-size: 14px;
+  font-weight: 700;
+  color: #023059;
+}
+
+/* ===============================
+   우측 앵커 영역 (🔥 휑함 해결 핵심)
+================================ */
+.insight-right {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+
+  border-radius: 18px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(143, 220, 255, 0.35),
+    rgba(143, 220, 255, 0.15)
+  );
+
+  transition: background 0.3s ease;
+}
+
+/* 카드 hover 시 우측 강조 */
+.insight-card:hover .insight-right {
+  background: linear-gradient(
+    180deg,
+    rgba(143, 220, 255, 0.55),
+    rgba(143, 220, 255, 0.25)
+  );
+}
+
+/* ===============================
+   우측 배지
+================================ */
+.insight-badge {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+
+  color: #023059;
+
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  box-shadow: 0 4px 10px rgba(2, 48, 89, 0.15);
+}
+
+/* ===============================
+   CTA 버튼 (우측 하단 앵커)
+================================ */
+.insight-cta {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+
+  background: #023059;
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.25s ease,
+    transform 0.2s ease;
+}
+
+.insight-cta:hover {
+  background: #012a4a;
+  transform: translateY(-2px);
+}
+
+/* ===============================
+   카드 타입별 미세 변주 (선택)
+================================ */
+.insight-right.type-1 {
+  background: linear-gradient(
+    180deg,
+    rgba(143, 220, 255, 0.45),
+    rgba(143, 220, 255, 0.2)
+  );
+}
+
+.insight-right.type-2 {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 215, 143, 0.45),
+    rgba(255, 215, 143, 0.2)
+  );
+}
+
+.insight-right.type-3 {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 180, 180, 0.45),
+    rgba(255, 180, 180, 0.2)
+  );
+}

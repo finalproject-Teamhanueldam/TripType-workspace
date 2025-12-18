@@ -21,8 +21,9 @@ body {
 }
 
 .header-left img {
-  margin-top: 20px;
-  height: 100px;
+  /* margin-top: 20px; */
+  width: 90px;
+  height: 70px;
 }
 
 

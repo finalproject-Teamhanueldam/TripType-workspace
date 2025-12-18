@@ -109,7 +109,7 @@ const RoundTrip = ({
         <input
           readOnly
           tabIndex={-1}
-          value={startDate ? format(startDate, "yyyy.MM.dd") : "연도-월-일"}
+          value={startDate ? format(startDate, "yyyy.MM.dd") : "연도 - 월 - 일"}
         />
       </div>
 
@@ -124,7 +124,7 @@ const RoundTrip = ({
         <input
           readOnly
           tabIndex={-1}
-          value={endDate ? format(endDate, "yyyy.MM.dd") : "연도-월-일"}
+          value={endDate ? format(endDate, "yyyy.MM.dd") : "연도 - 월 - 일"}
         />
       </div>
 

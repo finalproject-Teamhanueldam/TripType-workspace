@@ -2,7 +2,7 @@
 .hero-section {
   width: 100%;
   background-color: #CEDEF2;
-  padding: 60px 0 100px;
+  padding: 20px 0 100px;
   box-sizing: border-box;
 }
 
@@ -35,10 +35,10 @@
 /* ===== 남색 필터 섹션 ===== */
 .hero-filter-section {
   width: 100%;
-  background: #023373;
+  background: #023059;
   padding: 50px 0 60px;
   border-radius: 28px;
-  box-shadow: 0 10px 32px rgb(134, 161, 248);
+  /* box-shadow: 0 10px 32px rgb(134, 161, 248); */
   margin-top: 20px;
   box-sizing: border-box;
 }
@@ -58,7 +58,7 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  background: #023373;
+  background: #023059;
   padding: 34px 40px;
   border-radius: 18px;
   /* box-shadow: 0px 6px 22px rgba(0,0,0,0.08); */
