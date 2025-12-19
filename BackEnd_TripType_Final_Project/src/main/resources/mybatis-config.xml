@@ -4,6 +4,7 @@
 	
 	<settings>
 		<setting name="jdbcTypeForNull" value="NULL" />
+		
 	</settings>
 	
 	<typeAliases>
@@ -18,5 +19,8 @@
 			  라고 설정이 잡히게 됨!! (단, @Alias 어노테이션이 붙은 클래스에 한해서)
 		 -->
 	</typeAliases>
+	
+
+	
 	
 </configuration>

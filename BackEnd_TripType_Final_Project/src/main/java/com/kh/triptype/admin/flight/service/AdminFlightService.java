@@ -12,7 +12,7 @@ public interface AdminFlightService {
 	// 이 파라미터 값들은 API 요청시 항공권을 특정할 수 있는 최소한의 조건만 전달
 	// 출발지, 도착지, 출발시각, 인원수 만 요청 하면 된다 
 	// 내가 필요로 하는 정보(조회할때 가격이 필요하고, INSERT, UPDATE 시 필요한 정보)는 Map에 다 담겨온다.
-	List<Map<String, Object>> fetchFlightOffer(
+	List<Map<String, Object>> fetchFlightOffers(
 		String departAirport,
 		String destAirport,
 		String flightDepartDate,

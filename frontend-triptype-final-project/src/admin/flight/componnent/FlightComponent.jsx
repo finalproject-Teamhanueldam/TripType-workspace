@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+
+import axios from 'axios';
+
 import "../css/Flight.css" // CSS 파일은 동일하게 사용
 
 // =========================================================================
@@ -122,9 +125,26 @@ const FlightComponent = () => {
     };
 
     // API 조회 버튼 핸들러 (더미)
-    const handleApiCheck = () => {
+    const fetchflight = async () => {
+
+        const url = "http://localhost:8001/triptype/admin/flight/fetchflight";
+
+        const method = "get";
+
+        const response = await axios ({
+            url,
+            method,
+            params : {
+                departAirport: "ICN",
+                destAirport: "NRT",
+                flightDepartDate: "2026-01-15",
+                adultCount: 1
+            }
+        })
+
+        console.log(response.data);
+
         alert("API 조회 기능 실행: 최신 정보로 업데이트합니다.");
-        // 실제 API 호출 로직을 여기에 구현
     };
 
     // 일괄 삭제 버튼 핸들러 (더미)
@@ -185,7 +205,7 @@ const FlightComponent = () => {
                     
                     <div className="action-buttons-group">
                         <span className="total-count">조회 결과 총 {tickets.length}건</span>
-                        <button className="action-btn secondary-btn" onClick={handleApiCheck}>API 조회</button>
+                        <button className="action-btn secondary-btn" onClick={fetchflight}>API 조회</button>
                         <button className="action-btn danger-btn" onClick={handleBulkDelete}>일괄 삭제 ({selectedTickets.length})</button>
                     </div>
                 </div>
