@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -33,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 /**
  * 항공권 검색 서비스 구현체
  */
+@Profile("!prod")
 @Service
 @RequiredArgsConstructor
 public class FlightSearchServiceImpl implements FlightSearchService {
