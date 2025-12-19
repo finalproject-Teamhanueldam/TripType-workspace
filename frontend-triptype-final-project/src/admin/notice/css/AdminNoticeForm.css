@@ -1,46 +1,152 @@
+/* ===== Form Card ===== */
+/* Form Card */
 .form-card {
   background: white;
-  padding: 24px;
-  border-radius: 14px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 
-.notice-input,
+/* ===== Group ===== */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group.inline {
+  margin-bottom: 20px;
+}
+
+/* ===== Label ===== */
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+/* ===== Input ===== */
+.notice-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 15px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notice-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+/* ===== Textarea ===== */
 .notice-textarea {
   width: 100%;
-  padding: 14px;
-  border-radius: 8px;
+  min-height: 240px;
+  padding: 16px;
+  border-radius: 12px;
   border: 1px solid #d1d5db;
-  margin-bottom: 16px;
+  font-size: 15px;
+  line-height: 1.6;
+  resize: none; /* 🔒 크기 고정 */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.notice-textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+/* ===== Important Check ===== */
 .important-check {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 14px;
-  margin-bottom: 20px;
+  font-weight: 500;
+  color: #374151;
 }
 
+/* ===== Attachment ===== */
 .attachment-box {
-  margin-bottom: 20px;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 16px;
+  background: #f9fafb;
 }
 
-.attachment-box label {
-  font-weight: 600;
-  display: block;
+/* 파일 섹션 제목 */
+.file-section-title {
+  margin-top: 16px;
   margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+
+.file-btn {
+  display: inline-block;
+  padding: 10px 16px;
+  background: #eef2ff;
+  color: #4338ca;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.file-btn:hover {
+  background: #e0e7ff;
 }
 
 .file-list {
-  margin-top: 10px;
-  font-size: 13px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb; /* 구분선 */
+  font-size: 14px;
 }
 
 .file-list li {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 4px;
+  align-items: center;
+  padding: 8px 0;
 }
 
-/* ㅁ눠ㅠㅇㅁ누어ㅏㅠ */
+.file-list li::before {
+  content: "•";
+  color: #6366f1;
+  margin-right: 8px;
+}
+
+.file-list span {
+  flex: 1;
+  margin-left: 6px;
+}
+
+
+.file-list li:last-child {
+  border-bottom: none;
+}
+
+.file-upload-row {
+  margin-bottom: 12px;
+}
+
+.btn-ghost {
+  cursor: pointer;
+}
+
+
+/* ===== Actions ===== */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+}

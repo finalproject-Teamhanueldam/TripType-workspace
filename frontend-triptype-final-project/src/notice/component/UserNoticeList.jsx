@@ -1,13 +1,21 @@
 import "../css/UserNoticeList.css";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function UserNoticeList() {
   const navigate = useNavigate();
+  const [notices, setNotices] = useState([]);
 
-  const notices = [
-    { id: 1, title: "항공권 시스템 점검 안내", date: "2025-01-01", important: true },
-    { id: 2, title: "국제선 수하물 규정 변경", date: "2025-01-05", important: false }
-  ];
+  useEffect(() => {
+    // Spring Boot 백엔드에서 데이터 가져오기
+    axios.get("http://localhost:8001/triptype/notice", { withCredentials: true })
+      .then(res => {
+        setNotices(res.data); // 백엔드에서 받은 JSON을 상태로 저장
+        console.log(res.data)
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   return (
     <div className="notice-page">
@@ -16,15 +24,15 @@ function UserNoticeList() {
       <div className="notice-card-list">
         {notices.map(n => (
           <div
-            key={n.id}
-            className={`notice-card ${n.important ? "important" : ""}`}
-            onClick={() => navigate(`/notice/${n.id}`)}
+            key={n.noticeId} // 백엔드 Notice VO 기준으로 key 설정
+            className={`notice-card ${n.noticeIsImportant === "Y" ? "important" : ""}`}
+            onClick={() => navigate(`/notice/${n.noticeId}`)}
           >
             <div className="notice-card-left">
-              {n.important && <span className="badge">중요</span>}
-              <span className="notice-card-title">{n.title}</span>
+              {n.noticeIsImportant === "Y" && <span className="badge">중요</span>}
+              <span className="notice-card-title">{n.noticeTitle}</span>
             </div>
-            <span className="notice-card-date">{n.date}</span>
+            <span className="notice-card-date">{n.noticeCreatedAt?.split("T")[0]}</span>
           </div>
         ))}
       </div>

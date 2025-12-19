@@ -6,29 +6,43 @@
   overflow: hidden;
 }
 
-/* ===== Row Layout (고정) ===== */
+/* ===== Row Layout ===== */
 .notice-row {
+  position: relative; /* 🔥 체크박스 absolute 기준 */
+
   display: grid;
   grid-template-columns:
-    60px     /* ID */
-    70px     /* 중요 */
-    2fr      /* 제목 */
-    3fr      /* 내용 */
-    120px    /* 작성일 */
-    120px    /* 수정일 */
-    80px     /* 조회수 */
-    80px     /* 삭제여부 */
-    60px;    /* 체크 */
+    60px    /* ID */
+    70px    /* 중요 */
+    2fr     /* 제목 */
+    3fr     /* 내용 */
+    120px   /* 작성일 */
+    120px   /* 수정일 */
+    80px    /* 조회수 */
+    80px;   /* 삭제여부 */
+
   align-items: center;
-  padding: 14px 20px;
+  padding: 26px 20px;
   cursor: pointer;
+  border-bottom: 1px solid #d1d5db;
+
   transition: background 0.25s ease;
 }
 
+/* 날짜 ~ 삭제여부 컬럼 이동용 트랜지션 */
+.notice-row span:nth-child(5),
+.notice-row span:nth-child(6),
+.notice-row span:nth-child(7),
+.notice-row span:nth-child(8) {
+  transition: transform 0.35s ease;
+}
+
+/* ===== Header ===== */
 .notice-row.header {
   background: #e8eaf6;
   font-weight: 700;
   color: #3f51b5;
+  border-bottom: 2px solid #3f51b5;
 }
 
 /* ===== Hover ===== */
@@ -39,7 +53,14 @@
 /* ===== Delete Mode ===== */
 .notice-table.delete-mode .notice-row:not(.header) {
   background: rgba(245, 247, 255, 0.7);
-  backdrop-filter: blur(2px);
+}
+
+/* ✅ 작성일 ~ 삭제여부만 왼쪽으로 이동 */
+.notice-table.delete-mode .notice-row span:nth-child(5),
+.notice-table.delete-mode .notice-row span:nth-child(6),
+.notice-table.delete-mode .notice-row span:nth-child(7),
+.notice-table.delete-mode .notice-row span:nth-child(8) {
+  transform: translateX(-50px);
 }
 
 /* ===== Content ===== */
@@ -52,7 +73,7 @@
 }
 
 /* ===== Badge ===== */
-.badge.important {
+.badge-important {
   padding: 2px 10px;
   height: 22px;
   font-size: 12px;
@@ -63,22 +84,38 @@
   width: fit-content;
 }
 
-/* ===== Check Column ===== */
-.check-col {
-  display: flex;
-  justify-content: center;
+.badge-important-normal {
+  padding: 2px 10px;
+  height: 22px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: transparent;
+  color: #111827;
+  font-weight: 600;
+  width: fit-content;
 }
 
-.check-col input {
+/* ===== CheckBox (겹쳐서 등장) ===== */
+.check-col {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%) scale(0.6);
   opacity: 0;
   pointer-events: none;
-  transform: scale(1.2);
-  transition: opacity 0.2s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s ease;
 }
 
-.check-col input.visible,
-.notice-table.delete-mode .check-col input {
+.notice-table.delete-mode .check-col {
   opacity: 1;
+  transform: translateY(-50%) scale(1);
   pointer-events: auto;
 }
 
@@ -88,36 +125,7 @@
   color: #374151;
 }
 
-/* ===== Delete Action Bar ===== */
-.delete-action-bar {
-  position: fixed;
-  bottom: -80px;
-  left: 340px;
-  right: 200px;
-  height: 60px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 -4px 16px rgba(0,0,0,0.15);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  transition: bottom 0.3s ease;
-}
-
-.delete-action-bar.show {
-  bottom: 30px;
-}
-
-/* ===== Ghost Button ===== */
-.btn-ghost.active {
-  background: rgba(185, 28, 28, 0.12);
-  color: #b91c1c;
-  box-shadow: inset 0 0 0 1px rgba(185, 28, 28, 0.25);
-}
-
-
-/* ===== Empty Result ===== */
+/* ===== Empty ===== */
 .empty-row {
   padding: 40px;
   text-align: center;
@@ -126,4 +134,118 @@
   background: #fafbff;
 }
 
-/* ㅁㄴ어ㅏㅜㅁ눠ㅏㅇ */
+/* ===== Sort ===== */
+.sort-box {
+  display: flex;
+  gap: 6px;
+  margin-left: 10px;
+}
+
+.sort-box button {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: white;
+  cursor: pointer;
+}
+
+.sort-box button.active {
+  background: #eef2ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+  font-weight: 600;
+}
+
+/* ===== Floating Delete Action Bar ===== */
+.delete-floating-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  max-width: 1100px;
+  width: calc(100% - 48px);
+
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 18px 24px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+  border: 1px solid #fee2e2;
+
+  z-index: 200;
+}
+
+.delete-info {
+  font-size: 15px;
+  color: #374151;
+}
+
+/* 🔥 0도 빨간색 강조 유지 */
+.delete-count {
+  color: #dc2626;
+  font-weight: 700;
+  margin: 0 4px;
+}
+
+.delete-actions {
+  display: flex;
+  gap: 12px;
+}
+
+
+/* ===== Ghost Button ===== */
+.btn-ghost.active {
+  background: rgba(185, 28, 28, 0.12);
+  color: #b91c1c;
+  box-shadow: inset 0 0 0 1px rgba(185, 28, 28, 0.25);
+}
+
+/* ===== Search ===== */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  padding: 0 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-box:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 14px;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 220px;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  padding-left: 22px;
+  color: #111827;
+}
+
+/* 검색어 하이라이팅 */
+.highlight {
+  background-color: #c2e9f29c;
+  padding: 0 2px;
+  border-radius: 3px;
+}

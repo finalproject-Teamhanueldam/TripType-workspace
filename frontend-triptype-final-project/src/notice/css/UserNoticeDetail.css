@@ -4,10 +4,16 @@
   margin: 60px auto;
 }
 
+/* ===== 제목 + 버튼 한 줄 ===== */
+.notice-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .notice-detail-title {
   font-size: 26px;
   font-weight: 700;
-  margin-bottom: 6px;
   color: #023059;
 }
 
@@ -17,6 +23,31 @@
   margin-bottom: 30px;
 }
 
+
+
+/* ===== 목록으로 버튼 (아이콘) ===== */
+.notice-back-btn.icon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: white;
+  color: #444;
+  cursor: pointer;
+}
+
+.notice-back-btn.icon svg {
+  font-size: 14px;
+}
+
+.notice-back-btn.icon:hover {
+  background: #f5f5f5;
+}
+
+/* 내용 */
 .notice-content-box {
   background: #ffffff;
   padding: 28px;
@@ -24,5 +55,3 @@
   line-height: 1.7;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
-
-/* ㅁㄴㅁ눵ㅁ너ㅏㅇ머ㅜ능ㅁ너 */
