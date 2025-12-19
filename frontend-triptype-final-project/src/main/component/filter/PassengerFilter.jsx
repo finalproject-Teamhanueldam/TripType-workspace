@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import "../../style/filter/PassengerFilter.css";
+import "../../css/filter/PassengerFilter.css";
 
 const PassengerFilter = ({ passengers, setPassengers, onClose }) => {
   const panelRef = useRef(null);

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="adminStatisticsMapper">
+  	<resultMap id="PopularRouteMap" type="PopularRouteDto">
+        <result column="DEPART_IATA_CODE" property="departIata"/>
+        <result column="ARRIVE_IATA_CODE" property="arriveIata"/>
+        <result column="SEARCH_COUNT" property="searchCount"/>
+    </resultMap>
+    <!--
+        인기 노선 TOP5 (검색량 기준)
+        - 기준 테이블: TB_SEARCH_LOG
+        - 집계 단위: 출발지 + 도착지
+        - 기간: 최근 30일
+    -->
+    <select id="selectPopularRoutesTop5" resultMap="PopularRouteMap">
+	    SELECT
+	        DEPART_IATA_CODE,
+	        ARRIVE_IATA_CODE,
+	        SEARCH_COUNT
+	    FROM (
+	        SELECT
+	            DEPART_IATA_CODE,
+	            ARRIVE_IATA_CODE,
+	            COUNT(*) AS SEARCH_COUNT
+	        FROM TB_SEARCH_LOG
+	        WHERE TRUNC(SEARCH_LOG_DATE) >= TRUNC(SYSDATE) - 30
+	        GROUP BY DEPART_IATA_CODE, ARRIVE_IATA_CODE
+	        ORDER BY COUNT(*) DESC
+	    )
+	    WHERE ROWNUM &lt;= 5
+	</select>
+	
+
+</mapper>

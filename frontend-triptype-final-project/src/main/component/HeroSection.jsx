@@ -1,5 +1,5 @@
 import FilterSection from "./filter/FilterSection";
-import "../style/HeroSection.css";
+import "../css/HeroSection.css";
 
 const HeroSection = () => {
   return (

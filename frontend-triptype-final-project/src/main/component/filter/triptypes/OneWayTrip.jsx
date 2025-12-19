@@ -1,5 +1,5 @@
 // OneWayTrip.jsx
-import "../../../style/filter/triptypes/OneWayTrip.css";
+import "../../../css/filter/triptypes/OneWayTrip.css";
 import { useRef } from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -115,7 +115,7 @@ const OneWayTrip = ({
         <input
           readOnly
           tabIndex={-1}
-          value={startDate ? format(startDate, "yyyy.MM.dd") : "연도-월-일"}
+          value={startDate ? format(startDate, "yyyy.MM.dd") : "연도 - 월 - 일"}
         />
       </div>
 

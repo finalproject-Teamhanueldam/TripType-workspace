@@ -16,11 +16,14 @@ public class StatisticsServiceImpl implements StatisticsService {
 	
 	private final StatisticsDao statisticsDao;
 
-	private SqlSessionTemplate sqlSession;
+	private final SqlSessionTemplate sqlSession;
 	
 	@Override
 	public List<PopularRouteDto> getPopularRoutesTop5() {
 		
 		return statisticsDao.selectPopularRoutesTop5(sqlSession);
 	}
+	
+	
+	
 }

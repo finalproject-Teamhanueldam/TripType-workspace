@@ -13,6 +13,7 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> {}) 							// @CrossOrigin 어노테이션 붙여도 이 설정 없으면 security가 막음
                 .formLogin(form -> form.disable())      // 기본 로그인 화면 비활성화
                 .httpBasic(basic -> basic.disable())      // Basic Auth 비활성화
                 .authorizeHttpRequests(auth -> auth

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../../style/filter/FilterSection.css";
+import "../../css/filter/FilterSection.css";
 
 import TripFilterContainer from "./TripFilterContainer";
 import PassengerFilter from "./PassengerFilter";

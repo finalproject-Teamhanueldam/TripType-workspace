@@ -5,14 +5,39 @@ import { Chart } from "react-google-charts";
 const TopSearchedDestinationComponent = () => {
 
     const [routes, setRoutes] = useState([]);
-    const [loading, setloading] = useState(true);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPopularRoutes = async () => {
+            
+            const url = "http://localhost:8001/triptype/admin/statistics/popular-routes";
+            const method = "get";
+            
+            try {
+                const response = await axios.get(url);
+                setRoutes(response.data);
+
+                } catch (error) {
+
+                console.error("통계 조회 실패", error);
+
+                } finally {
+                    
+                setLoading(false);
+                }
+
+    };
+
+    fetchPopularRoutes();
+}, []);
+
+    if (!routes || routes.length === 0) return <div>데이터 없음</div>;
 
     const data = [
-        ["도시 명", "검색 량"],
-        routes.map(route => [
-            `$(route.departIata) → $(route.arriveIata) `, route.searchCount
-
-        ])
+        ["노선 명", "검색 량"],
+        ...routes.map(route => [
+            `${route.departIata} → ${route.arriveIata}`, Number(route.searchCount)
+            ])
 
     ];
     

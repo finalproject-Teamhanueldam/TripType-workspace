@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { AiFillDelete } from "react-icons/ai";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import "../../../style/filter/triptypes/MultiTrip.css";
+import "../../../css/filter/triptypes/MultiTrip.css";
 
 const MAX_MULTI_SEGMENTS = 6;
 
@@ -158,7 +158,7 @@ const MultiTrip = ({
             <input
               readOnly
               tabIndex={-1}
-              value={seg.date ? format(seg.date, "yyyy.MM.dd") : "연도-월-일"}
+              value={seg.date ? format(seg.date, "yyyy.MM.dd") : "연도 - 월 - 일"}
             />
           </div>
 
