@@ -12,22 +12,29 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> {}) 							// @CrossOrigin 어노테이션 붙여도 이 설정 없으면 security가 막음
-                .formLogin(form -> form.disable())      // 기본 로그인 화면 비활성화
-                .httpBasic(basic -> basic.disable())      // Basic Auth 비활성화
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/",
-                                "/triptype/",
-                                "/triptype/logo_image/**",   // 로고 이미지 허용
-                                "/triptype/images/**",
-                                "/triptype/css/**",
-                                "/triptype/js/**",
-                                "/**"
-                        ).permitAll()
-                        .anyRequest().permitAll()
-                );
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> {})                
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
+
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/", 
+                    "/triptype/",
+                    "/oauth2/**",                 // ⭐ 네이버 OAuth 진입
+                    "/login/**",                  // ⭐ OAuth 콜백
+                    "/triptype/login/**",         // ⭐ 로그인 성공 후
+                    "/triptype/images/**",
+                    "/triptype/css/**",
+                    "/triptype/js/**"
+                ).permitAll()
+                .anyRequest().permitAll()
+            )
+
+            // ⭐ 네이버 OAuth 핵심
+            .oauth2Login(oauth -> oauth
+                .defaultSuccessUrl("/triptype/login/success", true)
+            );
 
         return http.build();
     }
