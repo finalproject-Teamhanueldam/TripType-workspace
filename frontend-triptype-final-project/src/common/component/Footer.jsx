@@ -4,18 +4,6 @@ import "../css/Footer.css";
 
 const Footer = () => {
 
-  /* 🔧 개발용: 항공권 가격 수집 트리거 */
-  const handleCollectFlight = async () => {
-    try {
-      const res = await axios.post("/api/admin/flight-collect");
-      alert("항공권 가격 수집 완료");
-      console.log(res.data);
-    } catch (err) {
-      console.error(err);
-      alert("항공권 수집 실패 (콘솔 확인)");
-    }
-  };
-
   return (
     <footer className="footer">
       <div className="footer-inner">
@@ -66,14 +54,14 @@ const Footer = () => {
         <div className="footer-bottom">
           <p>© 2025 TripType. All rights reserved.</p>
 
-          {/* 🔧 개발자용 수동 트리거 버튼 */}
+          {/* 🔧 개발자용 수동 트리거 버튼
           <button
             className="footer-dev-btn"
             onClick={handleCollectFlight}
             title="개발자용 항공권 수집 트리거"
           >
             API COLLECT
-          </button>
+          </button> */}
         </div>
 
       </div>

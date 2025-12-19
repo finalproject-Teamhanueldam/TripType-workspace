@@ -2,6 +2,10 @@ import "./App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
 
+// Toastify 추가
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 // H 대문자 수정 (12.16 김동윤)
 import Header from "./common/component/Header";
 import Footer from "./common/component/Footer";
@@ -53,6 +57,19 @@ function App() {
 
   return (
     <div> 
+
+      {/* 🔥 Toastify는 App 최상단에 단 1번 */}
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        hideProgressBar
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        pauseOnHover={false}
+        draggable={false}
+      />
     
       {/* 수정 : admin and member 관련 페이지 헤더 예외 처리 (최경환)*/}
       {!hideHeader && <Header />}

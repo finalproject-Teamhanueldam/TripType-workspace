@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd" >
+
+<mapper namespace="flightPriceHistoryMapper">
+
+    <!-- =========================================
+         1️⃣ 1시간 이내 가격 캐시 조회
+         ========================================= -->
+    <select id="selectRecentPriceHistory"
+            parameterType="com.kh.triptype.admin.pricing.model.dto.FlightSearchRequestDto"
+            resultType="com.kh.triptype.admin.pricing.model.vo.FlightPriceHistoryVo">
+
+        SELECT
+            FLIGHT_PRICE_HISTORY_NO,
+            FLIGHT_OFFER_PRICE_TOTAL,
+            FLIGHT_OFFER_CURRENCY,
+            FLIGHT_OFFER_ONE_WAY,
+            FLIGHT_OFFER_DEPART_DATE,
+            FLIGHT_OFFER_RETURN_DATE,
+            FLIGHT_OFFER_API_QUERY_DATE,
+            AIRLINE_ID
+        FROM TB_FLIGHT_PRICE_HISTORY
+        WHERE
+            DEPART_IATA_CODE = #{depart}
+            AND ARRIVE_IATA_CODE = #{arrive}
+            AND FLIGHT_OFFER_DEPART_DATE = TO_DATE(#{departDate}, 'YYYY-MM-DD')
+
+            <!-- 왕복일 경우만 귀국일 조건 -->
+            <if test="returnDate != null">
+                AND FLIGHT_OFFER_RETURN_DATE = TO_DATE(#{returnDate}, 'YYYY-MM-DD')
+            </if>
+
+            <!-- 편도 / 왕복 구분 -->
+            <if test="tripType == 'ONEWAY'">
+                AND FLIGHT_OFFER_ONE_WAY = 'Y'
+            </if>
+            <if test="tripType != 'ONEWAY'">
+                AND FLIGHT_OFFER_ONE_WAY = 'N'
+            </if>
+
+            <!-- 🔥 1시간 이내 캐시 -->
+            AND FLIGHT_OFFER_API_QUERY_DATE >= SYSDATE - (1 / 24)
+
+        ORDER BY FLIGHT_OFFER_API_QUERY_DATE DESC
+
+    </select>
+
+    <!-- =========================================
+         2️⃣ 가격 히스토리 저장
+         ========================================= -->
+    <insert id="insertFlightPriceHistory"
+            parameterType="com.kh.triptype.admin.pricing.model.vo.FlightPriceHistoryVo">
+
+        INSERT INTO TB_FLIGHT_PRICE_HISTORY (
+            FLIGHT_PRICE_HISTORY_NO,
+            FLIGHT_OFFER_PRICE_TOTAL,
+            FLIGHT_OFFER_CURRENCY,
+            FLIGHT_OFFER_ONE_WAY,
+            FLIGHT_OFFER_DEPART_DATE,
+            FLIGHT_OFFER_RETURN_DATE,
+            FLIGHT_OFFER_API_QUERY_DATE,
+            AIRLINE_ID,
+            DEPART_IATA_CODE,
+            ARRIVE_IATA_CODE
+        ) VALUES (
+            SEQ_FLIGHT_PRICE_HISTORY.NEXTVAL,
+            #{flightOfferPriceTotal},
+            #{flightOfferCurrency},
+            #{flightOfferOneWay},
+            #{flightOfferDepartDate},
+            #{flightOfferReturnDate},
+            SYSDATE,
+            #{airlineId},
+            #{departIataCode},
+            #{arriveIataCode}
+        )
+
+    </insert>
+
+</mapper>

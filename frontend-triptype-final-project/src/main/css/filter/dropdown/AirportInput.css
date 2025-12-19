@@ -1,0 +1,77 @@
+/* ============================================
+   ✈ AirportInput (공통 드롭다운)
+   ============================================ */
+
+.airport-field {
+  position: relative;
+  width: 100%;
+}
+
+
+
+/* --------------------------------------------
+   🔹 Dropdown Wrapper
+   -------------------------------------------- */
+.airport-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+
+  max-height: 260px;
+  overflow-y: auto;
+
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+
+  padding: 6px 0;
+  z-index: 50;
+}
+
+/* --------------------------------------------
+   🔹 Dropdown Item
+   -------------------------------------------- */
+.airport-dropdown li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 500;
+
+  cursor: pointer;
+  color: #023059;
+}
+
+/* Hover */
+.airport-dropdown li:hover {
+  background: #f1f7fb;
+}
+
+/* --------------------------------------------
+   🔹 IATA Code
+   -------------------------------------------- */
+.airport-dropdown .iata {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6ebfe4;
+  margin-left: 8px;
+}
+
+/* --------------------------------------------
+   🔹 Scrollbar (선택)
+   -------------------------------------------- */
+.airport-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.airport-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.airport-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}

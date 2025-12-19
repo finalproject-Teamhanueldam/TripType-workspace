@@ -1,72 +1,73 @@
-// OneWayTrip.jsx
 import "../../../css/filter/triptypes/OneWayTrip.css";
 import { useRef } from "react";
 import { format } from "date-fns";
-import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
+import AirportInput from "../dropdown/AirportInput";
 
 const OneWayTrip = ({
-  depart,
-  arrive,
+  depart,        // string (표시용)
+  arrive,        // string (표시용)
   startDate,
-  setDepart,
-  setArrive,
+  setDepart,     // (value: string) => void
+  setArrive,     // (value: string) => void
   onSwap,
   onOpenCalendar,
+  onSearch,
 }) => {
   const svgRef = useRef(null);
-  const navigate = useNavigate();
 
+  /* ===============================
+     🔁 스왑
+     =============================== */
   const handleSwap = () => {
-    if (!depart || !arrive) return;
-
+    // ❌ 여기서 조건 판단하면 안 됨
+    // 판단은 전부 부모(TripFilterContainer)에서
     onSwap();
 
     svgRef.current?.animate(
       [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
-      {
-        duration: 400,
-        easing: "ease-in-out",
-        fill: "none",
-      }
+      { duration: 400, easing: "ease-in-out", fill: "none" }
     );
   };
 
-  /* 🔥 검색 버튼 클릭 (편도) */
-  const handleSearch = () => {
-    if (!depart || !arrive || !startDate) {
-      alert("출발지, 도착지, 가는 편 날짜를 선택하세요");
+  /* ===============================
+     🔍 검색
+     =============================== */
+  const handleSearchClick = () => {
+    if (!depart || !arrive) {
+      toast.error("출발지와 도착지는 목록에서 선택해주세요");
       return;
     }
 
-    const params = new URLSearchParams({
-      tripType: "oneway",
-      depart,
-      arrive,
-      startDate: format(startDate, "yyyy-MM-dd"),
-    });
+    if (!startDate) {
+      toast.error("가는 편 날짜를 선택하세요");
+      return;
+    }
 
-    // airlineNo는 아직 없으므로 임시값 0
-    navigate(`/airline/detail/0?${params.toString()}`);
+    onSearch();
   };
 
   return (
     <div className="filter-main-row one-way">
-      {/* 출발지 */}
-      <div className="filter-item">
-        <label>출발지</label>
-        <input
-          placeholder="출발지 입력"
-          value={depart}
-          onChange={(e) => setDepart(e.target.value)}
-        />
-      </div>
+      {/* ===============================
+          출발지
+         =============================== */}
+      <AirportInput
+        label="출발지"
+        value={depart}
+        onChange={setDepart}
+        onConfirm={setDepart}
+      />
 
-      {/* 🔁 스위치 */}
+      {/* ===============================
+          스위치
+         =============================== */}
       <button
         type="button"
         className="switch-icon"
         onClick={handleSwap}
-        disabled={!depart || !arrive}
+        disabled={!depart && !arrive}   // ✅ 둘 다 없을 때만 비활성화
         aria-label="출발지와 도착지 교체"
       >
         <svg
@@ -81,30 +82,28 @@ const OneWayTrip = ({
             d="M4 7H20M20 7L16 3M20 7L16 11"
             stroke="currentColor"
             strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
           />
           <path
             d="M20 17H4M4 17L8 21M4 17L8 13"
             stroke="currentColor"
             strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
           />
         </svg>
       </button>
 
-      {/* 도착지 */}
-      <div className="filter-item">
-        <label>도착지</label>
-        <input
-          placeholder="도착지 입력"
-          value={arrive}
-          onChange={(e) => setArrive(e.target.value)}
-        />
-      </div>
+      {/* ===============================
+          도착지
+         =============================== */}
+      <AirportInput
+        label="도착지"
+        value={arrive}
+        onChange={setArrive}
+        onConfirm={setArrive}
+      />
 
-      {/* 가는 편 */}
+      {/* ===============================
+          가는 편
+         =============================== */}
       <div
         className="filter-item date-box"
         onClick={onOpenCalendar}
@@ -119,11 +118,13 @@ const OneWayTrip = ({
         />
       </div>
 
-      {/* 🔍 검색 */}
+      {/* ===============================
+          검색
+         =============================== */}
       <button
         type="button"
         className="filter-section-search-btn"
-        onClick={handleSearch}
+        onClick={handleSearchClick}
       >
         검색
       </button>

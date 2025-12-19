@@ -187,28 +187,61 @@
   border-radius: 50%;
   border: none;
   padding: 0;
+  margin: 0;
 
   cursor: pointer;
-
-  /* margin 사용 금지 */
-  margin: 0;
 
   /* grid 칸 기준 정중앙 */
   justify-self: center;
   align-self: center;
 
-  /* 레이아웃별 수직 보정용 */
+  /* 레이아웃별 수직 보정 */
   transform: translateY(var(--switch-offset, 0px));
+
+  transition:
+    opacity 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
 
-.switch-icon:active {
+/* SVG 사이즈 */
+.switch-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 기본 아이콘 색 */
+.switch-icon svg path {
+  stroke: #023059;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* 눌림 효과 (활성 상태만) */
+.switch-icon:active:not(:disabled) {
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
+/* ===============================
+   ❌ 비활성화 상태 (핵심)
+   =============================== */
+.switch-icon:disabled {
+  cursor: not-allowed;     /* 클릭 불가 */
+  box-shadow: none;
+
+}
+
+/* 비활성화 아이콘 색 */
+.switch-icon:disabled svg path {
+  stroke: #999;
+}
+
+/* SVG 회전 기준 */
 .switch-svg {
   display: block;
   transform-origin: 50% 50%;
 }
+
 
 /* ===============================
    🔷 레이아웃별 보정값
