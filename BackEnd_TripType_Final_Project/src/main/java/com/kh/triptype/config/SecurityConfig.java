@@ -21,9 +21,8 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/", 
                     "/triptype/",
-                    "/oauth2/**",                 // ⭐ 네이버 OAuth 진입
-                    "/login/**",                  // ⭐ OAuth 콜백
-                    "/triptype/login/**",         // ⭐ 로그인 성공 후
+                    "/triptype/oauth2/**",
+                    "/triptype/login/**",
                     "/triptype/images/**",
                     "/triptype/css/**",
                     "/triptype/js/**"
