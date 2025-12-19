@@ -22,7 +22,7 @@
             DEPART_IATA_CODE,
             ARRIVE_IATA_CODE
         ) VALUES (
-            SEQ_SEARCH_LOG.NEXTVAL,
+            TB_SEARCH_LOG_SEQ.NEXTVAL,
             #{searchLogOneWay},
             #{searchLogPassengerCount},
             #{searchLogDepartDate},

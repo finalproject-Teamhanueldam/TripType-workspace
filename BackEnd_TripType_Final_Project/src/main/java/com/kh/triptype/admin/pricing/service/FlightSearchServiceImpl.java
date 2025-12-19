@@ -1,5 +1,6 @@
 package com.kh.triptype.admin.pricing.service;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,7 +10,11 @@ import java.util.Map;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -20,7 +25,7 @@ import com.kh.triptype.admin.pricing.dao.FlightSearchHistoryDao;
 import com.kh.triptype.admin.pricing.model.dto.FlightSearchRequestDto;
 import com.kh.triptype.admin.pricing.model.dto.FlightSearchResponseDto;
 import com.kh.triptype.admin.pricing.model.dto.FlightSegmentDto;
-import com.kh.triptype.admin.pricing.model.vo.FlightPriceHistoryVo;
+import com.kh.triptype.admin.pricing.model.vo.FlightSearchCacheVo;
 import com.kh.triptype.admin.pricing.model.vo.FlightSearchHistoryVo;
 
 import lombok.RequiredArgsConstructor;
@@ -46,75 +51,97 @@ public class FlightSearchServiceImpl implements FlightSearchService {
 
     private static final String AMADEUS_TOKEN_URL =
             "https://test.api.amadeus.com/v1/security/oauth2/token";
+
     private static final String AMADEUS_FLIGHT_OFFERS_URL =
             "https://test.api.amadeus.com/v2/shopping/flight-offers";
 
     @Override
     public FlightSearchResponseDto searchFlights(FlightSearchRequestDto request) {
+        System.out.println("🔥 [1] searchFlights 진입");
 
         validateRequest(request);
 
         /* ===============================
            1️⃣ 검색 기록 저장
            =============================== */
-        FlightSearchHistoryVo historyVo = FlightSearchHistoryVo.builder()
-                .searchLogOneWay("ONEWAY".equals(request.getTripType()) ? "Y" : "N")
-                .searchLogPassengerCount(
-                        request.getAdultCount() + request.getMinorCount()
-                )
-                .searchLogDepartDate(
-                        request.getDepartDate() != null
-                                ? Date.valueOf(request.getDepartDate())
-                                : null
-                )
-                .searchLogReturnDate(
-                        request.getReturnDate() != null
-                                ? Date.valueOf(request.getReturnDate())
-                                : null
-                )
-                .departIataCode(request.getDepart())
-                .arriveIataCode(request.getArrive())
-                .memberNo(0)
-                .build();
+
+        // 🔥 임시 하드코딩 회원 번호
+        Long memberNo = 1L;
+
+        FlightSearchHistoryVo historyVo =
+                FlightSearchHistoryVo.builder()
+                        .searchLogOneWay(
+                                "ONEWAY".equals(request.getTripType()) ? "Y" : "N"
+                        )
+                        .searchLogPassengerCount(
+                                request.getAdultCount() + request.getMinorCount()
+                        )
+                        .searchLogDepartDate(
+                                request.getDepartDate() != null
+                                        ? Date.valueOf(request.getDepartDate())
+                                        : null
+                        )
+                        .searchLogReturnDate(
+                                request.getReturnDate() != null
+                                        ? Date.valueOf(request.getReturnDate())
+                                        : null
+                        )
+                        .departIataCode(request.getDepart())
+                        .arriveIataCode(request.getArrive())
+                        .memberNo(memberNo)
+                        .build();
 
         flightSearchHistoryDao.insertSearchHistory(sqlSession, historyVo);
+        System.out.println("📝 검색 로그 저장 완료: " + historyVo);
 
         /* ===============================
-           2️⃣ MULTI
+           2️⃣ MULTI 검색
            =============================== */
         if ("MULTI".equals(request.getTripType())) {
             return searchMultiFlights(request);
         }
 
         /* ===============================
-           3️⃣ 캐시 조회
+           3️⃣ 1시간 캐시 조회 (TB_FLIGHT_PRICE_HISTORY)
            =============================== */
-        List<FlightPriceHistoryVo> cachedList =
-                flightPriceHistoryDao.selectRecentPriceHistory(sqlSession, request);
+        List<FlightSearchCacheVo> cachedList =
+                flightPriceHistoryDao.selectRecentSearchCache(sqlSession, request);
+
+        System.out.println(
+                "cachedList size = " + (cachedList == null ? "null" : cachedList.size())
+        );
 
         if (cachedList != null && !cachedList.isEmpty()) {
-            return FlightSearchResponseDto.from(cachedList);
+            System.out.println("⚡ 캐시 HIT → API 호출 안 함");
+            return FlightSearchResponseDto.fromCache(cachedList);
         }
 
         /* ===============================
            4️⃣ 외부 API 호출
            =============================== */
         String accessToken = issueAccessToken();
+        System.out.println("🌐 캐시 MISS → 외부 API 호출");
 
         List<Map<String, Object>> apiData =
                 callSingleFlightApi(accessToken, request);
 
-        List<FlightPriceHistoryVo> apiResultList =
-                convertToPriceHistory(apiData, request);
+        System.out.println("🌐 API 응답 건수 = " + (apiData == null ? 0 : apiData.size()));
 
         /* ===============================
-           5️⃣ 가격 히스토리 저장
+           5️⃣ API → 캐시 VO 변환
            =============================== */
-        for (FlightPriceHistoryVo vo : apiResultList) {
-            flightPriceHistoryDao.insertFlightPriceHistory(sqlSession, vo);
+        List<FlightSearchCacheVo> cacheVoList =
+                convertToSearchCache(apiData, request);
+
+        /* ===============================
+           6️⃣ 캐시 저장
+           =============================== */
+        for (FlightSearchCacheVo vo : cacheVoList) {
+            System.out.println("💾 캐시 저장: " + vo.getFlightOfferPriceTotal());
+            flightPriceHistoryDao.insertSearchCache(sqlSession, vo);
         }
 
-        return FlightSearchResponseDto.from(apiResultList);
+        return FlightSearchResponseDto.fromCache(cacheVoList);
     }
 
     /* =====================================================
@@ -139,7 +166,8 @@ public class FlightSearchServiceImpl implements FlightSearchService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-            var body = new org.springframework.util.LinkedMultiValueMap<String, String>();
+            var body =
+                    new org.springframework.util.LinkedMultiValueMap<String, String>();
             body.add("grant_type", "client_credentials");
             body.add("client_id", clientId);
             body.add("client_secret", clientSecret);
@@ -154,11 +182,9 @@ public class FlightSearchServiceImpl implements FlightSearchService {
             return (String) response.getBody().get("access_token");
 
         } catch (RestClientException e) {
-            // ✅ 여기서 RestClientException 사용
             throw new IllegalStateException("Amadeus AccessToken 발급 실패", e);
         }
     }
-
 
     /* =====================================================
        🔹 단일 여정 API
@@ -173,7 +199,7 @@ public class FlightSearchServiceImpl implements FlightSearchService {
 
         UriComponentsBuilder uri =
                 UriComponentsBuilder
-                		.fromUriString(AMADEUS_FLIGHT_OFFERS_URL)
+                        .fromUriString(AMADEUS_FLIGHT_OFFERS_URL)
                         .queryParam("originLocationCode", request.getDepart())
                         .queryParam("destinationLocationCode", request.getArrive())
                         .queryParam("departureDate", request.getDepartDate())
@@ -246,9 +272,8 @@ public class FlightSearchServiceImpl implements FlightSearchService {
             originDestinations.add(od);
         }
 
-        List<Map<String, Object>> travelers = List.of(
-                Map.of("id", "1", "travelerType", "ADULT")
-        );
+        List<Map<String, Object>> travelers =
+                List.of(Map.of("id", "1", "travelerType", "ADULT"));
 
         return Map.of(
                 "originDestinations", originDestinations,
@@ -258,38 +283,49 @@ public class FlightSearchServiceImpl implements FlightSearchService {
     }
 
     /* =====================================================
-       🔹 API → VO
+       🔹 API → 캐시 VO
        ===================================================== */
-    private List<FlightPriceHistoryVo> convertToPriceHistory(
+    private List<FlightSearchCacheVo> convertToSearchCache(
             List<Map<String, Object>> apiData,
             FlightSearchRequestDto request) {
 
-        List<FlightPriceHistoryVo> result = new ArrayList<>();
+        List<FlightSearchCacheVo> result = new ArrayList<>();
+
+        if (apiData == null) {
+            return result;
+        }
 
         for (Map<String, Object> item : apiData) {
 
             Map<?, ?> price = (Map<?, ?>) item.get("price");
 
             result.add(
-                FlightPriceHistoryVo.builder()
-                    .flightOfferPriceTotal(String.valueOf(price.get("total")))
-                    .flightOfferCurrency(String.valueOf(price.get("currency")))
-                    .flightOfferOneWay(
-                        "ONEWAY".equals(request.getTripType()) ? "Y" : "N"
-                    )
-                    .flightOfferDepartDate(
-                        Date.valueOf(request.getDepartDate())
-                    )
-                    .flightOfferReturnDate(
-                        request.getReturnDate() != null
-                            ? Date.valueOf(request.getReturnDate())
-                            : null
-                    )
-                    .flightOfferApiQueryDate(
-                        Date.valueOf(LocalDate.now())
-                    )
-                    .airlineId(0)
-                    .build()
+                    FlightSearchCacheVo.builder()
+                            .flightOfferId(0)
+                            .flightOfferPriceTotal(
+                            	    new BigDecimal(String.valueOf(price.get("total")))
+                            )
+                            .flightOfferCurrency(
+                                    String.valueOf(price.get("currency"))
+                            )
+                            .flightOfferOneWay(
+                                    "ONEWAY".equals(request.getTripType()) ? "Y" : "N"
+                            )
+                            .flightOfferDepartDate(
+                                    Date.valueOf(request.getDepartDate())
+                            )
+                            .flightOfferReturnDate(
+                                    request.getReturnDate() != null
+                                            ? Date.valueOf(request.getReturnDate())
+                                            : null
+                            )
+                            .flightOfferApiQueryDate(
+                                    Date.valueOf(LocalDate.now())
+                            )
+                            .departIataCode(request.getDepart())
+                            .arriveIataCode(request.getArrive())
+                            .airlineId(null)
+                            .build()
             );
         }
 

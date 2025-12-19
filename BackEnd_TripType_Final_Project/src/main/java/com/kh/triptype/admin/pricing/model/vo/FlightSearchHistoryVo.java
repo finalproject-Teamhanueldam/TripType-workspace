@@ -36,7 +36,7 @@ public class FlightSearchHistoryVo {
     private Date searchLogDate;
 
     /** 회원 번호 */
-    private int memberNo;
+    private Long memberNo;
 
     /** 출발 공항 IATA 코드 */
     private String departIataCode;
