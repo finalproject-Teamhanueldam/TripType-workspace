@@ -56,4 +56,16 @@ public class FlightSearchRequestDto {
 
     /** 다구간 구간 리스트 */
     private List<FlightSegmentDto> segments;
+    
+
+    /* ===============================
+       🔹 사용자 정보 (🔥 추가)
+       =============================== */
+
+    /**
+     * 회원 번호
+     * - 현재: 프론트에서 전달 안 해도 됨 (null)
+     * - 추후: 로그인 시 JWT / 세션 기반으로 사용
+     */
+    private Long memberNo;
 }

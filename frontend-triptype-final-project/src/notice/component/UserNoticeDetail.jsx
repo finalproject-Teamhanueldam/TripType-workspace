@@ -1,11 +1,28 @@
 import "../css/UserNoticeDetail.css";
-import NoticeCommentList from "./NoticeCommentList";
-import NoticeCommentForm from "./NoticeCommentForm";
+import NoticeComment from "./NoticeComment";
+// import NoticeCommentForm from "./NoticeCommentForm";
+import { useNavigate } from "react-router-dom";
+import { FaAngleLeft } from "react-icons/fa";
+
 
 function UserNoticeDetail() {
+  const navigate = useNavigate();
   return (
     <div className="notice-detail-page">
-      <h2 className="notice-detail-title">항공권 시스템 점검 안내</h2>
+      {/* 제목 + 목록으로 */}
+      <div className="notice-title-row">
+        <h2 className="notice-detail-title">
+          항공권 시스템 점검 안내
+        </h2>
+
+        <button
+          className="notice-back-btn icon"
+          onClick={() => navigate(-1)}
+        >
+          <FaAngleLeft />
+          목록으로
+        </button>
+      </div>
       <div className="notice-meta">
         2025-01-01 · 조회수 123
       </div>
@@ -16,8 +33,9 @@ function UserNoticeDetail() {
       </div>
 
       {/* 댓글 */}
-      <NoticeCommentList />
-      <NoticeCommentForm />
+      {/* <NoticeCommentForm /> */}
+      <NoticeComment />
+            
     </div>
   );
 }

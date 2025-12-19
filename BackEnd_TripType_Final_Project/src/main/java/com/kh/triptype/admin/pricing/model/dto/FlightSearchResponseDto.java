@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.kh.triptype.admin.pricing.model.vo.FlightPriceHistoryVo;
+import com.kh.triptype.admin.pricing.model.vo.FlightSearchCacheVo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * 항공권 검색 응답 DTO
- * - 단일/왕복(DB) + 다구간(API) 공통 응답
+ * - 단일/왕복(DB) + 캐시 + 다구간(API) 공통 응답
  */
 @Data
 @NoArgsConstructor
@@ -25,7 +26,7 @@ public class FlightSearchResponseDto {
     private List<FlightOfferResultDto> flightList;
 
     /* ===============================
-       🔹 DB 결과 → 응답 DTO
+       🔹 DB (TB_FLIGHT_OFFER) → 응답 DTO
        =============================== */
     public static FlightSearchResponseDto from(
             List<FlightPriceHistoryVo> list
@@ -52,6 +53,53 @@ public class FlightSearchResponseDto {
                                 : null
                         )
                         .airlineId(vo.getAirlineId())
+                        .apiQueryDate(
+                            vo.getFlightOfferApiQueryDate() != null
+                                ? vo.getFlightOfferApiQueryDate().toString()
+                                : null
+                        )
+                        .build()
+                );
+            }
+        }
+
+        return FlightSearchResponseDto.builder()
+                .flightList(result)
+                .build();
+    }
+
+    /* ===============================
+       🔹 캐시 (TB_FLIGHT_PRICE_HISTORY) → 응답 DTO
+       =============================== */
+    public static FlightSearchResponseDto fromCache(
+            List<FlightSearchCacheVo> list
+    ) {
+
+        List<FlightOfferResultDto> result = new ArrayList<>();
+
+        if (list != null) {
+            for (FlightSearchCacheVo vo : list) {
+                result.add(
+                    FlightOfferResultDto.builder()
+                        .flightOfferId(vo.getFlightOfferId())
+                        .priceTotal(String.valueOf(vo.getFlightOfferPriceTotal()))
+                        .currency(vo.getFlightOfferCurrency())
+                        .oneWay(vo.getFlightOfferOneWay())
+                        .departDate(
+                            vo.getFlightOfferDepartDate() != null
+                                ? vo.getFlightOfferDepartDate().toString()
+                                : null
+                        )
+                        .returnDate(
+                            vo.getFlightOfferReturnDate() != null
+                                ? vo.getFlightOfferReturnDate().toString()
+                                : null
+                        )
+                        .airlineId(
+                            vo.getAirlineId() != null
+                                ? vo.getAirlineId()
+                                : 0
+                        )
                         .apiQueryDate(
                             vo.getFlightOfferApiQueryDate() != null
                                 ? vo.getFlightOfferApiQueryDate().toString()

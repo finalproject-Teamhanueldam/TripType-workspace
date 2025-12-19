@@ -135,8 +135,16 @@ const TripFilterContainer = ({
      🔍 검색 실행
      =============================== */
   const handleSearch = async (searchParams) => {
+    // 🔹 API 설정
+    const url = "http://localhost:8001/triptype/api/flights/search";
+    const method = "post";
+
     try {
-      const res = await axios.post("/api/flights/search", searchParams);
+      const res = await axios({
+        url,
+        method,
+        data: searchParams,
+      });
 
       navigate("/airline/detail/0", {
         state: {
@@ -145,10 +153,11 @@ const TripFilterContainer = ({
         },
       });
     } catch (err) {
-      console.error(err);
+      console.error("항공권 검색 API 오류:", err);
       toast.error("항공권 검색 중 오류가 발생했습니다.");
     }
   };
+
 
   return (
     <>

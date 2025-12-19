@@ -4,65 +4,58 @@ import "../css/AdminNoticeList.css";
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { FaTrashAlt, FaSearch } from "react-icons/fa";
+import { NoticeDummy } from "../data/NoticeDummy";
+
+import HighlightText from "../util/HighlightText";
 
 function AdminNoticeList() {
+  const notices = NoticeDummy;
   const navigate = useNavigate();
+
   const [deleteMode, setDeleteMode] = useState(false);
   const [checked, setChecked] = useState([]);
   const [keyword, setKeyword] = useState("");
+  const [sortType, setSortType] = useState("latest");
 
-  /* ===== 샘플 데이터 ===== */
-  const notices = [
-    {
-      id: 1,
-      important: "Y",
-      title: "항공권 시스템 점검 안내",
-      content: "시스템 안정화를 위한 점검이 진행됩니다.",
-      createdAt: "2025-01-10",
-      updatedAt: "2025-01-12",
-      views: 324,
-      isDel: "N",
-    },
-    {
-      id: 2,
-      important: "N",
-      title: "이벤트 종료 안내",
-      content: "프로모션 이벤트가 종료되었습니다.",
-      createdAt: "2025-01-08",
-      updatedAt: "2025-01-08",
-      views: 98,
-      isDel: "N",
-    },
-  ];
-
-  /* ===== 검색 필터 ===== */
+  /* ===== 검색 + 정렬 ===== */
   const filteredNotices = useMemo(() => {
-    if (!keyword.trim()) return notices;
+    let result = notices;
 
-    return notices.filter(n =>
-      n.title.includes(keyword) || n.content.includes(keyword)
+    if (keyword.trim()) {
+      result = result.filter(
+        (n) =>
+          n.title.includes(keyword) || n.content.includes(keyword)
+      );
+    }
+
+    return [...result].sort((a, b) => {
+      if (a.important !== b.important) {
+        return a.important === "Y" ? -1 : 1;
+      }
+
+      if (sortType === "views") {
+        return b.views - a.views;
+      }
+
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+  }, [keyword, sortType, notices]);
+
+  /* ===== 체크 토글 ===== */
+  const toggleOne = (id) => {
+    setChecked((prev) =>
+      prev.includes(id)
+        ? prev.filter((v) => v !== id)
+        : [...prev, id]
     );
-  }, [keyword, notices]);
-
-  const goDetail = (id) => {
-    if (deleteMode) return;
-    navigate(`/admin/notice/${id}`);
   };
 
   const toggleAll = (e) => {
     if (e.target.checked) {
-      setChecked(filteredNotices.map(n => n.id));
+      setChecked(filteredNotices.map((n) => n.id));
     } else {
       setChecked([]);
     }
-  };
-
-  const toggleOne = (id) => {
-    setChecked(prev =>
-      prev.includes(id)
-        ? prev.filter(v => v !== id)
-        : [...prev, id]
-    );
   };
 
   const deleteSelected = () => {
@@ -89,6 +82,21 @@ function AdminNoticeList() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
             />
+          </div>
+
+          <div className="sort-box">
+            <button
+              className={sortType === "latest" ? "active" : ""}
+              onClick={() => setSortType("latest")}
+            >
+              최신순
+            </button>
+            <button
+              className={sortType === "views" ? "active" : ""}
+              onClick={() => setSortType("views")}
+            >
+              조회수순
+            </button>
           </div>
         </div>
 
@@ -124,11 +132,12 @@ function AdminNoticeList() {
           <span>수정일</span>
           <span>조회수</span>
           <span>삭제여부</span>
-          <span className="check-col">
-            {deleteMode && (
+
+          {deleteMode && (
+            <span className="check-col">
               <input type="checkbox" onChange={toggleAll} />
-            )}
-          </span>
+            </span>
+          )}
         </div>
 
         {filteredNotices.length === 0 && (
@@ -137,44 +146,89 @@ function AdminNoticeList() {
           </div>
         )}
 
-        {filteredNotices.map(n => (
+        {filteredNotices.map((n) => (
           <div
             key={n.id}
-            className="notice-row"
-            onClick={() => goDetail(n.id)}
+            className={`notice-row ${
+              deleteMode ? "delete-mode" : ""
+            }`}
+            onClick={() => {
+              if (deleteMode) {
+                toggleOne(n.id); // ✅ row 클릭 = 체크 토글
+              } else {
+                navigate(`/admin/notice/${n.id}`); // ✅ 상세 이동
+              }
+            }}
           >
             <span>{n.id}</span>
-            <span className="badge important">{n.important}</span>
-            <span className="title">{n.title}</span>
-            <span className="content-preview">{n.content}</span>
+
+            <span>
+              {n.important === "Y" ? (
+                <span className="badge-important">Y</span>
+              ) : (
+                <span className="badge-important-normal">N</span>
+              )}
+            </span>
+
+            <span className="title">
+              <HighlightText text={n.title} keyword={keyword} />
+            </span>
+
+            <span className="content-preview">
+              <HighlightText text={n.content} keyword={keyword} />
+            </span>
             <span>{n.createdAt}</span>
             <span>{n.updatedAt}</span>
             <span>{n.views}</span>
             <span className="del-flag">{n.isDel}</span>
-            <span className="check-col">
-              <input
-                type="checkbox"
-                className={deleteMode ? "visible" : ""}
-                checked={checked.includes(n.id)}
+
+            {deleteMode && (
+              <span
+                className="check-col"
                 onClick={(e) => e.stopPropagation()}
-                onChange={() => toggleOne(n.id)}
-              />
-            </span>
+              >
+                <input
+                  type="checkbox"
+                  checked={checked.includes(n.id)}
+                  onChange={() => toggleOne(n.id)}
+                />
+              </span>
+            )}
           </div>
         ))}
       </div>
 
       {/* ===== 삭제 액션 바 ===== */}
-      <div className={`delete-action-bar ${deleteMode ? "show" : ""}`}>
-        <span>{checked.length}건 선택됨</span>
-        <button
-          className="btn btn-danger"
-          disabled={checked.length === 0}
-          onClick={deleteSelected}
-        >
-          선택 삭제
-        </button>
-      </div>
+      {deleteMode && (
+        <div className="delete-floating-bar">
+          <div className="delete-info">
+            선택된 공지{" "}
+            <strong className="delete-count">
+              {checked.length}
+            </strong>
+            건
+          </div>
+
+          <div className="delete-actions">
+            <button
+              className="btn btn-outline"
+              onClick={() => {
+                setDeleteMode(false);
+                setChecked([]);
+              }}
+            >
+              취소
+            </button>
+
+            <button
+              className="btn btn-danger"
+              onClick={deleteSelected}
+            >
+              선택 삭제
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

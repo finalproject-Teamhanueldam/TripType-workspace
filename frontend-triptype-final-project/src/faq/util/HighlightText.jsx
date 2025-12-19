@@ -15,4 +15,3 @@ export function HighlightText(text, keyword) {
   );
 }
 
-// ok 좋고 정렬 (최신순 / 조회수순 / 중요공지 상단고정) 이거 마저 구현하고 검색창 디자인

@@ -14,6 +14,8 @@ public class OAuthSuccessController {
 
     @GetMapping("/success")
     public void success(HttpServletResponse response) throws IOException {
-        response.sendRedirect("http://localhost:5173/member?tab=login&oauth=success");
+    	response.sendRedirect(
+                "https://trip-type-workspace.vercel.app/?oauth=success"
+        );
     }
 }
