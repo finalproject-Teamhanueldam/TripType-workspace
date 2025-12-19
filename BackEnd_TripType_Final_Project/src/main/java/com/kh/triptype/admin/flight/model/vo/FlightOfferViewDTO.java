@@ -1,5 +1,6 @@
 package com.kh.triptype.admin.flight.model.vo;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 
 import org.apache.ibatis.type.Alias;
@@ -26,8 +27,8 @@ public class FlightOfferViewDTO {
 	private String departAirport;
 	private String destAirport;
 	
-	private LocalDateTime flightDepartDate;
-	private LocalDateTime flightArriveDate;
+	private Date flightDepartDate;
+	private Date flightArriveDate;
 	
 	private double flightPrice;
 	

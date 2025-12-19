@@ -133,13 +133,8 @@ const FlightComponent = () => {
 
         const response = await axios ({
             url,
-            method,
-            params : {
-                departAirport: "ICN",
-                destAirport: "NRT",
-                flightDepartDate: "2026-01-15",
-                adultCount: 1
-            }
+            method
+        
         })
 
         console.log(response.data);

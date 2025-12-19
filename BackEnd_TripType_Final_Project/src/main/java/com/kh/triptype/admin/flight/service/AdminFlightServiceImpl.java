@@ -1,5 +1,7 @@
 package com.kh.triptype.admin.flight.service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,10 +17,17 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.kh.triptype.admin.statistics.model.vo.PopularRouteDto;
+import com.kh.triptype.admin.statistics.service.StatisticsService;
+
+import lombok.RequiredArgsConstructor;
+
+
 @Service
+@RequiredArgsConstructor
 public class AdminFlightServiceImpl implements AdminFlightService {
 	
-	//properties에 저장되s amadeus.api.key 값을 주입
+	//properties에 저장된 amadeus.api.key 값을 주입
 	@Value("${amadeus.api.key}")
 	private String apiKey;
 	
@@ -30,6 +39,8 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 	
 	@Value("${amadeus.flight.search.url}")
 	private String flightSearchUrl;
+	
+	private final StatisticsService statisticsService;
 	
 	// Spring이 제공하는 다른 서버에 HTTP 요청을 보내기 위한 객체
 	// 요청방식(GET/POST) + 요청 헤더 + 요청 바디 를 보내고 응답을 Java객체로 변환 시켜줌
@@ -73,6 +84,81 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 		return (String) response.getBody().get("access_token");
 	}
 	
+	
+	 	@Override
+	    public List<Map<String, Object>> collectByPopularTop5() {
+	 		
+//	 		System.out.println("잘 출력되나?111");
+	 		
+	        // 통계 Top5 인기 노선
+	        List<PopularRouteDto> tooRoutes =
+	                statisticsService.getPopularRoutesTop5();
+	        
+	        if (tooRoutes == null || tooRoutes.isEmpty()) {
+	            System.out.println("탑5 인기 노선 조회 실패");
+	            
+	        } else {
+	        	System.out.println("탑5 인기 노선 조회 성공");
+	        }
+
+
+//	        System.out.println("잘출력되나?");
+
+	        // 노선별 API 호출
+	        List<Map<String, Object>> result = new ArrayList<>();
+	        // > 여기에 최종 top5 결과가 담겨야함
+	        
+	         for (PopularRouteDto route : tooRoutes) {
+	        //PopularRouteDto route = tooRoutes.get(0);
+//	        	System.out.println("반복문진행");
+	        
+	            String departAirport = route.getDepartIata();
+	            String destAirport = route.getArriveIata();
+	            String flightDepartDate = LocalDate.now()
+	                    .plusDays(3)
+	                    .toString(); // yyyy-MM-dd
+	            
+	            
+	            int adultCount = 1;
+	            
+
+//		        return fetchFlightOffers(
+//	                    departAirport,
+//	                    destAirport,
+//	                    flightDepartDate,
+//	                    adultCount
+//	            );
+	            
+//	            System.out.println();
+//	            System.out.println(fetchFlightOffers(
+//	                    departAirport,
+//	                    destAirport,
+//	                    flightDepartDate,
+//	                    adultCount
+//	            ));
+//	            System.out.println();
+	            
+	            result.addAll(fetchFlightOffers(
+	                    departAirport,
+	                    destAirport,
+	                    flightDepartDate,
+	                    adultCount
+	            ));
+	            
+	        };
+	        
+//	        System.out.println("잘출력되나?");
+//	        System.out.println(result);
+	        
+//	        System.out.println(result.size());
+	        
+//	        for(Map<String, Object> map : result) {
+//	        	System.out.println(map);
+//	        }
+	        
+	        return result;
+	    };
+	
 	// 항공권 조회
 	@Override // 인터페이스에 선언된 메서드를 구현한다는 표시
 	// 인터페이스에도 쓰고 구현 클래스에도 또 작성한 이유 : 
@@ -101,7 +187,7 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 				.queryParam("departureDate", flightDepartDate)
 				.queryParam("adults", adultCount)
 				.queryParam("currencyCode", "KRW")
-				.queryParam("max", 100);
+				.queryParam("max", 50);
 		
 		// GET 요청은 보통 바디가 없으므로 Void
 		// 만약 바디 타입이 String 이면 String Map-> Map 으로 작성 

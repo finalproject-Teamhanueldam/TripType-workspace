@@ -6,6 +6,7 @@
         <result column="DEPART_IATA_CODE" property="departIata"/>
         <result column="ARRIVE_IATA_CODE" property="arriveIata"/>
         <result column="SEARCH_COUNT" property="searchCount"/>
+        
     </resultMap>
     <!--
         인기 노선 TOP5 (검색량 기준)

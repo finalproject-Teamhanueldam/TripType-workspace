@@ -1,5 +1,7 @@
 package com.kh.triptype.admin.statistics.model.vo;
 
+import java.sql.Date;
+
 import org.apache.ibatis.type.Alias;
 
 import lombok.Getter;
@@ -14,5 +16,7 @@ public class PopularRouteDto {
 	
 	private String departIata;
 	private String arriveIata;
-	private Integer searchCount;
+	private int searchCount;
+	private Date departDate;
+	
 }
