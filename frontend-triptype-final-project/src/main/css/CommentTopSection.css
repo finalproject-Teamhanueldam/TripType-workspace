@@ -1,0 +1,143 @@
+/* ===============================
+   섹션
+================================ */
+.comment-section {
+  width: 90%;
+  max-width: 1400px;
+  margin: 100px auto 0;
+}
+
+/* 헤더 */
+.comment-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.comment-head h2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #023059;
+  letter-spacing: -0.3px;
+}
+
+.comment-badge {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+/* ===============================
+   그리드 (3 x 3)
+================================ */
+.comment-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ===============================
+   카드
+================================ */
+.comment-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  padding: 20px 22px;
+  border-radius: 18px;
+
+  background: linear-gradient(
+    180deg,
+    #f7fbff,
+    #e9f2fb
+  );
+
+  box-shadow:
+    0 8px 24px rgba(2, 48, 89, 0.12);
+
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.comment-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 16px 36px rgba(2, 48, 89, 0.2);
+}
+
+/* HOT 카드 강조 (과하지 않게) */
+.comment-card.is-hot {
+  border: 2px solid #ff6b6b;
+  background: linear-gradient(
+    180deg,
+    #fff5f5,
+    #ffecec
+  );
+}
+
+/* ===============================
+   아이콘
+================================ */
+.comment-icon {
+  min-width: 46px;
+  height: 46px;
+  border-radius: 14px;
+
+  background: #023059;
+  color: #fff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+/* ===============================
+   텍스트
+================================ */
+.comment-text {
+  flex: 1;
+}
+
+.comment-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #023059;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.comment-meta {
+  font-size: 13px;
+  color: #6b7f90;
+}
+
+/* ===============================
+   화살표
+================================ */
+.comment-arrow {
+  font-size: 18px;
+  font-weight: 700;
+  color: #023059;
+  opacity: 0.6;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.comment-card:hover .comment-arrow {
+  transform: translateX(4px);
+  opacity: 1;
+}

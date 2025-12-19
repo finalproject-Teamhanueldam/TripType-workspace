@@ -1,0 +1,121 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.35); /* 더 또렷한 오버레이 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* 모달 카드 */
+.modal {
+  width: 600px;
+  max-height: 80vh;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 28px 32px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: modalFadeIn 0.25s ease-out;
+  position: relative;
+}
+
+/* 타이틀 */
+.modal h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #023059;
+}
+
+.modal p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+/* 구분선 느낌 */
+.modal p:nth-of-type(4) {
+  margin-bottom: 16px;
+}
+
+/* 닫기 버튼 */
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #f2f4f7;
+  cursor: pointer;
+  font-weight: bold;
+  color: #555;
+  transition: background 0.2s ease;
+}
+
+.modal-close:hover {
+  background: #e0e4ea;
+}
+
+/* 주요 내용 제목 */
+.modal p:last-of-type {
+  margin-top: 20px;
+  font-weight: 600;
+  color: #023059;
+}
+
+/* 텍스트 영역 */
+.modal-text-area {
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 14px 16px;
+  background: #f9fbfd;
+  border: 1px solid #d9e1ec;
+  border-radius: 10px;
+  line-height: 1.7;
+  font-size: 14px;
+  color: #333;
+}
+
+/* 텍스트 하나하나 */
+.modal-text-area p {
+  margin: 0 0 12px 0;
+}
+
+/* 마지막 문단 여백 제거 */
+.modal-text-area p:last-child {
+  margin-bottom: 0;
+}
+
+/* 스크롤바 커스텀 (크롬 기준) */
+.modal-text-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-text-area::-webkit-scrollbar-thumb {
+  background: #c5d3e6;
+  border-radius: 10px;
+}
+
+.modal-text-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 등장 애니메이션 */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

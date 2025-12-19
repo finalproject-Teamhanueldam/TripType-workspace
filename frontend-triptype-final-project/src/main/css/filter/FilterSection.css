@@ -1,0 +1,272 @@
+/* ============================================
+   🔷 전체 입력폼 컨테이너 (검색카드 안)
+   ============================================ */
+.filter-container {
+  position: relative;               /* 🔥 팝오버 기준 */
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   🔷 메타 영역 (여행 타입 + 인원)
+   ============================================ */
+.filter-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px; 
+
+  padding: 0 8px;
+}
+
+/* ============================================
+   🔷 여행 타입 선택 영역 (공통)
+   ============================================ */
+.triptype-filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.triptype-filter select {
+  height: 56px;
+  padding: 0 22px;
+
+  border-radius: 16px;
+  /* border: 2px solid #6EBFE4; */
+
+  font-size: 16px;
+  font-weight: 700;
+
+  background: #F4FAFD;
+  color: #023059;
+
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  width: 180px;
+}
+
+/* hover */
+.triptype-filter select:hover {
+  background: #FFFFFF;
+  border-color: #4FA9CF;
+}
+
+/* focus */
+.triptype-filter select:focus {
+  outline: none;
+  border-color: #6EBFE4;
+  box-shadow: 0 0 0 4px rgba(110, 191, 228, 0.35);
+}
+
+/* ============================================
+   🔷 인원 요약 (드롭다운과 스타일 통일)
+   ============================================ */
+.passenger-summary-box {
+  height: 40px;                 /* 🔥 여행 타입 드롭다운과 동일 */
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  background: #ffffff;          /* 🔥 흰색으로 통일 */
+  border: 1px solid #dcdcdc;    /* 🔥 드롭다운과 동일 */
+  border-radius: 10px;
+
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* 🔽 드롭다운 느낌용 화살표 (선택) */
+.passenger-summary-box::after {
+  content: "▾";
+  margin-left: 8px;
+  font-size: 16px;
+  color: #555;
+}
+
+
+/* ============================================
+   🔷 입력 공통 스타일
+   ============================================ */
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 라벨 */
+.filter-item label {
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  padding-left: 4px;
+}
+
+/* 🔥 딥 블루 input */
+.filter-item input {
+  height: 70px;
+  padding: 0 18px;
+
+  background: white;
+  border: 1.5px solid #0E4C6D;
+  border-radius: 14px;
+  
+  font-size: 18px;
+  color: black;
+  font-weight: 700;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: center;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* placeholder */
+.filter-item input::placeholder {
+  color: gray;
+}
+
+/* 출발지 */
+.filter-main-row .filter-item:nth-child(1) input {
+  cursor: text;
+}
+
+/* 도착지 */
+.filter-main-row .filter-item:nth-child(3) input {
+  cursor: text;
+}
+/* 다구간: 출발지 / 도착지만 text */
+.multi-row .filter-item:not(.date-box) input {
+  cursor: text;
+}
+
+/* 날짜는 항상 pointer */
+.multi-row .filter-item.date-box input {
+  cursor: pointer;
+}
+
+/* date input 아이콘 톤 */
+.filter-item input[type="date"] {
+  cursor: pointer;
+  color-scheme: dark;
+}
+
+/* ============================================
+   🔷 출발 ↔ 도착 스위치 버튼
+   ============================================ */
+.switch-icon {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #fff;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+
+  cursor: pointer;
+
+  /* margin 사용 금지 */
+  margin: 0;
+
+  /* grid 칸 기준 정중앙 */
+  justify-self: center;
+  align-self: center;
+
+  /* 레이아웃별 수직 보정용 */
+  transform: translateY(var(--switch-offset, 0px));
+}
+
+.switch-icon:active {
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.switch-svg {
+  display: block;
+  transform-origin: 50% 50%;
+}
+
+/* ===============================
+   🔷 레이아웃별 보정값
+   =============================== */
+
+/* 왕복 / 편도 */
+
+.filter-main-row.one-way .switch-icon {
+  --switch-offset: 14px;
+}
+
+.filter-main-row.round-trip .switch-icon {
+  --switch-offset: -9px;
+}
+
+/* 다구간 */
+.multi-row .switch-icon {
+  --switch-offset: 16px;
+}
+
+/* 모바일에서는 보정 제거 */
+@media (max-width: 1100px) {
+  .switch-icon {
+    --switch-offset: 0px;
+  }
+}
+
+
+
+/* ============================================
+   🔷 검색 버튼 (CTA)
+   ============================================ */
+.filter-section-search-btn {
+  height: 70px ;
+  padding: 0 28px;
+
+  /* background: linear-gradient(
+    135deg,
+    #6EBFE4,
+    #4FA9CF
+  ); */
+  background: rgb(66, 132, 255);
+
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+
+  /* box-shadow: 0 8px 20px rgba(79, 169, 207, 0.35); */
+  transition: all 0.2s ease;
+
+  white-space: nowrap;
+}
+
+.filter-section-search-btn:hover {
+  transform: translateY(-1px);
+  background-color: rgb(20, 102, 255);
+}

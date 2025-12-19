@@ -1,0 +1,257 @@
+/* ===============================
+   섹션 헤더
+================================ */
+.recommend {
+  width: 95%;
+  margin: 0 auto;
+}
+
+.recommend-head {
+  margin-bottom: 24px;
+  margin-left: 65px;
+}
+
+.recommend-head h2 {
+  font-size: 35px;
+  font-weight: 800;
+  color: #023059;
+}
+
+.recommend-head p {
+  margin-top: 6px;
+  font-size: 18px;
+  color: #6b7f90;
+}
+
+/* ===============================
+   캐러셀 레이아웃
+================================ */
+.recommend-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 64px; /* 화살표 공간 */
+}
+
+.carousel-viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 24px;
+  transition: transform 0.45s ease, filter 0.4s ease;
+}
+
+/* 카드 폭 정확히 3장 */
+.carousel-track .dest-card {
+  flex: 0 0 calc((100% - 48px) / 3);
+}
+
+/* ===============================
+   카드
+================================ */
+.dest-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  height: 280px;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+}
+
+/* hover는 이미지에만 */
+.dest-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);
+  transition: transform .4s ease;
+}
+
+.dest-card:hover img {
+  transform: scale(1.08);
+}
+
+/* ===============================
+   그라데이션
+================================ */
+.dest-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.35),
+    rgba(0,0,0,0.35),
+    rgba(0,0,0,0.55)
+  );
+  z-index: 1;
+}
+
+/* ===============================
+   텍스트 레이어
+================================ */
+.dest-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 2;
+}
+
+.dest-sub {
+  color: #fff;
+  font-size: 13px;
+  opacity: 0.95;
+}
+
+.dest-title {
+  color: #fff;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+/* ===============================
+   하단 영역
+================================ */
+.dest-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dest-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
+.dest-cta {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #8fdcff;
+  color: #023059;
+  cursor: pointer;
+}
+
+/* ===============================
+   🔒 설문 미완료 상태
+================================ */
+.recommend-carousel.locked .carousel-track {
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+/* ===============================
+   설문 오버레이
+================================ */
+.survey-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(2px);
+
+  text-align: center;
+  cursor: pointer;
+}
+
+.survey-overlay p {
+  font-size: 20px;
+  font-weight: 800;
+  color: #023059;
+  line-height: 1.4;
+}
+
+.survey-overlay button {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 26px;
+  font-size: 14px;
+  font-weight: 700;
+  background: #023059;
+  color: #fff;
+  cursor: pointer;
+}
+
+.survey-overlay .dev-hint {
+  font-size: 12px;
+  color: #6b7f90;
+  opacity: 0.8;
+}
+
+/* ===============================
+   화살표
+================================ */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(2, 48, 89, 0.25);
+  cursor: pointer;
+  background: rgba(255,255,255,0.95);
+  font-size: 26px;
+  color: #023059;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  z-index: 30;
+}
+
+.carousel-arrow.left {
+  left: 16px;
+}
+
+.carousel-arrow.right {
+  right: 16px;
+}
+
+.carousel-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* ===============================
+   DOT 인디케이터
+================================ */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.carousel-dots .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cfd8e3;
+  cursor: pointer;
+  transition: all .25s ease;
+}
+
+.carousel-dots .dot.active {
+  width: 22px;
+  border-radius: 999px;
+  background: #023059;
+}

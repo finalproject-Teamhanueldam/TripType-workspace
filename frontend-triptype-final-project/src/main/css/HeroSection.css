@@ -1,0 +1,68 @@
+/* ===== Hero 전체 영역 (파란 배경) ===== */
+.hero-section {
+  width: 100%;
+  background-color: #CEDEF2;
+  padding: 20px 0 100px;
+  box-sizing: border-box;
+}
+
+/* 중앙 정렬 */
+.hero-inner {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;          /* 🔥 width:80% 제거, 패딩으로 여백 처리 */
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* 메인 타이틀 */
+.hero-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #023059;
+  margin-bottom: 12px;
+}
+
+/* 서브 텍스트 */
+.hero-sub {
+  font-size: 18px;
+  color: #3a5f7d;
+  opacity: 0.85;
+  margin-bottom: 50px;
+}
+
+/* ===== 남색 필터 섹션 ===== */
+.hero-filter-section {
+  width: 100%;
+  background: #023059;
+  padding: 50px 0 60px;
+  border-radius: 28px;
+  /* box-shadow: 0 10px 32px rgb(134, 161, 248); */
+  margin-top: 20px;
+  box-sizing: border-box;
+}
+
+/* 필터 안내 문구 */
+.hero-filter-sub {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  opacity: 0.8;
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+/* ===== 검색 박스 (카드) ===== */
+.hero-filter-box {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #023059;
+  padding: 34px 40px;
+  border-radius: 18px;
+  /* box-shadow: 0px 6px 22px rgba(0,0,0,0.08); */
+  box-sizing: border-box;
+
+  overflow: visible;      /* 🔥 왕복 grid 튀어나감 차단 */
+}

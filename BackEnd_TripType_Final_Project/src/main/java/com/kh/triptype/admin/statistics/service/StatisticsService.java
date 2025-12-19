@@ -8,5 +8,4 @@ public interface StatisticsService {
 	
 	List<PopularRouteDto> getPopularRoutesTop5();
 	
-	 String checkSessionInfo();
 }
