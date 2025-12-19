@@ -4,6 +4,7 @@ import { useState } from "react";
 
 // H 대문자 수정 (12.16 김동윤)
 import Header from "./common/component/Header";
+import Footer from "./common/component/Footer";
 
 import HeroSection from "./main/component/HeroSection";
 import Home from "./main/component/Home";
@@ -31,19 +32,18 @@ import AdminNoticeDetail from "./admin/notice/component/AdminNoticeDetail";
 // 사용자 FAQ 추가 (12.16 김동윤)
 import UserFaqPage from "./faq/component/UserFaqPage";
 
-
-
+// 카카오톡 상담 버튼 추가(최경환)
+import KakaoChatButton from "./common/component/KakaoChatButton";
 
 function App() {
   const location = useLocation();
-  const showHero = location.pathname === "/";
-
+  const isMainPage = location.pathname === "/";
+  console.log("현재 경로:", location.pathname);
 
     // 로그인 페이지, 추가: Header 숨길 경로 (최경환)
   const hideHeaderPaths = [
     "/member",
     "/admin",
-
   ];
 
   const hideHeader = hideHeaderPaths.some(path =>
@@ -58,7 +58,7 @@ function App() {
       {!hideHeader && <Header />}
 
       {/* 메인 홈일 때만 HeroSection 표시 */}
-      {showHero && <HeroSection />}
+      {isMainPage && <HeroSection />}
 
       <Routes>
         {/* 메인 페이지 */}
@@ -93,7 +93,14 @@ function App() {
         </Route>
         
 
+
       </Routes>
+
+      {/* 헤더 - 지영재 - */}
+      <Footer />
+
+      {/* 카카오톡 상담 버튼 (메인 페이지 고정, 최경환) */}
+      {isMainPage && <KakaoChatButton />}
 
     </div>
       

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import "../style/Header.css";
+import "../css/Header.css";
 import { AiFillHeart } from "react-icons/ai";
 const Header = () => {
 

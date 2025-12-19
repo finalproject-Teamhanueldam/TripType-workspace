@@ -1,3 +1,38 @@
+
+-- ************************************************************
+-- 0-1. 테이블 삭제
+-- ************************************************************
+DROP TABLE TB_WISHLIST;
+DROP TABLE TB_FLIGHT;
+DROP TABLE TB_FLIGHT_OFFER;
+DROP TABLE TB_SEARCH_LOG;
+DROP TABLE TB_REVIEW;
+DROP TABLE TB_SURVEY;
+DROP TABLE TB_NOTICE_COMMENT;
+DROP TABLE TB_NOTICE_ATTACHMENT;
+DROP TABLE TB_NOTICE;
+DROP TABLE TB_SOCIAL_ACCOUNT;
+DROP TABLE TB_AUTH;
+DROP TABLE TB_MEMBER;
+DROP TABLE TB_AIRPORT;
+DROP TABLE TB_AIRLINE;
+
+-- ************************************************************
+-- 0-2. 시퀀스 삭제
+-- ************************************************************
+DROP SEQUENCE TB_SEARCH_LOG_SEQ;
+DROP SEQUENCE TB_NOTICE_COMMENT_SEQ;
+DROP SEQUENCE TB_AIRLINE_SEQ;
+DROP SEQUENCE TB_MEMBER_SEQ;
+DROP SEQUENCE TB_SURVEY_SEQ;
+DROP SEQUENCE TB_REVIEW_SEQ;
+DROP SEQUENCE TB_NOTICE_ATTACHMENT_SEQ;
+DROP SEQUENCE TB_FLIGHT_SEQ;
+DROP SEQUENCE TB_NOTICE_SEQ;
+DROP SEQUENCE TB_SOCIAL_ACCOUNT_SEQ;
+DROP SEQUENCE TB_FLIGHT_OFFER_SEQ;
+
+
 -- ************************************************************
 -- 1. 사용자 생성 및 권한 부여
 -- ************************************************************
@@ -82,7 +117,7 @@ CREATE TABLE TB_NOTICE (
 -- 5) FLIGHT_OFFER
 CREATE TABLE TB_FLIGHT_OFFER (
   FLIGHT_OFFER_ID NUMBER NOT NULL, 
-  FLIGHT_OFFER_PRICE_TOTAL VARCHAR2(100) DEFAULT 'N', 
+  FLIGHT_OFFER_PRICE_TOTAL NUMBER DEFAULT 'N', 
   FLIGHT_OFFER_CURRENCY VARCHAR2(10) DEFAULT 'N', 
   FLIGHT_OFFER_ONE_WAY CHAR(1) DEFAULT 'N',
   FLIGHT_OFFER_DEPART_DATE DATE DEFAULT SYSDATE NOT NULL, 
@@ -101,7 +136,7 @@ CREATE TABLE TB_FLIGHT (
   FLIGHT_ARRIVE_DATE DATE NOT NULL,
   FLIGHT_DURATION VARCHAR2(100) DEFAULT 'N' NOT NULL,
   FLIGHT_EXTRA_SEAT NUMBER NOT NULL,
-  FLIGHT_PRICE VARCHAR2(100) NOT NULL,
+  FLIGHT_PRICE NUMBER NOT NULL,
   FLIGHT_IS_DEL CHAR(1) DEFAULT 'N' NOT NULL, 
   DEPART_AIRPORT VARCHAR2(3) NOT NULL,
   DEST_AIRPORT VARCHAR2(3) NOT NULL, 
@@ -298,6 +333,7 @@ COMMENT ON COLUMN TB_FLIGHT_OFFER.FLIGHT_OFFER_ONE_WAY IS '편도 여부 (Y/N)';
 COMMENT ON COLUMN TB_FLIGHT_OFFER.FLIGHT_OFFER_IS_DEL IS '''Y''/''N''. 항공편 삭제/마감 여부 (DEL 롤백 반영)';
 COMMENT ON COLUMN TB_FLIGHT_OFFER.AIRLINE_ID IS '내부 식별자 (PK)';
 
+
 COMMENT ON COLUMN TB_SURVEY.SURVEY_ID IS '사용자 설문 결과 기록 식별자 (PK)';
 COMMENT ON COLUMN TB_SURVEY.SURVEY_CREATED_AT IS '설문 결과 저장 시간';
 COMMENT ON COLUMN TB_SURVEY.MEMBER_NO IS '서비스 내 고유 번호 (PK, Sequence.NEXTVAL 사용)';
@@ -340,5 +376,271 @@ COMMENT ON COLUMN TB_SOCIAL_ACCOUNT.SOCIAL_PROVIDER IS '소셜 로그인 타입 
 COMMENT ON COLUMN TB_SOCIAL_ACCOUNT.SOCIAL_PROVIDER_UID IS '소셜 로그인에서 유저를 판별하는 유일한 기준';
 COMMENT ON COLUMN TB_SOCIAL_ACCOUNT.SOCIAL_EMAIL IS '연동 provider의 email';
 COMMENT ON COLUMN TB_SOCIAL_ACCOUNT.SOCIAL_CONNECTED_AT IS '소셜 회원가입 연동 시각';
+
+-- ************************************************************
+-- 8. 데이터 수집용 더미데이터 추가 건드시면 안됩니다. 매일 api 호출할때 필요한 코드들입니다.
+--    만약에 테이블을 수정하실때라면 주석처리하고 실행시켜주시고 만든 후에 다시 풀어주세여><
+-- ************************************************************
+
+-- 검색기록 고정 더미데이터
+INSERT INTO TB_SEARCH_LOG (
+  SEARCH_LOG_NO,
+  SEARCH_LOG_ONE_WAY,
+  SEARCH_LOG_PASSENGER_COUNT,
+  SEARCH_LOG_DEPART_DATE,
+  SEARCH_LOG_RETURN_DATE,
+  SEARCH_LOG_DATE,
+  MEMBER_NO,
+  DEPART_IATA_CODE,
+  ARRIVE_IATA_CODE
+) VALUES (
+  TB_SEARCH_LOG_SEQ.NEXTVAL,   -- PK
+  'Y',                         -- 편도
+  1,                           -- 승객 1명
+  TRUNC(SYSDATE) + 30,         -- 출발일 (D+30)
+  NULL,                        -- 편도라서 귀국일 없음
+  SYSDATE,                     -- 검색 기록 생성일
+  NULL,                        -- 비회원/시스템 수집
+  'ICN',                       -- 출발 공항
+  'NRT'                        -- 도착 공항
+);
+
+-- 출발공항 고정 더미데이터
+INSERT INTO TB_AIRPORT (
+  AIRPORT_IATA_CODE,
+  AIRPORT_NAME,
+  AIRPORT_CITY,
+  AIRPORT_COUNTRY,
+  AIRPORT_TIMEZONE,
+  AIRPORT_LATITUDE,
+  AIRPORT_LONGITUDE,
+  AIRPORT_STATUS
+) VALUES (
+  'ICN',
+  '인천국제공항',
+  'Seoul',
+  'Korea',
+  'Asia/Seoul',
+  37.4602,
+  126.4407,
+  'Y'
+);
+
+-- 도착 공항 고정 더미데이터
+INSERT INTO TB_AIRPORT (
+  AIRPORT_IATA_CODE,
+  AIRPORT_NAME,
+  AIRPORT_CITY,
+  AIRPORT_COUNTRY,
+  AIRPORT_TIMEZONE,
+  AIRPORT_LATITUDE,
+  AIRPORT_LONGITUDE,
+  AIRPORT_STATUS
+) VALUES (
+  'NRT',
+  '나리타국제공항',
+  'Tokyo',
+  'Japan',
+  'Asia/Tokyo',
+  35.7767,
+  140.3189,
+  'Y'
+);
+
+-- 항공사 고정용 더미데이터
+INSERT INTO TB_AIRLINE (
+  AIRLINE_ID,
+  AIRLINE_AIRLINE_NAME,
+  AIRLINE_IATA_CODE,
+  AIRLINE_COUNTRY,
+  AIRLINE_URL,
+  AIRPORT_TEAM
+) VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '대한항공',
+  'KE',
+  'Korea',
+  'https://www.koreanair.com',
+  'KOREA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '아시아나항공',
+  'OZ',
+  'Korea',
+  'https://www.flyasiana.com',
+  'KOREA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '제주항공',
+  '7C',
+  'Korea',
+  'https://www.jejuair.net',
+  'KOREA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '진에어',
+  'LJ',
+  'Korea',
+  'https://www.jinair.com',
+  'KOREA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '티웨이항공',
+  'TW',
+  'Korea',
+  'https://www.twayair.com',
+  'KOREA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '에어부산',
+  'BX',
+  'Korea',
+  'https://www.airbusan.com',
+  'KOREA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '에어서울',
+  'RS',
+  'Korea',
+  'https://www.flyairseoul.com',
+  'KOREA'
+);
+
+-- =========================
+-- 아시아 메이저
+-- =========================
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '전일본공수',
+  'NH',
+  'Japan',
+  'https://www.ana.co.jp',
+  'ASIA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '일본항공',
+  'JL',
+  'Japan',
+  'https://www.jal.co.jp',
+  'ASIA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '캐세이퍼시픽',
+  'CX',
+  'Hong Kong',
+  'https://www.cathaypacific.com',
+  'ASIA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '싱가포르항공',
+  'SQ',
+  'Singapore',
+  'https://www.singaporeair.com',
+  'ASIA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '타이항공',
+  'TG',
+  'Thailand',
+  'https://www.thaiairways.com',
+  'ASIA'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '베트남항공',
+  'VN',
+  'Vietnam',
+  'https://www.vietnamairlines.com',
+  'ASIA'
+);
+
+-- =========================
+-- 글로벌 메이저
+-- =========================
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '유나이티드항공',
+  'UA',
+  'USA',
+  'https://www.united.com',
+  'GLOBAL'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '델타항공',
+  'DL',
+  'USA',
+  'https://www.delta.com',
+  'GLOBAL'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '아메리칸항공',
+  'AA',
+  'USA',
+  'https://www.aa.com',
+  'GLOBAL'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '루프트한자',
+  'LH',
+  'Germany',
+  'https://www.lufthansa.com',
+  'GLOBAL'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '에어프랑스',
+  'AF',
+  'France',
+  'https://www.airfrance.com',
+  'GLOBAL'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  'KLM 네덜란드항공',
+  'KL',
+  'Netherlands',
+  'https://www.klm.com',
+  'GLOBAL'
+);
+
+INSERT INTO TB_AIRLINE VALUES (
+  TB_AIRLINE_SEQ.NEXTVAL,
+  '에미레이트항공',
+  'EK',
+  'UAE',
+  'https://www.emirates.com',
+  'GLOBAL'
+);
 
 COMMIT;

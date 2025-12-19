@@ -163,7 +163,10 @@ body {
   color: #888;
 }
 
-.detail-link {
+.detail-link > button {
+  border: none;
+  border-radius: 8px;
+  padding: 5px 6px;
   color: #2563eb;
   cursor: pointer;
   font-weight: 600;

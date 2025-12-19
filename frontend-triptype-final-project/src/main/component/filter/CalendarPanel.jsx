@@ -3,7 +3,7 @@ import DatePicker, { registerLocale } from "react-datepicker";
 import { ko } from "date-fns/locale";
 
 import "react-datepicker/dist/react-datepicker.css";
-import "../../style/filter/CalendarPanel.css";
+import "../../css/filter/CalendarPanel.css";
 
 /* 🔥 한글 locale 등록 (한 번만) */
 registerLocale("ko", ko);
