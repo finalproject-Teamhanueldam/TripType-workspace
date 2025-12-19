@@ -103,10 +103,11 @@
 		스프링, 마이바티스 등에서 이미 작성된 로그 출력 구문을 차단하고 싶다면?
 		root 태그를 이용해서 전체 애플리케이션 기본 로그를 OFF 로 차단할 수 있다.
 		
-		- 위의 logger 에서 설정한 com.kh.backend 하위의 코드가 아닌
+		- 위의 logger 에서 설정한 com.kh.triptype 하위의 코드가 아닌
 		  다른 코드에서 발생하는 로그들은 다 막아버리겠다. (즉, 써드파티 로그는 막겠다)
 	-->
 	<root level="INFO">
+		<appender-ref ref="CONSOLE"/>
 	    <appender-ref ref="FILE"/>
 	    <appender-ref ref="DAILY"/>   <!-- ★ 추가 -->
 	</root>
