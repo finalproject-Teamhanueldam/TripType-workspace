@@ -13,26 +13,25 @@ public class SecurityConfig {
 
         http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> {})                
+            .cors(cors -> {})
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
 
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/", 
-                    "/triptype/",
-                    "/triptype/oauth2/**",
-                    "/triptype/login/**",
-                    "/triptype/images/**",
-                    "/triptype/css/**",
-                    "/triptype/js/**"
+                    "/oauth2/**",
+                    "/login/**",
+                    "/images/**",
+                    "/css/**",
+                    "/js/**"
                 ).permitAll()
                 .anyRequest().permitAll()
             )
 
-            // ⭐ 네이버 OAuth 핵심
+            // ✅ 네이버 OAuth 성공 시
             .oauth2Login(oauth -> oauth
-                .defaultSuccessUrl("/triptype/login/success", true)
+                .defaultSuccessUrl("/login/success", true)
             );
 
         return http.build();
