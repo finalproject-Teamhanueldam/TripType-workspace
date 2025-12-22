@@ -6,6 +6,7 @@
   align-items: center;
   justify-content: center;
   font-family: 'Pretendard', sans-serif;
+  padding: 80px 0;
 }
 
 /* ===== 카드 (Shadow & Border Radius) ===== */
@@ -13,7 +14,7 @@
   width: 500px;
   background: #ffffff;
   border-radius: 24px;
-  padding: 48px 40px;
+  padding: 64px 40px;
   box-shadow: 0 20px 40px rgba(2, 48, 89, 0.08);
 }
 
