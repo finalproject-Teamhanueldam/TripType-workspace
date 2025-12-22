@@ -1,6 +1,5 @@
 package com.kh.triptype.admin.pricing.controller;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +20,6 @@ import lombok.RequiredArgsConstructor;
  * - 1시간 캐시 판단
  * - API 호출 / DB 조회 분기
  */
-@Profile("!prod")
 @RestController
 @RequestMapping("/api/flights")
 @RequiredArgsConstructor
