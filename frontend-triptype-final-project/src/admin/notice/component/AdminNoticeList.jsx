@@ -2,20 +2,30 @@ import "../css/AdminCommon.css";
 import "../css/AdminNoticeList.css";
 
 import { useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { FaTrashAlt, FaSearch } from "react-icons/fa";
-import { NoticeDummy } from "../data/NoticeDummy";
+import axios from "axios"; // 🔹 추가
 
 import HighlightText from "../util/HighlightText";
 
 function AdminNoticeList() {
-  const notices = NoticeDummy;
   const navigate = useNavigate();
+
+  // 🔹 더미 제거 → 서버 데이터
+  const [notices, setNotices] = useState([]);
 
   const [deleteMode, setDeleteMode] = useState(false);
   const [checked, setChecked] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [sortType, setSortType] = useState("latest");
+
+  /* ===== 공지 목록 조회 ===== */
+  useEffect(() => {
+    axios
+      .get("http://localhost:8001/triptype/admin/notice")
+      .then((res) => setNotices(res.data))
+      .catch((err) => console.error(err));
+  }, []);
 
   /* ===== 검색 + 정렬 ===== */
   const filteredNotices = useMemo(() => {
@@ -24,20 +34,24 @@ function AdminNoticeList() {
     if (keyword.trim()) {
       result = result.filter(
         (n) =>
-          n.title.includes(keyword) || n.content.includes(keyword)
+          n.noticeTitle.includes(keyword) ||
+          n.noticeContent.includes(keyword)
       );
     }
 
     return [...result].sort((a, b) => {
-      if (a.important !== b.important) {
-        return a.important === "Y" ? -1 : 1;
+      if (a.noticeIsImportant !== b.noticeIsImportant) {
+        return a.noticeIsImportant === "Y" ? -1 : 1;
       }
 
       if (sortType === "views") {
-        return b.views - a.views;
+        return b.noticeViews - a.noticeViews;
       }
 
-      return new Date(b.createdAt) - new Date(a.createdAt);
+      return (
+        new Date(b.noticeCreatedAt) -
+        new Date(a.noticeCreatedAt)
+      );
     });
   }, [keyword, sortType, notices]);
 
@@ -52,15 +66,38 @@ function AdminNoticeList() {
 
   const toggleAll = (e) => {
     if (e.target.checked) {
-      setChecked(filteredNotices.map((n) => n.id));
+      setChecked(filteredNotices.map((n) => n.noticeId));
     } else {
       setChecked([]);
     }
   };
 
-  const deleteSelected = () => {
+  /* ===== 선택 삭제 ===== */
+  const deleteSelected = async () => {
     if (checked.length === 0) return;
-    alert(`삭제 예정 ID: ${checked.join(", ")}`);
+
+    if (!window.confirm("선택한 공지를 삭제하시겠습니까?"))
+      return;
+
+    try {
+      await Promise.all(
+        checked.map((id) =>
+          axios.delete(
+            `http://localhost:8001/triptype/admin/notice/${id}`
+          )
+        )
+      );
+
+      // 🔹 화면 즉시 반영
+      setNotices((prev) =>
+        prev.filter((n) => !checked.includes(n.noticeId))
+      );
+
+      setChecked([]);
+      setDeleteMode(false);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -148,22 +185,22 @@ function AdminNoticeList() {
 
         {filteredNotices.map((n) => (
           <div
-            key={n.id}
+            key={n.noticeId}
             className={`notice-row ${
               deleteMode ? "delete-mode" : ""
             }`}
             onClick={() => {
               if (deleteMode) {
-                toggleOne(n.id); // ✅ row 클릭 = 체크 토글
+                toggleOne(n.noticeId);
               } else {
-                navigate(`/admin/notice/${n.id}`); // ✅ 상세 이동
+                navigate(`/admin/notice/${n.noticeId}`);
               }
             }}
           >
-            <span>{n.id}</span>
+            <span>{n.noticeId}</span>
 
             <span>
-              {n.important === "Y" ? (
+              {n.noticeIsImportant === "Y" ? (
                 <span className="badge-important">Y</span>
               ) : (
                 <span className="badge-important-normal">N</span>
@@ -171,16 +208,23 @@ function AdminNoticeList() {
             </span>
 
             <span className="title">
-              <HighlightText text={n.title} keyword={keyword} />
+              <HighlightText
+                text={n.noticeTitle}
+                keyword={keyword}
+              />
             </span>
 
             <span className="content-preview">
-              <HighlightText text={n.content} keyword={keyword} />
+              <HighlightText
+                text={n.noticeContent}
+                keyword={keyword}
+              />
             </span>
-            <span>{n.createdAt}</span>
-            <span>{n.updatedAt}</span>
-            <span>{n.views}</span>
-            <span className="del-flag">{n.isDel}</span>
+
+            <span>{n.noticeCreatedAt}</span>
+            <span>{n.noticeUpdatedAt}</span>
+            <span>{n.noticeViews}</span>
+            <span className="del-flag">{n.noticeIsDel}</span>
 
             {deleteMode && (
               <span
@@ -189,8 +233,8 @@ function AdminNoticeList() {
               >
                 <input
                   type="checkbox"
-                  checked={checked.includes(n.id)}
-                  onChange={() => toggleOne(n.id)}
+                  checked={checked.includes(n.noticeId)}
+                  onChange={() => toggleOne(n.noticeId)}
                 />
               </span>
             )}

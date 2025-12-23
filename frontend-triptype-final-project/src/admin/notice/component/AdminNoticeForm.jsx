@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import "../css/AdminCommon.css";
 import "../css/AdminNoticeForm.css";
 
 function AdminNoticeForm() {
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+
 
   /* ===== Form State ===== */
   const [title, setTitle] = useState("");
@@ -26,31 +30,44 @@ function AdminNoticeForm() {
   };
 
   /* ===== 저장 ===== */
-  const handleSubmit = () => {
-    if (!title.trim()) {
-      alert("공지 제목을 입력하세요.");
-      return;
-    }
+  const handleSubmit = async () => {
+  if (loading) return;        // 🔥 중복 클릭 방지
+  setLoading(true);
 
-    if (!content.trim()) {
-      alert("공지 내용을 입력하세요.");
-      return;
-    }
+  const formData = new FormData();
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("important", isImportant ? "Y" : "N");
+  const notice = {
+    noticeTitle: title,
+    noticeContent: content,
+    noticeIsImportant: isImportant ? "Y" : "N",
+  };
 
-    files.forEach((file) => {
-      formData.append("files", file);
-    });
+  formData.append(
+    "notice",
+    new Blob([JSON.stringify(notice)], { type: "application/json" })
+  );
 
-    console.log("등록 FormData", formData);
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  try {
+    await axios.post(
+      "http://localhost:8001/triptype/admin/notice",
+      formData
+    );
 
     alert("공지사항이 등록되었습니다.");
     navigate("/admin/notice");
-  };
+  } catch (e) {
+    console.error(e);
+    alert("등록 실패");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className="admin-page">
@@ -129,9 +146,14 @@ function AdminNoticeForm() {
           >
             취소
           </button>
-          <button className="btn btn-primary" onClick={handleSubmit}>
-            저장
+          <button
+            className="btn btn-primary"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "저장 중..." : "저장"}
           </button>
+
         </div>
       </div>
     </div>

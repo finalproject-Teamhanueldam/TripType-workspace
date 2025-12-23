@@ -1,6 +1,7 @@
 package com.kh.triptype.notice.model.vo;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,5 +22,8 @@ public class Notice {
 
     private String noticeIsImportant;      // NOTICE_IS_IMPORTANT (Y/N)
     private String noticeIsDel;             // NOTICE_IS_DEL (Y/N)
+    
+ // 🔥 추가
+    private List<Attachment> attachmentList;
 
 }
