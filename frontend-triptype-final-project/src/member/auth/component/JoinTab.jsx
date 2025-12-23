@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale";
 import AuthDateInput from "../../../common/component/AuthDateInput";
+import axios from "axios";
 
 function JoinTab() {
   const [form, setForm] = useState({
@@ -23,13 +24,20 @@ function JoinTab() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
 
+  const [serverMsg, setServerMsg] = useState(null); // { type: "ok"|"err", text: string }
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // 실시간 유효성 검사
   const msg = useMemo(() => {
     const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.memberId);
     const pwOk = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[^\s]{8,16}$/.test(form.memberPassword);
     const pwMatch = form.memberPassword && form.memberPassword === form.passwordConfirm;
     const nameOk = /^[가-힣]{2,20}$/.test(form.memberName) || /^[a-zA-Z\s]{2,20}$/.test(form.memberName);
-    
+    const phoneOk =
+      !form.memberPhone ||
+      form.memberPhone.length < 13 ||
+      /^010-\d{4}-\d{4}$/.test(form.memberPhone);
+
     // 인증번호 로직
     const authCodeOk = form.authCode === "123456";
 
@@ -59,6 +67,7 @@ function JoinTab() {
       pw: form.memberPassword ? (pwOk ? { type: "ok", text: "안전한 비밀번호입니다." } : { type: "err", text: "영문+숫자+특수문자 포함 8-16자" }) : null,
       pw2: form.passwordConfirm ? (pwMatch ? { type: "ok", text: "비밀번호가 일치합니다." } : { type: "err", text: "비밀번호가 일치하지 않습니다." }) : null,
       name: form.memberName ? (nameOk ? { type: "ok", text: "유효한 이름입니다." } : { type: "err", text: "한글 2자 이상 또는 영문 이름을 입력해주세요." }) : null,
+      phone: form.memberPhone && form.memberPhone.length >= 13 ? phoneOk ? { type: "ok", text: "유효한 휴대폰 번호입니다." } : { type: "err", text: "010-XXXX-XXXX 형식으로 입력해주세요." } : null,
       auth: authMsg // 가공된 authMsg 할당
     };
   }, [form, isEmailVerified, isEmailSubmitted, isAuthChecked]); // 의존성에 isAuthChecked 추가
@@ -68,38 +77,136 @@ function JoinTab() {
     // 인증번호를 수정하면 다시 확인 버튼을 누르도록 상태 초기화
     if (name === "authCode") {
       setIsAuthChecked(false);
+      setIsEmailVerified(false); // 인증번호 바꾸면 인증상태도 다시 false로(안전)
     }
+    // 입력이 바뀌면 서버 메시지 지우기(UX)
+    setServerMsg(null);
+
     setForm({ ...form, [name]: value });
   };
 
   const handlePhoneChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
-    let result = value.length < 4 ? value : value.length < 8 ? `${value.substr(0, 3)}-${value.substr(3)}` : `${value.substr(0, 3)}-${value.substr(3, 4)}-${value.substr(7, 4)}`;
+    const result =
+      value.length < 4
+        ? value
+        : value.length < 8
+          ? `${value.substr(0, 3)}-${value.substr(3)}`
+          : `${value.substr(0, 3)}-${value.substr(3, 4)}-${value.substr(7, 4)}`;
+    setServerMsg(null);
     setForm({ ...form, memberPhone: result.slice(0, 13) });
   };
 
   const sendAuthCode = () => {
     setIsEmailSubmitted(true);
-    if (!form.memberId || (msg.email && msg.email.type === 'err')) return; 
+    if (!form.memberId || (msg.email && msg.email.type === 'err')) return;
+    
+    
     setIsEmailSent(true);
     setIsAuthChecked(false); // 재발송 시 체크 상태 초기화
+    setServerMsg(null);
   };
 
+  // TODO: 실제로는 여기서 /mail/verify 호출해야 함 (현재는 더미 UI)
   const verifyAuthCode = () => {
     setIsAuthChecked(true); // 버튼 클릭 시점에 메시지 활성화
+
+
     if (form.authCode === "123456") {
       setIsEmailVerified(true);
+      setServerMsg(null);
+    }
+  };
+
+  // 여기! handleSubmit을 "verifyAuthCode 아래"에 추가하면 흐름이 자연스럽다.
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setServerMsg(null);
+
+    // 1) 프론트 최종 검증 (이미 msg로 다 해놨으니까 결과만 활용)
+    if (!isEmailVerified) {
+      setServerMsg({ type: "err", text: "이메일 인증을 완료해주세요." });
+      return;
+    }
+    if (msg.pw?.type === "err" || !form.memberPassword) {
+      setServerMsg({ type: "err", text: "비밀번호 조건을 확인해주세요." });
+      return;
+    }
+    if (msg.pw2?.type === "err" || !form.passwordConfirm) {
+      setServerMsg({ type: "err", text: "비밀번호 확인이 필요합니다." });
+      return;
+    }
+    if (msg.name?.type === "err" || !form.memberName) {
+      setServerMsg({ type: "err", text: "이름을 확인해주세요." });
+      return;
+    }
+    if (!form.memberBirthDate) {
+      setServerMsg({ type: "err", text: "생년월일을 선택해주세요." });
+      return;
+    }
+    if (!form.memberGender) {
+      setServerMsg({ type: "err", text: "성별을 선택해주세요." });
+      return;
+    }
+    if (form.memberPhone && msg.phone?.type === "err") {
+      setServerMsg({ type: "err", text: "휴대폰 번호를 확인해주세요." });
+      return;
+    }
+
+    // 2) 백엔드 DTO와 필드명 1:1 맞춘 payload
+    const payload = {
+      memberId: form.memberId,
+      memberPassword: form.memberPassword,
+      memberName: form.memberName,
+      memberBirthDate: form.memberBirthDate.toISOString().slice(0, 10), // yyyy-MM-dd
+      memberGender: form.memberGender,
+      memberPhone: form.memberPhone.replaceAll("-", ""),
+      authCode: form.authCode
+    };
+
+    try {
+      setIsSubmitting(true);
+
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/member/join`,
+        payload
+      );
+
+      setServerMsg({ type: "ok", text: "회원가입이 완료되었습니다. 로그인 해주세요." });
+
+      // 필요하면 폼 초기화
+      // setForm({ ...초기값 });
+      // navigate("/member/login");
+
+    } catch (err) {
+      const message =
+        err?.response?.data?.message ||
+        err?.response?.data ||
+        "회원가입 중 오류가 발생했습니다.";
+      setServerMsg({ type: "err", text: String(message) });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
+    <form className="auth-form" onSubmit={handleSubmit}>
       {/* 이메일 & 인증번호 */}
       <div className="field">
         <label>이메일</label>
         <div className="field-group">
-          <input type="email" name="memberId" value={form.memberId} onChange={onChange} placeholder="example@email.com" disabled={isEmailVerified} />
-          <button type="button" className="ghost-btn" onClick={sendAuthCode} disabled={isEmailVerified}>
+          <input type="email"
+                 name="memberId"
+                 value={form.memberId}
+                 onChange={onChange}
+                 placeholder="example@email.com"
+                 disabled={isEmailVerified}
+          />
+          <button type="button"
+                  className="ghost-btn"
+                  onClick={sendAuthCode}
+                  disabled={isEmailVerified}
+          >
             {isEmailSent ? "재발송" : "인증번호 발송"}
           </button>
         </div>
@@ -135,7 +242,12 @@ function JoinTab() {
 
       <div className="field">
         <label>비밀번호</label>
-        <input type="password" name="memberPassword" value={form.memberPassword} onChange={onChange} placeholder="영문, 숫자, 특수문자 포함 8-16자" />
+        <input type="password"
+               name="memberPassword"
+               value={form.memberPassword}
+               onChange={onChange}
+               placeholder="영문, 숫자, 특수문자 포함 8-16자"
+        />
         {msg.pw && <div className={`inline-msg ${msg.pw.type}`}>{msg.pw.text}</div>}
       </div>
 
@@ -178,6 +290,11 @@ function JoinTab() {
       <div className="field">
         <label>휴대폰 번호 (선택)</label>
         <input type="text" name="memberPhone" value={form.memberPhone} onChange={handlePhoneChange} placeholder="010-0000-0000" />
+        {msg.phone ? (
+          <div className={`inline-msg ${msg.phone.type}`}>
+            {msg.phone.text}
+          </div>
+        ) : null}
       </div>
 
       <div className="field" style={{marginTop: '20px'}}>
@@ -193,8 +310,17 @@ function JoinTab() {
         </div>
       </div>
 
-      <button type="submit" className="primary-btn">트립타임 시작하기</button>
-
+      <button type="submit" className="primary-btn" disabled={isSubmitting}>
+        {isSubmitting ? "처리 중..." : "트립타임 시작하기"}
+      </button>
+      
+      {/* 서버 메시지 인라인 표시 (원하는 위치로 옮겨도 됨) */}
+      {serverMsg && (
+        <div className={`inline-msg ${serverMsg.type}`} style={{ marginBottom: "12px" }}>
+          {serverMsg.text}
+        </div>
+      )}
+      
       {isModalOpen && (
         <div className="fullscreen-overlay">
           <div className="overlay-content">

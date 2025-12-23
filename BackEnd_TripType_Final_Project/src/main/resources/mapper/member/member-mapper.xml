@@ -4,4 +4,51 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="memberMapper">
+
+    <!-- 이메일 중복 검사 -->
+    <select id="countByMemberId" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM TB_MEMBER
+        WHERE MEMBER_ID = #{memberId}
+    </select>
+
+    <!-- 인증번호 유효성 검사 -->
+    <select id="isValidAuthCode" resultType="int">
+        SELECT COUNT(*)
+        FROM TB_AUTH
+        WHERE AUTH_EMAIL = #{memberId}
+          AND AUTH_CODE = #{authCode}
+          AND AUTH_DATE >= SYSDATE - (#{expireMinutes} / 1440)
+    </select>
+
+    <!-- 회원 가입 -->
+    <insert id="insertMember"
+            parameterType="com.kh.triptype.member.model.vo.Member">
+        INSERT INTO TB_MEMBER (
+            MEMBER_NO,
+            MEMBER_ID,
+            MEMBER_PASSWORD,
+            MEMBER_NAME,
+            MEMBER_BIRTH_DATE,
+            MEMBER_GENDER,
+            MEMBER_PHONE,
+            MEMBER_CREATE_AT
+        ) VALUES (
+            SEQ_TB_MEMBER.NEXTVAL,
+            #{memberId},
+            #{memberPassword},
+            #{memberName},
+            #{memberBirthDate},
+            #{memberGender},
+            #{memberPhone},
+            SYSDATE
+        )
+    </insert>
+
+    <!-- 인증 정보 삭제 -->
+    <delete id="deleteAuth" parameterType="string">
+        DELETE FROM TB_EMAIL_AUTH
+        WHERE MEMBER_ID = #{memberId}
+    </delete>
+
 </mapper>
