@@ -6,55 +6,100 @@ import java.util.Map;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.kh.triptype.notice.model.vo.Attachment;
 import com.kh.triptype.notice.model.vo.Notice;
 
 @Repository
 public class NoticeDao {
 
-    /** 사용자 : 공지 목록 */
+    /* ================= 공지 ================= */
+
     public List<Notice> selectNoticeList(SqlSessionTemplate sqlSession) {
         return sqlSession.selectList(
-                "com.kh.triptype.notice.dao.NoticeDao.selectNoticeList"
+            "com.kh.triptype.notice.dao.NoticeDao.selectNoticeList"
         );
     }
 
-    /** 사용자 : 공지 상세 */
     public Notice selectNoticeDetail(SqlSessionTemplate sqlSession, Map<String, Object> param) {
         return sqlSession.selectOne(
-                "com.kh.triptype.notice.dao.NoticeDao.selectNoticeDetail",
-                param
+            "com.kh.triptype.notice.dao.NoticeDao.selectNoticeDetail",
+            param
         );
     }
 
-    /** 관리자 : 공지 등록 */
     public int insertNotice(SqlSessionTemplate sqlSession, Notice notice) {
         return sqlSession.insert(
-                "com.kh.triptype.notice.dao.NoticeDao.insertNotice",
-                notice
+            "com.kh.triptype.notice.dao.NoticeDao.insertNotice",
+            notice
         );
     }
 
-    /** 관리자 : 공지 수정 */
     public int updateNotice(SqlSessionTemplate sqlSession, Notice notice) {
         return sqlSession.update(
-                "com.kh.triptype.notice.dao.NoticeDao.updateNotice",
-                notice
+            "com.kh.triptype.notice.dao.NoticeDao.updateNotice",
+            notice
         );
     }
 
-    /** 관리자 : 공지 삭제 (소프트 삭제) */
-    public int deleteNotice(SqlSessionTemplate sqlSession, Map<String, Object> param) {
+    public int deleteNotice(SqlSessionTemplate sqlSession, Long noticeId) {
         return sqlSession.update(
-                "com.kh.triptype.notice.dao.NoticeDao.deleteNotice",
-                param
+            "com.kh.triptype.notice.dao.NoticeDao.deleteNotice",
+            noticeId
         );
     }
 
-    /** 조회수 증가 */
     public int increaseViews(SqlSessionTemplate sqlSession, Map<String, Object> param) {
         return sqlSession.update(
-                "com.kh.triptype.notice.dao.NoticeDao.increaseViews",
-                param
+            "com.kh.triptype.notice.dao.NoticeDao.increaseViews",
+            param
+        );
+    }
+
+    /* ================= 첨부파일 ================= */
+
+    public int insertAttachment(SqlSessionTemplate sqlSession, Attachment attachment) {
+        return sqlSession.insert(
+            "com.kh.triptype.notice.dao.NoticeDao.insertAttachment",
+            attachment
+        );
+    }
+
+    /** 🔥 논리삭제 (update!) */
+    public int deleteAttachment(SqlSessionTemplate sqlSession, Map<String, Object> param) {
+        return sqlSession.update(
+            "com.kh.triptype.notice.dao.NoticeDao.deleteAttachment",
+            param
+        );
+    }
+
+    /** 사용자용 (삭제 안 된 것만) */
+    public List<Attachment> selectAttachmentList(SqlSessionTemplate sqlSession, Long noticeId) {
+        return sqlSession.selectList(
+            "com.kh.triptype.notice.dao.NoticeDao.selectAttachmentList",
+            noticeId
+        );
+    }
+
+    /** 관리자용 (삭제 포함) */
+    public List<Attachment> selectAttachmentListAdmin(SqlSessionTemplate sqlSession, Long noticeId) {
+        return sqlSession.selectList(
+            "com.kh.triptype.notice.dao.NoticeDao.selectAttachmentListAdmin",
+            noticeId
+        );
+    }
+    
+    /* ================= 관리자 ================= */
+    public List<Notice> selectNoticeListAdmin(SqlSessionTemplate sqlSession) {
+        return sqlSession.selectList(
+            "com.kh.triptype.notice.dao.NoticeDao.selectNoticeListAdmin"
+        );
+    }
+
+
+    public int deleteAttachmentByNotice(SqlSessionTemplate sqlSession, Long noticeId) {
+        return sqlSession.update(
+            "com.kh.triptype.notice.dao.NoticeDao.deleteAttachmentByNotice",
+            noticeId
         );
     }
 }
