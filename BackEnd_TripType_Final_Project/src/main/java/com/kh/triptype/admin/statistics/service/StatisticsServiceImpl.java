@@ -6,7 +6,7 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Service;
 
 import com.kh.triptype.admin.statistics.dao.StatisticsDao;
-import com.kh.triptype.admin.statistics.model.vo.PopularRouteDto;
+import com.kh.triptype.admin.statistics.model.dto.PopularRouteDto;
 
 import lombok.RequiredArgsConstructor;
 

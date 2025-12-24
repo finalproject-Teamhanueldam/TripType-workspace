@@ -1,4 +1,4 @@
-package com.kh.triptype.admin.flight.model.vo;
+package com.kh.triptype.admin.flight.model.dto;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ import lombok.ToString;
 @ToString
 
 // 관리자 페이지 항공권 정보 조회시 필요한 컬럼만
-public class FlightOfferViewDTO {
+public class FlightOfferViewDto {
 	
 	// TB_AIRLINE
 	private String airlineUrl;

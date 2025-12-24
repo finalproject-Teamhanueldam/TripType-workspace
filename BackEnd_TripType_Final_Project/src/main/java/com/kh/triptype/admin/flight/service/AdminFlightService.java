@@ -4,6 +4,10 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.kh.triptype.admin.flight.model.dto.FlightHistoryInsertDto;
+import com.kh.triptype.admin.flight.model.dto.FlightInsertDto;
+import com.kh.triptype.admin.flight.model.dto.FlightOfferInsertDto;
+
 public interface AdminFlightService {
 
 	// 항공권 API 조회 
@@ -17,11 +21,26 @@ public interface AdminFlightService {
 		String departAirport,
 		String destAirport,
 		String flightDepartDate,
-		int adultCount // 인원수 
+		String flightReturnDate,
+		int adultCount, // 인원수 
 		// DB에도 1인 기준으로 저장할거고 관리자 - 항공권 관리 페이지에서도 1인 기준으로 저장, 조회하지만
 		// 인원수는 외부 API에서 조회할 가격을 계산하기 위해서 요청 파라미터에 넣어야 한다. 인원수는 1로 고정
-	);
+		String token
+		);
 
 	List<Map<String, Object>> collectByPopularTop5();
 
+	void saveAdminFlightOffers(List<Map<String, Object>> result);
+	
+	FlightOfferInsertDto parseFlightOffer(Map<String, Object> offer);
+	
+	List<FlightInsertDto> parseFlights(
+	        Map<String, Object> offer,
+	        int offerId
+	    );
+	
+	FlightHistoryInsertDto parseFlightHistory(
+	        FlightOfferInsertDto offerDto,
+	        Map<String, Object> offer
+	);
 }

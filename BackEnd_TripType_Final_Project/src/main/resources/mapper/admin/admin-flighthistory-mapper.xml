@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="adminflighthistoryMapper">
+
+<insert id="insertApiData" parameterType="list">
+    INSERT INTO TB_FLIGHT (
+  		FLIGHT_OFFER_ID,
+		FLIGHT_OFFER_PRICE_TOTAL,
+		FLIGHT_OFFER_ONE_WAY,
+		FLIGHT_OFFER_DEPART_DATE,
+		FLIGHT_OFFER_RETURN_DATE,
+		FLIGHT_OFFER_API_QUERY_DATE,
+		FLIGHT_OFFER_IS_DEL,
+		FLIGHT_OFFER_EXTRA_SEAT,
+		AIRLINE_ID
+  		)
+    SELECT 
+ 		t.departIata,
+ 		t.arriveIata
+    FROM (
+        <foreach collection="list" item="item" separator="UNION ALL">
+            SELECT
+            	#{item.}
+                #{item.departIata} AS departIata,
+                #{item.arriveIata} AS arriveIata
+            FROM DUAL
+        </foreach>
+    ) t
+</insert>
+</mapper>

@@ -29,9 +29,6 @@ public class AdminFlightController {
         List<Map<String, Object>> result =
                 adminFlightService.collectByPopularTop5();
 
-        for(Map<String, Object> map : result) {
-	    	System.out.println(map);
-	    }
         
         return ResponseEntity.ok(result);
     }

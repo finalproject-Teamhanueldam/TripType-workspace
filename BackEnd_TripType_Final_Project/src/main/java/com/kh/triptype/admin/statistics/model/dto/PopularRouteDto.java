@@ -1,4 +1,4 @@
-package com.kh.triptype.admin.statistics.model.vo;
+package com.kh.triptype.admin.statistics.model.dto;
 
 import java.sql.Date;
 

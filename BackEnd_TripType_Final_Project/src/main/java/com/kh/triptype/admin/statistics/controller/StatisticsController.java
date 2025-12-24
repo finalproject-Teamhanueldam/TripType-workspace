@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kh.triptype.admin.statistics.model.vo.PopularRouteDto;
+import com.kh.triptype.admin.statistics.model.dto.PopularRouteDto;
 import com.kh.triptype.admin.statistics.service.StatisticsService;
 
 import lombok.RequiredArgsConstructor;

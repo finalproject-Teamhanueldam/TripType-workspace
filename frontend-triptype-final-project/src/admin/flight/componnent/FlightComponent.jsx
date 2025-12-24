@@ -188,7 +188,7 @@ const FlightComponent = () => {
                         <input
                             type="text"
                             placeholder="검색어 입력"
-                            className="search-input"
+                            className="adminflight-search-input"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="adminflightMapper">
+	<insert id="insertFlight"
+        parameterType="com.kh.triptype.admin.flight.model.dto.FlightInsertDto">
+
+    <selectKey keyProperty="flightId"
+               resultType="int"
+               order="BEFORE">
+        SELECT FLIGHT_SEQ.NEXTVAL FROM DUAL
+    </selectKey>
+
+    INSERT INTO FLIGHT (
+        FLIGHT_ID,
+        FLIGHT_OFFER_ID,
+        FLIGHT_DIRECTION,
+        SEGMENT_NO,
+        DEPART_AIRPORT,
+        DEST_AIRPORT,
+        DEPART_DATETIME,
+        ARRIVE_DATETIME,
+        OPER_AIRLINE_ID,
+        SELL_AIRLINE_ID,
+        FLIGHT_NO
+    )
+    VALUES (
+        #{flightId},
+        #{offerId},
+        #{direction},
+        #{segmentNo},
+        #{departAirport},
+        #{destAirport},
+        #{departDateTime},
+        #{arriveDateTime},
+        #{offerAirlineId},
+        #{sellAirlineId},
+        #{fligtNo}
+    )
+</insert>
+
+</mapper>
