@@ -14,6 +14,7 @@ public interface NoticeCommentService {
     /** 댓글 수정 */
     int updateComment(NoticeComment comment);
 
-    /** 댓글 삭제 */
-    int deleteComment(Long noticeCommentId);
+    /** 댓글 삭제 
+     * @param memberNo */
+    int deleteComment(Long noticeCommentId, Long memberNo);
 }

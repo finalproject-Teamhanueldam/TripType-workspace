@@ -1,88 +1,132 @@
 import "../css/NoticeComment.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPen, FaTrashAlt } from "react-icons/fa";
+import axios from "axios";
 
+function NoticeComment({ noticeId }) {
+  const currentMemberNo = 1; // 로그인 정보로 교체 가능
 
-function NoticeCommentList() {
-  const currentUser = "user01";
-
-  const [comments, setComments] = useState([
-    { id: 1, writer: "user01", text: "확인했습니다.", date: "2025-01-02" },
-    { id: 2, writer: "user02", text: "확인했습니다.", date: "2025-01-02" },
-    { id: 3, writer: "user03", text: "확인했습니다.", date: "2025-01-02" },
-    { id: 4, writer: "user04", text: "확인했습니다.", date: "2025-01-02" },
-    { id: 5, writer: "user05", text: "확인했습니다.", date: "2025-01-02" }
-  ]);
+  const [comments, setComments] = useState([]);
+  const [newText, setNewText] = useState("");
 
   const [editId, setEditId] = useState(null);
   const [editText, setEditText] = useState("");
 
-  const handleEdit = (comment) => {
-    setEditId(comment.id);
-    setEditText(comment.text);
+  // 댓글 목록 조회
+  const fetchComments = () => {
+    axios
+      .get(`http://localhost:8001/triptype/notice/${noticeId}/comment`)
+      .then(res => setComments(res.data))
+      .catch(err => console.error(err));
   };
 
-  const handleEditSave = (id) => {
-    setComments(
-      comments.map(c =>
-        c.id === id ? { ...c, text: editText } : c
-      )
-    );
-    setEditId(null);
+  useEffect(() => {
+    fetchComments();
+  }, [noticeId]);
+
+  // 댓글 등록
+  const handleCreate = () => {
+    if (!newText.trim()) return;
+
+    axios
+      .post(`http://localhost:8001/triptype/notice/${noticeId}/comment`, {
+        noticeCommentContent: newText,
+        memberNo: currentMemberNo
+      })
+      .then(() => {
+        setNewText("");
+        fetchComments();
+      })
+      .catch(err => console.error(err));
   };
 
+  // 댓글 수정
+  const handleEdit = (id) => {
+    if (!editText.trim()) return;
+
+    axios
+      .put(`http://localhost:8001/triptype/notice/${noticeId}/comment/${id}`, {
+        noticeCommentContent: editText
+      })
+      .then(() => {
+        setEditId(null);
+        setEditText("");
+        fetchComments();
+      })
+      .catch(err => console.error(err));
+  };
+
+  // 댓글 삭제
   const handleDelete = (id) => {
-    setComments(comments.filter(c => c.id !== id));
+  axios.delete(`http://localhost:8001/notice/${noticeId}/comment/${id}`, {
+    params: { memberNo: currentMemberNo },
+    withCredentials: true // 서버가 allowCredentials(true)라면 필요
+  })
+  .then(() => fetchComments())
+  .catch(err => console.error(err));
   };
+
+
 
   return (
     <div className="comment-section">
       <h3 className="comment-title">댓글 {comments.length}</h3>
 
+      {/* 댓글 작성 폼 */}
       <div className="comment-form">
-        <textarea placeholder="댓글을 입력하세요" />
-        <button>등록</button>
+        <textarea
+          value={newText}
+          onChange={e => setNewText(e.target.value)}
+          placeholder="댓글을 입력하세요"
+        />
+        <button onClick={handleCreate}>등록</button>
       </div>
 
+      {/* 댓글 리스트 */}
       {comments.map(c => (
-        <div key={c.id} className="comment-item">
+        <div key={c.noticeCommentId} className="comment-item">
           <div className="comment-header">
             <div className="comment-writer">
-              <span className="comment-username">@{c.writer}</span>
-              <span className="comment-date">{c.date}</span>
+              <span className="comment-username">@회원번호 {c.memberNo}</span>
+              <span className="comment-date">{c.noticeCommentCreatedAt}</span>
             </div>
 
-            {c.writer === currentUser && (
+            {/* 본인 댓글만 수정/삭제 버튼 표시 */}
+            {c.memberNo === currentMemberNo && (
               <div className="comment-actions">
-                <button onClick={() => handleEdit(c)} title="수정">
-                  <FaPen />
-                </button>
-                <button onClick={() => handleDelete(c.id)} title="삭제">
-                  <FaTrashAlt />
-                </button>
+                {editId === c.noticeCommentId ? (
+                  <div className="comment-edit">
+                    <textarea
+                      value={editText}
+                      onChange={e => setEditText(e.target.value)}
+                    />
+                    <div className="edit-actions right">
+                      <button onClick={() => handleEdit(c.noticeCommentId)}>완료</button>
+                      <button onClick={() => setEditId(null)}>취소</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <button onClick={() => {
+                      setEditId(c.noticeCommentId);
+                      setEditText(c.noticeCommentContent);
+                    }}>
+                      <FaPen />
+                    </button>
+                    <button onClick={() => handleDelete(c.noticeCommentId)}>
+                      <FaTrashAlt />
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
 
-
-          {editId === c.id ? (
-            <div className="comment-edit">
-              <textarea
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-              />
-              <div className="edit-actions right">
-                <button onClick={() => handleEditSave(c.id)}>저장</button>
-                <button onClick={() => setEditId(null)}>취소</button>
-              </div>
-            </div>
-          ) : (
-            <div className="comment-text">{c.text}</div>
-          )}
+          <div className="comment-text">{c.noticeCommentContent}</div>
         </div>
       ))}
     </div>
   );
 }
 
-export default NoticeCommentList;
+export default NoticeComment;

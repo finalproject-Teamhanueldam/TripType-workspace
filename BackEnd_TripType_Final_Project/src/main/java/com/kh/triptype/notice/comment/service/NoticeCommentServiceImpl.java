@@ -22,36 +22,32 @@ public class NoticeCommentServiceImpl implements NoticeCommentService {
         this.sqlSession = sqlSession;
     }
 
-    /** 댓글 목록 */
     @Override
     public List<NoticeComment> getCommentList(Long noticeId) {
         Map<String, Object> param = new HashMap<>();
         param.put("noticeId", noticeId);
-
         return noticeCommentDao.selectCommentList(sqlSession, param);
     }
 
-    /** 댓글 등록 */
     @Override
     @Transactional
     public int createComment(NoticeComment comment) {
         return noticeCommentDao.insertComment(sqlSession, comment);
     }
 
-    /** 댓글 수정 */
     @Override
     @Transactional
     public int updateComment(NoticeComment comment) {
         return noticeCommentDao.updateComment(sqlSession, comment);
     }
 
-    /** 댓글 삭제 */
     @Override
     @Transactional
-    public int deleteComment(Long noticeCommentId) {
+    public int deleteComment(Long noticeCommentId, Long memberNo) {
         Map<String, Object> param = new HashMap<>();
         param.put("noticeCommentId", noticeCommentId);
-
+        param.put("memberNo", memberNo); // 본인 여부 체크
         return noticeCommentDao.deleteComment(sqlSession, param);
     }
+
 }
