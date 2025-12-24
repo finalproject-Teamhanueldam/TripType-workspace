@@ -23,7 +23,7 @@ public class FlightSearchCacheVo {
     private int flightPriceHistoryNo;
 
     /** 항공편 제안 ID (외부 API 기준, 논리적 식별자) */
-    private int flightOfferId;
+    private long flightOfferId;
 
     /** 항공권 총 가격 */
     private BigDecimal flightOfferPriceTotal;

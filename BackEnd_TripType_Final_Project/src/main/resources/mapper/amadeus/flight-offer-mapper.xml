@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="flightOffer">
+
+    <!-- ===============================
+         1️⃣ 세그먼트 조합으로 기존 OFFER 조회
+         (Oracle 대응: ROWNUM)
+         =============================== -->
+    <select id="selectOfferIdBySegments"
+            parameterType="map"
+            resultType="long">
+
+        SELECT FLIGHT_OFFER_ID
+        FROM (
+            SELECT FLIGHT_OFFER_ID
+            FROM TB_FLIGHT
+            WHERE FLIGHT_OFFER_ID IN (
+                SELECT FLIGHT_OFFER_ID
+                FROM TB_FLIGHT
+                <where>
+                    <foreach collection="segments"
+                             item="seg"
+                             separator=" OR ">
+                        (
+                            FLIGHT_SEGMENT_NO = #{seg.flightSegmentNo}
+                            AND FLIGHT_NUMBER = #{seg.flightNumber}
+                            AND FLIGHT_DEPART_DATE = #{seg.flightDepartDate}
+                            AND FLIGHT_ARRIVE_DATE = #{seg.flightArriveDate}
+                            AND FLIGHT_DIRECTION = #{seg.flightDirection}
+                            AND DEPART_AIRPORT = #{seg.departAirport}
+                            AND DEST_AIRPORT = #{seg.destAirport}
+                        )
+                    </foreach>
+                </where>
+                GROUP BY FLIGHT_OFFER_ID
+                HAVING COUNT(*) = #{segmentCount}
+            )
+        )
+        WHERE ROWNUM = 1
+
+    </select>
+
+    <!-- ===============================
+         2️⃣ FLIGHT_OFFER INSERT + PK 반환
+         =============================== -->
+    <insert id="insertOfferAndReturnId"
+            parameterType="map">
+
+        <selectKey keyProperty="flightOfferId"
+                   resultType="long"
+                   order="BEFORE">
+            SELECT TB_FLIGHT_OFFER_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO TB_FLIGHT_OFFER (
+            FLIGHT_OFFER_ID,
+            FLIGHT_OFFER_ONE_WAY,
+            FLIGHT_OFFER_DEPART_DATE,
+            FLIGHT_OFFER_RETURN_DATE,
+            FLIGHT_OFFER_DEP_DUR_TOTAL,
+            FLIGHT_OFFER_RET_DUR_TOTAL,
+            FLIGHT_OFFER_EXTRA_SEAT,
+            FLIGHT_OFFER_IS_DEL,
+            AIRLINE_ID
+        ) VALUES (
+            #{flightOfferId},
+            #{oneWay},
+            #{departDate},
+            #{returnDate},
+            #{depDurTotal},
+            #{retDurTotal},
+            #{extraSeat},
+            #{isDel},
+            #{airlineId}
+        )
+
+    </insert>
+
+</mapper>

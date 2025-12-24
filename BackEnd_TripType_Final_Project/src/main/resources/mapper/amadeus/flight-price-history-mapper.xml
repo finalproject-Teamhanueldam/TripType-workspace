@@ -6,11 +6,45 @@
 <mapper namespace="flightPriceHistoryMapper">
 
     <!-- =========================================
+         🔥 FlightSearchCacheVo ResultMap
+         ========================================= -->
+    <resultMap id="flightSearchCacheMap"
+               type="com.kh.triptype.admin.pricing.model.vo.FlightSearchCacheVo">
+
+        <!-- PK (반드시 필요) -->
+        <id property="flightPriceHistoryNo"
+            column="FLIGHT_PRICE_HISTORY_NO"/>
+
+        <result property="flightOfferId"
+                column="FLIGHT_OFFER_ID"/>
+        <result property="flightOfferPriceTotal"
+                column="FLIGHT_OFFER_PRICE_TOTAL"/>
+        <result property="flightOfferCurrency"
+                column="FLIGHT_OFFER_CURRENCY"/>
+        <result property="flightOfferOneWay"
+                column="FLIGHT_OFFER_ONE_WAY"/>
+        <result property="flightOfferDepartDate"
+                column="FLIGHT_OFFER_DEPART_DATE"/>
+        <result property="flightOfferReturnDate"
+                column="FLIGHT_OFFER_RETURN_DATE"/>
+        <result property="flightOfferApiQueryDate"
+                column="FLIGHT_OFFER_API_QUERY_DATE"/>
+
+        <result property="departIataCode"
+                column="DEPART_IATA_CODE"/>
+        <result property="arriveIataCode"
+                column="ARRIVE_IATA_CODE"/>
+        <result property="airlineId"
+                column="AIRLINE_ID"/>
+
+    </resultMap>
+
+    <!-- =========================================
          1️⃣ 1시간 이내 검색 캐시 조회
          ========================================= -->
     <select id="selectRecentSearchCache"
             parameterType="com.kh.triptype.admin.pricing.model.dto.FlightSearchRequestDto"
-            resultType="com.kh.triptype.admin.pricing.model.vo.FlightSearchCacheVo">
+            resultMap="flightSearchCacheMap">
 
         SELECT
             FLIGHT_PRICE_HISTORY_NO,
