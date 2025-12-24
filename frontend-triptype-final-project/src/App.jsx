@@ -20,6 +20,9 @@ import AdminLayout from "./admin/common/component/AdminLayout";
 import AuthStatisticsComponent from "./admin/statistics/component/AuthStatisticsComponent";
 import FlightComponent from "./admin/flight/componnent/FlightComponent";
 
+// 여행 목록, 상세, 경보 페이지
+import AirlineListComponent from "./Airline/ArlineList/components/AirlineListComponent";
+import PriceComponent from "./Airline/Price/components/PriceComponent";
 import AirlineDetailComponent from "./Airline/AirlineDetail/components/AirlineDetailComponent"
 import TravelAlertComponent from "./TravelAlert/components/TravelAlertComponent";
 
@@ -38,6 +41,7 @@ import UserFaqPage from "./faq/component/UserFaqPage";
 
 // 카카오톡 상담 버튼 추가(최경환)
 import KakaoChatButton from "./common/component/KakaoChatButton";
+
 
 function App() {
   const location = useLocation();
@@ -90,6 +94,10 @@ function App() {
 
         {/* 사용자 FAQ (12.16 김동윤) */}
         <Route path="/faq" element={<UserFaqPage />} />
+
+        {/* 항공권 목록 페이지 */}
+        <Route path="/airline/list" element={<AirlineListComponent/>}/>
+        <Route path="/airline/list/price" element={<PriceComponent/>}/>
 
         {/* 항공권 상세 페이지 */}
         <Route path="/airline/detail/:airlineNo" element={<AirlineDetailComponent/>}></Route>

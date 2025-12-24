@@ -109,17 +109,24 @@ const TravelAlert = () => {
 
           let key = country_iso_alp2;
 
+          console.log(item)
+
+          
+          const cleanedText = cleanText(item.txt_origin_cn);
          
 
           if(!countryTravelInfo[key]) {
             countryTravelInfo[key] = {
-              levels : [txt_origin_cn],
+              levels : [cleanedText],
             }
           }
           else {
-            countryTravelInfo[key].levels.push(txt_origin_cn);
+            countryTravelInfo[key].levels.push(cleanedText);
           }
         });
+
+
+
         setTravelInform(countryTravelInfo);
 
       } 
@@ -131,9 +138,18 @@ const TravelAlert = () => {
     };
 
 
+
+
     callApi();
     callTravelInfoApi();
   }, []);
+
+  // null 처리 함수
+  const cleanText = (text) => {
+    if(!text) return "";
+    return text.replace(/&nbsp;/g, "").trim();
+
+  };
 
   /* ================= 대륙별 필터링된 데이터 리스트 ================= */
   const filteredList = travel.filter((item) => item.continent_nm == continent);

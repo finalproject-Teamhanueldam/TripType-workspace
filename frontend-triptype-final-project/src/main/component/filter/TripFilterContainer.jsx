@@ -146,7 +146,7 @@ const TripFilterContainer = ({
         data: searchParams,
       });
 
-      navigate("/airline/detail/0", {
+      navigate("/airline/list", {
         state: {
           searchParams,
           result: res.data,
