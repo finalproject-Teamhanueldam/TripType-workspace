@@ -57,8 +57,13 @@ const AirlineListComponent = () => {
   const [ open, setOpen ] = useState(false);
 
   // 백엔드에서 받아온 결과
+  // 편도 전용
   const [outboundList, setOutboundList] = useState([]); // 가는 편
   const [inboundList, setInboundList] = useState([]);   // 오는 편
+
+  // 왕복 전용
+  const [ roundList, setRoundList ] = useState([]); // 왕복 (가는 편/오는 편)
+
   const [ result, setResult ] = useState(0); // 검색 결과 개수
 
 
@@ -121,24 +126,40 @@ const AirlineListComponent = () => {
 
         const allFlights = response.data;
 
+        console.log("all", allFlights);
+
         // flightOfferId 기준으로 outbound/inbound 묶기
+        // reduce : 초기로 빈 객체 생성
+        // acc 가상 객체에 쌓아서 return으로 반환
         const pairedFlights = allFlights.reduce((acc, flight) => {
           const id = flight.flightOfferId;
           if (!acc[id]) acc[id] = { outbound: null, inbound: null };
 
           if (flight.departAirportCode === searchParams.depart) {
-            acc[id].outbound = flight;
+            acc[id].outbound = flight; // 출국
           } else {
-            acc[id].inbound = flight;
+            acc[id].inbound = flight; // 귀국
           }
 
           return acc;
         }, {});
 
-        const pairedArray = Object.values(pairedFlights); // [{outbound, inbound}, ...]
+        console.log("pairedFlights", pairedFlights);
 
-        setOutboundList(pairedArray); // outboundList가 아니라 pairedArray 전체
-        setResult(pairedArray.length); // 전체 검색 결과 개수
+        const pairedArray = Object.values(pairedFlights); // [{outbound, inbound}, {outbound, inbound}, ...]
+
+        console.log("pairedArray", pairedArray);
+
+        if(searchParams.tripType == "ROUND") {
+          setRoundList(pairedArray); // 왕복
+          setResult(pairedArray.filter((pair) => { return pair.outbound.tripType === "N" }).length); // 전체 검색 결과 개수
+        } 
+        else if(searchParams.tripType == "ONEWAY") {
+          setOutboundList(pairedArray); // 편도
+          setResult(pairedArray.filter((pair) => { return pair.outbound.tripType === "Y" }).length); // 전체 검색 결과 개수
+        }
+
+        
 
       } catch (error) {
         console.log(error);
@@ -149,7 +170,7 @@ const AirlineListComponent = () => {
   }, []);
 
 
-  console.log(result);
+  console.log("result", result.length);
   console.log(outboundList);
 
   return (
@@ -232,11 +253,14 @@ const AirlineListComponent = () => {
           </div>
 
           <p className="result-count">
-            {result.length}개의 검색 결과 ·
+            {result}개의 검색 결과 ·
             <span className="price-check" onClick={() => {navigate("/airline/list/price")}}>가격변동 조회</span>
           </p>
 
-          {outboundList
+          {
+            searchParams.tripType == "ROUND" ?
+            (
+            roundList
             .filter(pair => {
               const type = pair.outbound.tripType === "N" ? "ROUND" : "ONEWAY";
               return type === searchParams.tripType; // 검색한 tripType과 일치하는 것만
@@ -250,7 +274,26 @@ const AirlineListComponent = () => {
                 setOpen={() => setOpen(true)}
                 showPlus={pair.outbound.tripType !== "Y"}
               />
-          ))}
+          ))
+          ) : searchParams.tripType == "ONEWAY" ? 
+          (
+          outboundList
+            .filter(pair => {
+              const type = pair.outbound.tripType === "N" ? "ROUND" : "ONEWAY";
+              return type === searchParams.tripType; // 검색한 tripType과 일치하는 것만
+            })
+            .map((pair, index) => (
+              <TicketBoxComponent
+                key={index}
+                segment={pair.outbound} // 가는 편 데이터
+                returnSegment={pair.inbound} // 오는 편 데이터
+                tripType={pair.outbound.tripType === "N" ? "ROUND" : "ONEWAY"}
+                setOpen={() => setOpen(true)}
+                showPlus={pair.outbound.tripType !== "Y"}
+              />
+          ))
+          ) : null
+          }
 
         </main>
 
