@@ -2,16 +2,17 @@ import "../css/AirlineListComponent.css";
 import TicketBoxComponent from "../../common/TicketBoxComponent.jsx";
 import AlertChartListComponent from "./AlertChartListComponent.jsx"
 import AirlineModalComponent from "./AirlineModalComponent.jsx";
-import data from "./data.js";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-const tripList = data;
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 const AirlineListComponent = () => {
 
   const navigate = useNavigate();
 
+  // 검색 조건을 담은 location 객체
+  const location = useLocation().state;
+  const { searchParams, res } = location;
 
   // 일주일간 최저가 상단 데이터
   let weekPriceList = [
@@ -55,6 +56,10 @@ const AirlineListComponent = () => {
   // 모달창 (왕복, 경유일 경우)
   const [ open, setOpen ] = useState(false);
 
+  // 백엔드에서 받아온 결과
+  const [outboundList, setOutboundList] = useState([]); // 가는 편
+  const [inboundList, setInboundList] = useState([]);   // 오는 편
+  const [ result, setResult ] = useState(0); // 검색 결과 개수
 
 
 
@@ -107,6 +112,45 @@ const AirlineListComponent = () => {
   };
 
 
+
+  useEffect(() => {
+    const renderCall = async () => {
+      try {
+        const url = 'http://localhost:8001/triptype/airline/list';
+        const response = await axios.get(url, { params: searchParams });
+
+        const allFlights = response.data;
+
+        // flightOfferId 기준으로 outbound/inbound 묶기
+        const pairedFlights = allFlights.reduce((acc, flight) => {
+          const id = flight.flightOfferId;
+          if (!acc[id]) acc[id] = { outbound: null, inbound: null };
+
+          if (flight.departAirportCode === searchParams.depart) {
+            acc[id].outbound = flight;
+          } else {
+            acc[id].inbound = flight;
+          }
+
+          return acc;
+        }, {});
+
+        const pairedArray = Object.values(pairedFlights); // [{outbound, inbound}, ...]
+
+        setOutboundList(pairedArray); // outboundList가 아니라 pairedArray 전체
+        setResult(pairedArray.length); // 전체 검색 결과 개수
+
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    renderCall();
+  }, []);
+
+
+  console.log(result);
+  console.log(outboundList);
 
   return (
     <div className="airline-list-wrapper">
@@ -188,19 +232,26 @@ const AirlineListComponent = () => {
           </div>
 
           <p className="result-count">
-            {tripList.length}개의 검색 결과 ·
+            {result.length}개의 검색 결과 ·
             <span className="price-check" onClick={() => {navigate("/airline/list/price")}}>가격변동 조회</span>
           </p>
 
-          {tripList.map((item, index) => (
-            <TicketBoxComponent
-              key={index}
-              segment={item}
-              tripType={item.type}
-              setOpen={() => setOpen(true)}
-              showPlus={item.type != "ONE" ? true : false }
-            />
+          {outboundList
+            .filter(pair => {
+              const type = pair.outbound.tripType === "N" ? "ROUND" : "ONEWAY";
+              return type === searchParams.tripType; // 검색한 tripType과 일치하는 것만
+            })
+            .map((pair, index) => (
+              <TicketBoxComponent
+                key={index}
+                segment={pair.outbound} // 가는 편 데이터
+                returnSegment={pair.inbound} // 오는 편 데이터
+                tripType={pair.outbound.tripType === "N" ? "ROUND" : "ONEWAY"}
+                setOpen={() => setOpen(true)}
+                showPlus={pair.outbound.tripType !== "Y"}
+              />
           ))}
+
         </main>
 
         {/* ===== 우측 광고 ===== */}

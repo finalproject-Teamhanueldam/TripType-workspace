@@ -12,10 +12,7 @@ import MultiTrip from "./triptypes/MultiTrip";
 
 import { AIRPORTS } from "../data/Airports";
 
-const TripFilterContainer = ({
-  tripType,
-  setTripType,
-}) => {
+const TripFilterContainer = ({tripType, setTripType}) => {
   const navigate = useNavigate();
 
   /* ===============================
@@ -56,6 +53,7 @@ const TripFilterContainer = ({
 
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [activeSegmentId, setActiveSegmentId] = useState(null);
+
 
   /* ===============================
      🔹 공항 매칭
@@ -135,6 +133,9 @@ const TripFilterContainer = ({
      🔍 검색 실행
      =============================== */
   const handleSearch = async (searchParams) => {
+    // console.log(searchParams);
+    // 필터링 조건들...
+
     // 🔹 API 설정
     const url = "http://localhost:8001/triptype/api/flights/search";
     const method = "post";
@@ -146,10 +147,13 @@ const TripFilterContainer = ({
         data: searchParams,
       });
 
+      console.log(searchParams);
+      console.log(res);
+
       navigate("/airline/list", {
         state: {
-          searchParams,
-          result: res.data,
+          searchParams : searchParams,
+          res : res.data
         },
       });
     } catch (err) {
