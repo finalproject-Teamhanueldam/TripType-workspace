@@ -5,6 +5,24 @@
 
 <mapper namespace="memberMapper">
 
+	<resultMap id="memberResultMap" type="Member">
+	    <id column="MEMBER_NO" property="memberNo"/>
+	    <result column="MEMBER_ID" property="memberId"/>
+	    <result column="MEMBER_PASSWORD" property="memberPassword"/>
+	    <result column="MEMBER_NAME" property="memberName"/>
+	    <result column="MEMBER_BIRTH_DATE" property="memberBirthDate"/>
+	    <result column="MEMBER_GENDER" property="memberGender"/>
+	    <result column="MEMBER_PHONE" property="memberPhone"/>
+	    <result column="MEMBER_ROLE" property="memberRole"/>
+	    <result column="MEMBER_CREATE_AT" property="memberCreateAt"/>
+	    <result column="MEMBER_WITHDRAWN_AT" property="memberWithdrawnAt"/>
+	    <result column="MEMBER_LAST_LOGIN_AT" property="memberLastLoginAt"/>
+	    <result column="MEMBER_IS_ACTIVE" property="memberIsActive"/>
+	    <result column="MEMBER_LOGIN_FAIL_COUNT" property="memberLoginFailCount"/>
+	    <result column="MEMBER_IS_LOCKED" property="memberIsLocked"/>
+	    <result column="MEMBER_UNLOCK_TIME" property="memberUnlockTime"/>
+	</resultMap>
+
     <!-- 이메일 중복 검사 -->
     <select id="countByMemberId" parameterType="string" resultType="int">
         SELECT COUNT(*)
@@ -49,4 +67,46 @@
 	    WHERE AUTH_EMAIL = #{authEmail}
 	      AND AUTH_VERIFIED = 'Y'
 	</select>
+	
+	<!-- parameterType="string" 면 #{memberId}를 못받는대 #{memberId}를 쓰고 싶으면
+	parameterType을 map or dto로 받아야된대 -->
+	<!-- 로그인 회원정보 조회용 -->
+	<select id="findByMemberId" parameterType="string" resultMap="memberResultMap">
+	    SELECT
+	        MEMBER_NO,
+	        MEMBER_ID,
+	        MEMBER_PASSWORD,
+	        MEMBER_NAME,
+	        MEMBER_BIRTH_DATE,
+	        MEMBER_GENDER,
+	        MEMBER_PHONE,
+	        MEMBER_ROLE,
+	        MEMBER_CREATE_AT,
+	        MEMBER_WITHDRAWN_AT,
+	        MEMBER_LAST_LOGIN_AT,
+	        MEMBER_IS_ACTIVE,
+	        MEMBER_LOGIN_FAIL_COUNT,
+	        MEMBER_IS_LOCKED,
+	        MEMBER_UNLOCK_TIME
+	    FROM TB_MEMBER
+	    WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	<update id="increaseLoginFailCount">
+	    UPDATE TB_MEMBER
+	    SET MEMBER_LOGIN_FAIL_COUNT = MEMBER_LOGIN_FAIL_COUNT + 1
+	    WHERE MEMBER_NO = #{memberNo}
+	</update>
+	
+	<update id="resetLoginFailCount">
+	    UPDATE TB_MEMBER
+	    SET MEMBER_LOGIN_FAIL_COUNT = 0
+	    WHERE MEMBER_NO = #{memberNo}
+	</update>
+	
+	<update id="updateLastLogin">
+	    UPDATE TB_MEMBER
+	    SET MEMBER_LAST_LOGIN_AT = SYSDATE
+	    WHERE MEMBER_NO = #{memberNo}
+	</update>
 </mapper>

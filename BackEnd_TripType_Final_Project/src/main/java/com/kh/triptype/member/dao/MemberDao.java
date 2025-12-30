@@ -15,7 +15,7 @@ public class MemberDao {
     @Autowired
     private SqlSession sqlSession;
 
-    // 1️ 이메일 중복 검사
+    // 이메일 중복 검사
     public int countByMemberId(String memberId) {
         return sqlSession.selectOne(
             NAMESPACE + "countByMemberId",
@@ -23,7 +23,7 @@ public class MemberDao {
         );
     }
 
-    // 2 회원 insert
+    // 회원 insert
     public int insertMember(Member member) {
         return sqlSession.insert(
             NAMESPACE + "insertMember",
@@ -31,7 +31,7 @@ public class MemberDao {
         );
     }
 
-    // 3 인증 정보 삭제
+    // 인증 정보 삭제
     public int deleteAuth(String memberId) {
         return sqlSession.delete(
             NAMESPACE + "deleteAuth",
@@ -39,11 +39,43 @@ public class MemberDao {
         );
     }
     
-    // 4 이메일 인증 완료 여부 확인
+    // 이메일 인증 완료 여부 확인
     public int countVerifiedAuth(String memberId) {
         return sqlSession.selectOne(
             NAMESPACE + "countVerifiedAuth",
             Map.of("authEmail", memberId)
+        );
+    }
+    
+    // 로그인용 회원 조회
+    public Member findByMemberId(String memberId) {
+        return sqlSession.selectOne(
+            NAMESPACE + "findByMemberId",
+            memberId
+        );
+    }
+
+    // 로그인 실패 횟수 증가
+    public int increaseLoginFailCount(int memberNo) {
+        return sqlSession.update(
+            NAMESPACE + "increaseLoginFailCount",
+            memberNo
+        );
+    }
+
+    // 로그인 실패 횟수 초기화
+    public int resetLoginFailCount(int memberNo) {
+        return sqlSession.update(
+            NAMESPACE + "resetLoginFailCount",
+            memberNo
+        );
+    }
+
+    // 마지막 로그인 시간 갱신
+    public int updateLastLogin(int memberNo) {
+        return sqlSession.update(
+            NAMESPACE + "updateLastLogin",
+            memberNo
         );
     }
 }

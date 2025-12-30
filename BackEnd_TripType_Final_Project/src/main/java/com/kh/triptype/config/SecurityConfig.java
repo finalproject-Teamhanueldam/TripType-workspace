@@ -26,7 +26,8 @@ public class SecurityConfig {
                 // ✅ 회원가입 + 이메일 인증은 로그인 없이 허용
                 .requestMatchers(
                     "/mail/auth/**",
-                    "/member/join"
+                    "/member/join",
+                    "/auth/**"
                 ).permitAll()
 
                 // 기존 허용 경로
