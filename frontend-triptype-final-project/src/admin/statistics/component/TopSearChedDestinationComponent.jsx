@@ -11,7 +11,7 @@ const TopSearchedDestinationComponent = () => {
         const fetchPopularRoutes = async () => {
             
             const url = "http://localhost:8001/triptype/admin/statistics/popular-routes";
-            const method = "get";
+           
             
             try {
                 const response = await axios.get(url);

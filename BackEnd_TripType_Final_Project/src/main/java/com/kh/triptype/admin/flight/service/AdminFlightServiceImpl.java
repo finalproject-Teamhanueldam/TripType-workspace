@@ -1,12 +1,13 @@
 package com.kh.triptype.admin.flight.service;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,7 @@ import com.kh.triptype.admin.flight.dao.AdminFlightDao;
 import com.kh.triptype.admin.flight.model.dto.FlightHistoryInsertDto;
 import com.kh.triptype.admin.flight.model.dto.FlightInsertDto;
 import com.kh.triptype.admin.flight.model.dto.FlightOfferInsertDto;
-import com.kh.triptype.admin.statistics.model.dto.PopularRouteDto;
+import com.kh.triptype.admin.flight.model.dto.FlightSelectTicketsDto;
 import com.kh.triptype.admin.statistics.service.StatisticsService;
 
 import lombok.RequiredArgsConstructor;
@@ -101,34 +102,29 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 	
 	
 	 	@Override
-	    public List<Map<String, Object>> collectByPopularTop5() {
+	    public List<Map<String, Object>> collectFixedRoutes() {
 	 		
 	 		
-	        // 통계 Top5 인기 노선 결과값 출력
-	        List<PopularRouteDto> tooRoutes =
-	                statisticsService.getPopularRoutesTop5();
-	        
-	        if (tooRoutes == null || tooRoutes.isEmpty()) {
-	            System.out.println("탑5 인기 노선 조회 실패");
-	            
-	        } else {
-	        	System.out.println("탑5 인기 노선 조회 성공");
-	        }
-
+	 		String[][] routes = {
+	 				{"ICN", "NRT"},
+	 				{"GMP", "HND"},
+	 				{"ICN","DAD"},
+	 				{"ICN","HAN"},
+	 				{"GMP","PVG"},
+	 		};
 	        // 토큰 발급
 			// 위의 정의한 함수 return 값을 token 이란 문자열 변수에 담음
 			String token = getAccessToken();	
 
 	        // 노선별 API 호출
 	        List<Map<String, Object>> result = new ArrayList<>();
-	        // > 여기에 최종 top5 결과가 담겨야함
 	        
-	         for (PopularRouteDto route : tooRoutes) {
+	         for (String[] route : routes) {
 	        	 // PopularRouteDto route = tooRoutes.get(0);
 
 	        
-	            String departAirport = route.getDepartIata();
-	            String destAirport = route.getArriveIata();
+	            String departAirport = route[0];
+	            String destAirport = route[1];
 	            String flightDepartDate = LocalDate.now()
 	                    .plusDays(30)
 	                    .toString(); // yyyy-MM-dd
@@ -208,32 +204,56 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 	        
 	}
 	
+	
+
+	
 	@Transactional
 	public void saveAdminFlightOffers(List<Map<String, Object>> result) {
-			
+		
+		 Set<String> airlineIataSet =
+				    new HashSet<>(adminFlightDao.SelectAirlineIata(sqlSession));
+		 
+		 Map<String, Integer> airlineIdMap =
+				    adminFlightDao.selectAirlineIataIdMap(sqlSession);
+		 
 		for (Map<String, Object> offer : result) {
 			
-			FlightOfferInsertDto offerDto = parseFlightOffer(offer);
+			if (!isValidOperatingAirline(offer, airlineIataSet)) {
+	            continue;
+	        }
+
+	        if (!isValidSellingAirline(offer, airlineIataSet)) {
+	            continue;
+	        }
+			
+			FlightOfferInsertDto offerDto = parseFlightOffer(offer, airlineIdMap);
 			
 			adminFlightDao.InsertFlightOffer(sqlSession, offerDto);
 			
 			int offerId = offerDto.getOfferId();
+			
+			//System.out.println("offerId = " + offerId);
 			
 			FlightHistoryInsertDto history = parseFlightHistory(offerDto ,offer);
 			
 			adminFlightDao.InsertFlightHistory(sqlSession, history);
 					
 			List<FlightInsertDto> flightList =
-					parseFlights(offer, offerId);
+					parseFlights(offer, offerId, airlineIdMap);
 			
 			for (FlightInsertDto flightDto : flightList) {
-				adminFlightDao.insertFlight(sqlSession, flightDto);
+				
+				// DB 존재하지 않는 공항 경유시 임시로 추가(추후 DB 데이터 보완 해야함)
+				ensureAirportExists(flightDto.getDepartAirport());
+			    ensureAirportExists(flightDto.getDestAirport());
+			    
+				adminFlightDao.insertFlight(sqlSession ,flightDto);
 					
 			}
 		}
 	}
 
-	public FlightOfferInsertDto parseFlightOffer(Map<String, Object> offer) {
+	public FlightOfferInsertDto parseFlightOffer(Map<String, Object> offer, Map<String, Integer> airlineIdMap) {
 		
 		Map<String, Object> price =
 				(Map<String, Object>) offer.get("price");
@@ -248,9 +268,11 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 				offer.get("numberOfBookableSeats") == null ? null : Integer.parseInt(offer.get("numberOfBookableSeats").toString())
 						
 				);
-	dto.setApiQueryDate(LocalDateTime.now());
-	dto.setIsDel("N");
-	
+		
+		dto.setOneWay("N");	
+		dto.setApiQueryDate(LocalDateTime.now());
+		dto.setIsDel("N");
+		
 	// 출발 / 귀국일
 	
 	List<Map<String,Object>> itineraries = 
@@ -282,18 +304,43 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 	
 	dto.setDepartDurationTotal(itineraries.get(0).get("duration").toString());
 	
-	dto.setReturnDurationTotal(itineraries.get(1).get("duration").toString());
+	if (itineraries.size() > 1) {
+	    dto.setReturnDurationTotal(itineraries.get(1).get("duration").toString());
+	} else {
+	    dto.setReturnDurationTotal(null);
+	}
+
 	
-	 dto.setAirlineId(1);
+	// AIRLINE_ID 추출
+	List<String> validatingAirlines =
+		    (List<String>) offer.get("validatingAirlineCodes");
+
+		Integer airlineId = null;
+		
+		
+		
+		for (String code : validatingAirlines) {
+		    if (airlineIdMap.containsKey(code)) {
+		        airlineId = airlineIdMap.get(code);
+		        break;
+		    }
+		}
+
+		if (airlineId == null) {
+		    throw new IllegalStateException("No matching airlineId found");
+		}
+
+		dto.setAirlineId(airlineId);
 
      return dto;
      
 	}
 	
-	// Flight 테이블
+	// Flight 테이블 
 	 public List<FlightInsertDto> parseFlights(
 		        Map<String, Object> offer,
-		        int offerId
+		        int offerId,
+		        Map<String, Integer> airlineIdMap
 		    ) {
 
 		        List<FlightInsertDto> list = new ArrayList<>();
@@ -315,7 +362,12 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 		                FlightInsertDto dto = new FlightInsertDto();
 
 		                dto.setOfferId(offerId);
+		                
+		                String duration =
+		                	    itineraries.get(i).get("duration").toString();
+		                dto.setDuration(duration);
 		                dto.setDirection(direction);
+		                dto.setIsDel("N");
 		                dto.setSegmentNo(segmentNo++);
 
 		                dto.setDepartAirport(
@@ -340,14 +392,20 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 		                            .get("at").toString()
 		                    )
 		                );
-
-		                dto.setOfferAirlineId(seg.get("carrierCode").toString());
-		                
 		                List<String> validatingAirlines =
 		                	    (List<String>) offer.get("validatingAirlineCodes");
+		                
+		                Integer operatingId = airlineIdMap.get(seg.get("carrierCode"));
+		                Integer sellingId   = airlineIdMap.get(validatingAirlines.get(0));
 
-		                	dto.setSellAirlineId(validatingAirlines.get(0));
-		                dto.setFligtNo(seg.get("number").toString());
+		                if (operatingId == null || sellingId == null) {
+		                    continue; // or throw
+		                }
+
+		                dto.setOfferAirlineId(operatingId);
+		                dto.setSellAirlineId(sellingId);
+	                	
+		                dto.setFlightNo(seg.get("number").toString());
 
 		                list.add(dto);
 		            }
@@ -414,7 +472,57 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 		    return history;
 		}
 	 
-	
+
+	 
+
+	 public boolean isValidOperatingAirline(
+		        Map<String, Object> offer,
+		        Set<String> airlineIataSet
+		) {
+		    List<Map<String, Object>> itineraries =
+		        (List<Map<String, Object>>) offer.get("itineraries");
+
+		    for (Map<String, Object> itinerary : itineraries) {
+		        List<Map<String, Object>> segments =
+		            (List<Map<String, Object>>) itinerary.get("segments");
+
+		        for (Map<String, Object> seg : segments) {
+		            String carrier = seg.get("carrierCode").toString();
+
+		            if (!airlineIataSet.contains(carrier)) {
+		                return false;
+		            }
+		        }
+		    }
+		    return true;
+		}
+		
+		public boolean isValidSellingAirline(
+		        Map<String, Object> offer,
+		        Set<String> airlineIataSet
+		) {
+		    List<String> validating =
+		        (List<String>) offer.get("validatingAirlineCodes");
+
+		    for (String code : validating) {
+		        if (airlineIataSet.contains(code)) {
+		            return true; // 하나라도 DB에 있으면 OK
+		        }
+		    }
+		    return false;
+		}
+		
+		public void ensureAirportExists(String iata) {
+		    if (adminFlightDao.exists(sqlSession, iata) == 0) {
+		        adminFlightDao.insertMinimal(sqlSession, iata);
+		    }
+		}
+		
+		
+		public List<Object> selectTickets() {
+			
+			return adminFlightDao.selectTickets(sqlSession);
+		}
 
 
 }

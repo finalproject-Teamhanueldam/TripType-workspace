@@ -1,4 +1,4 @@
-/* 전체 레이아웃 */
+/* 기본 레이아웃 유지 */
 .flight-wrap {
     background-color: #F5FAFF;
     min-height: 100vh;
@@ -6,171 +6,132 @@
 
 .flight-main-wrap {
     padding: 20px;
-    font-family: 'Arial', sans-serif;
     max-width: 1400px;
-    margin: 0 auto;
-    margin-left: 310px;
+    margin-left: 310px; /* 기존 사이드바 여백 유지 */
 }
 
 .flight-main-title {
     font-size: 28px;
     color: #1a237e;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-    margin: 80px 0px 20px 0px;
+    margin: 40px 0 20px 0;
 }
 
-/* 컨트롤 영역 (검색 및 버튼 수평 배치) */
-.controls-container {
+/* --- 상단 고정 영역 --- */
+.fixed-header-section {
+    position: sticky;
+    top: 0;
+    background-color: #F5FAFF;
+    z-index: 100;
+    padding-bottom: 10px;
+}
+
+.filter-input-container {
     display: flex;
     justify-content: space-between;
-    align-items: center; 
-    margin-bottom: 15px;
-    background-color: #fff;
-    padding: 15px 20px;
+    align-items: flex-end;
+    background: white;
+    padding: 20px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.search-sort-group {
+.filter-input-group {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    flex: 1;
+    margin-right: 20px;
+}
+
+.input-box {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 5px;
 }
 
-/* API 조회와 일괄 삭제 버튼 수평 정렬 */
-.action-buttons-group {
-    display: flex;
-    align-items: center;
-    gap: 10px; 
+.input-box span {
+    font-size: 13px;
+    font-weight: bold;
+    color: #555;
 }
 
-/* 검색어 입력창 테두리 명확히 수정 */
-.adminflight-search-input {
+.input-box input {
     padding: 8px 12px;
-    border: 1px solid #adb5bd !important; /* 테두리 두께와 색상 명시 */
-    border-radius: 4px;
-    width: 220px;
-    height: 40px;
-    font-size: 14px;
-    background-color: #ffffff;
-    outline: none;
-}
-
-.adminflight-search-input:focus {
-    border-color: #007bff !important;
-    box-shadow: 0 0 0 2px rgba(0,123,255,0.1);
-}
-
-.sort-select {
-    font-size: 14px;
-    padding: 0px 10px;
     border: 1px solid #adb5bd;
     border-radius: 4px;
-    background-color: #fff;
     height: 40px;
-    cursor: pointer;
 }
 
-/* 버튼 스타일 */
-.action-btn {
-    padding: 0 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    height: 40px;
-    font-size: 14px;
+.search-action-btns {
     display: flex;
+    gap: 5px;
+}
+
+.status-and-bulk-actions {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
+    padding: 15px 5px 10px 5px;
 }
 
-.search-btn { background-color: #007bff; color: white; }
-.reset-btn { background-color: #6c757d; color: white; margin-left: -5px; }
-
-.secondary-btn { background-color: #007bff; color: white; }
-.danger-btn { background-color: #dc3545; color: white; }
-
-.search-btn:hover, 
-.secondary-btn:hover { background-color : #0b6cd3;}
-
-.total-count {
-    font-size: 14px;
-    font-weight: 600;
-    color: #495057;
-    margin-right: 5px;
+/* --- 테이블 및 스크롤 설정 --- */
+.table-container {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    max-height: calc(100vh - 350px); /* 화면 크기에 맞게 리스트 영역 조절 */
+    overflow-y: auto;
 }
 
-/* 테이블 스타일 */
 .ticket-list-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
-    font-size: 14px;
-    background-color: white;
-    table-layout: fixed; /* 셀 너비 고정 */
+    table-layout: fixed;
 }
 
-.ticket-list-table th, 
-.ticket-list-table td {
-    border: 1px solid #dee2e6;
-    padding: 12px 8px;
-    text-align: center; /* 수평 중앙 */
-    vertical-align: middle !important; /* 수직 중앙 */
-}
-
+/* 테이블 헤더도 고정 */
 .ticket-list-table thead th {
+    position: sticky;
+    top: 0;
     background-color: #f8f9fa;
-    color: #333;
+    z-index: 10;
+    border-bottom: 2px solid #dee2e6;
+    padding: 12px 8px;
     font-weight: bold;
-    height: 45px;
 }
 
-/* 관리 열(삭제 버튼) 수평/수직 정렬 강화 */
-.action-cell {
-    display: table-cell; /* 테이블 셀 유지 */
+.ticket-list-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #eee;
     text-align: center;
     vertical-align: middle;
 }
 
+/* 기존 버튼 및 텍스트 스타일 유지 */
+.action-btn {
+    padding: 0 15px;
+    height: 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    border: none;
+}
+
+.search-btn { background-color: #007bff; color: white; }
+.reset-btn { background-color: #6c757d; color: white; }
+.secondary-btn { background-color: #007bff; color: white; }
+.danger-btn { background-color: #dc3545; color: white; }
+
 .delete-btn {
-    display: inline-flex; /* 내부 텍스트 정렬용 */
-    align-items: center;
-    justify-content: center;
-    background-color: #fff;
+    background: white;
     color: #dc3545;
     border: 1px solid #dc3545;
-    height: 32px;
-    padding: 0 12px;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
+    padding: 4px 12px;
     border-radius: 4px;
-    margin: 0 auto; /* 수평 중앙 */
-    transition: all 0.2s;
+    cursor: pointer;
 }
 
-.delete-btn:hover {
-    background-color: #dc3545;
-    color: white;
-}
-
-/* 기타 셀 스타일 */
-.airport-code {
-    font-size: 16px;
-    font-weight: bold;
-    color: #0056b3;
-}
-
-.time-display {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.next-day-label {
-    color: #d32f2f;
-    font-size: 11px;
-    font-weight: bold;
-}
+.airport-code { font-size: 16px; font-weight: bold; color: #0056b3; }
+.time-display { font-size: 16px; font-weight: bold; }

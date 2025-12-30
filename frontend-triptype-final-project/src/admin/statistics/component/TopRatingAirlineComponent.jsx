@@ -1,16 +1,38 @@
 import {Chart} from "react-google-charts";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 
 const TopRatingAirlineComponent = () => {
 
+    const [topRating, setTopRatings] = useState([]);
+
+    useEffect(() => {
+        const fetchTopRatingAirline = async () => {
+
+            const url = "http://localhost:8001/triptype/admin/statistics/topratingairline";
+
+             try {
+                const response = await axios.get(url);
+                setTopRatings(response.data);
+
+                } catch (error) {
+
+                console.error("통계 조회 실패", error);
+
+                } 
+            }
+        fetchTopRatingAirline();
+    }, []);
+
+    if (!topRating || topRating.length === 0) return <div>데이터 없음</div>;
+
     const data = [
-        ["항공사 명", "평균 평점"],
-        ["아시아나", 5],
-        ["대한항공", 4.8],
-        ["Tway", 4.6],
-        ["진에어", 4.2],
-        ["에어부산", 4.2],
+        ["항공사", "평균 평점"],
+        ...topRating.map(topRating => [
+            topRating.airlineName, Number(topRating.averageReviewRating),
+        ])
     ];
-    
     const options = {
         title : "평점 높은 항공사"
     }

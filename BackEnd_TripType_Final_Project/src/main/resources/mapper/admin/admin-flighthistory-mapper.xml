@@ -3,31 +3,39 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="adminflighthistoryMapper">
+<mapper namespace="adminFlightHistoryMapper">
 
-<insert id="insertApiData" parameterType="list">
-    INSERT INTO TB_FLIGHT (
-  		FLIGHT_OFFER_ID,
-		FLIGHT_OFFER_PRICE_TOTAL,
-		FLIGHT_OFFER_ONE_WAY,
-		FLIGHT_OFFER_DEPART_DATE,
-		FLIGHT_OFFER_RETURN_DATE,
-		FLIGHT_OFFER_API_QUERY_DATE,
-		FLIGHT_OFFER_IS_DEL,
-		FLIGHT_OFFER_EXTRA_SEAT,
-		AIRLINE_ID
-  		)
-    SELECT 
- 		t.departIata,
- 		t.arriveIata
-    FROM (
-        <foreach collection="list" item="item" separator="UNION ALL">
-            SELECT
-            	#{item.}
-                #{item.departIata} AS departIata,
-                #{item.arriveIata} AS arriveIata
-            FROM DUAL
-        </foreach>
-    ) t
-</insert>
+     <insert id="InsertFlightHistory"
+            parameterType="com.kh.triptype.admin.flight.model.dto.FlightHistoryInsertDto">
+
+        INSERT INTO TB_FLIGHT_PRICE_HISTORY (
+            FLIGHT_PRICE_HISTORY_NO,
+            FLIGHT_OFFER_ID,
+            FLIGHT_OFFER_PRICE_TOTAL,
+            FLIGHT_OFFER_CURRENCY,
+            FLIGHT_OFFER_ONE_WAY,
+            FLIGHT_OFFER_DEPART_DATE,
+            FLIGHT_OFFER_RETURN_DATE,
+            FLIGHT_OFFER_API_QUERY_DATE,
+            DEPART_IATA_CODE,
+            ARRIVE_IATA_CODE,
+            AIRLINE_ID
+        )
+        VALUES (
+            TB_FLIGHT_PRICE_HISTORY_SEQ.NEXTVAL,
+            #{offerId},
+            #{priceTotal},
+            #{currency},
+            #{oneWay},
+            #{departDate},
+            #{returnDate},
+            #{apiQueryDate},
+            #{departAirport},
+            #{arriveAirport},
+            #{airlineId}
+        )
+
+    </insert>
+
+
 </mapper>

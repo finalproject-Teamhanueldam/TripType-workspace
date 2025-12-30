@@ -7,6 +7,7 @@ import java.util.Map;
 import com.kh.triptype.admin.flight.model.dto.FlightHistoryInsertDto;
 import com.kh.triptype.admin.flight.model.dto.FlightInsertDto;
 import com.kh.triptype.admin.flight.model.dto.FlightOfferInsertDto;
+import com.kh.triptype.admin.flight.model.dto.FlightSelectTicketsDto;
 
 public interface AdminFlightService {
 
@@ -28,19 +29,26 @@ public interface AdminFlightService {
 		String token
 		);
 
-	List<Map<String, Object>> collectByPopularTop5();
-
 	void saveAdminFlightOffers(List<Map<String, Object>> result);
 	
-	FlightOfferInsertDto parseFlightOffer(Map<String, Object> offer);
+	FlightOfferInsertDto parseFlightOffer(Map<String, Object> offer, Map<String, Integer> airlineIdMap);
 	
 	List<FlightInsertDto> parseFlights(
 	        Map<String, Object> offer,
-	        int offerId
+	        int offerId,
+	        Map<String, Integer> airlineIdMap
 	    );
 	
 	FlightHistoryInsertDto parseFlightHistory(
 	        FlightOfferInsertDto offerDto,
 	        Map<String, Object> offer
 	);
+
+	List<Map<String, Object>> collectFixedRoutes();
+	
+	void ensureAirportExists(String iata);
+
+	List<Object> selectTickets();
+	
+	
 }

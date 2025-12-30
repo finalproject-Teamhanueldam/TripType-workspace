@@ -1,6 +1,7 @@
 package com.kh.triptype.admin.flight.controller;
 
 import java.util.List;
+
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -9,9 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kh.triptype.admin.flight.model.dto.FlightSelectTicketsDto;
 import com.kh.triptype.admin.flight.service.AdminFlightService;
 
 import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 @CrossOrigin(origins="http://localhost:5173")
 @RestController
@@ -24,13 +27,23 @@ public class AdminFlightController {
 
     
     @GetMapping("/fetchflight")
-    public ResponseEntity<List<Map<String, Object>>> collectTopRoutes() {
+    public ResponseEntity<List<Map<String, Object>>> collectRoutes() {
 
         List<Map<String, Object>> result =
-                adminFlightService.collectByPopularTop5();
+                adminFlightService.collectFixedRoutes();
 
-        
+        System.out.println(result);
         return ResponseEntity.ok(result);
+    }
+    
+    @GetMapping("/selectTickets")
+    public ResponseEntity<List<Object>> SelectTickets() {
+    	
+    	List<Object> list = adminFlightService.selectTickets();
+    	
+    	System.out.println(list);
+    	
+    	return ResponseEntity.ok(list);
     }
 }
 

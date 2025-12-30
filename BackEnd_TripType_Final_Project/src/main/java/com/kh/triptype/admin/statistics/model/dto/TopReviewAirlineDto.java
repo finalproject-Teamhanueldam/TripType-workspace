@@ -11,13 +11,11 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@Alias("PopularRouteDto")
-public class PopularRouteDto {
+@Alias("TopReviewAirline")
+public class TopReviewAirlineDto {
 	
-	private String departIata;
-	private String arriveIata;
-	private int searchCount;
-	private Date departDate;
-
-	
+	private int airlineId;
+	private String airlineName;
+	private int reviewCount;
+	private double averageReviewRating; 
 }

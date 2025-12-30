@@ -3,41 +3,45 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="adminflightMapper">
-	<insert id="insertFlight"
+<mapper namespace="adminFlightMapper">
+	<insert id="InsertFlight"
         parameterType="com.kh.triptype.admin.flight.model.dto.FlightInsertDto">
 
     <selectKey keyProperty="flightId"
                resultType="int"
                order="BEFORE">
-        SELECT FLIGHT_SEQ.NEXTVAL FROM DUAL
+        SELECT TB_FLIGHT_SEQ.NEXTVAL FROM DUAL
     </selectKey>
 
-    INSERT INTO FLIGHT (
+    INSERT INTO TB_FLIGHT (
         FLIGHT_ID,
-        FLIGHT_OFFER_ID,
-        FLIGHT_DIRECTION,
-        SEGMENT_NO,
-        DEPART_AIRPORT,
-        DEST_AIRPORT,
-        DEPART_DATETIME,
-        ARRIVE_DATETIME,
-        OPER_AIRLINE_ID,
-        SELL_AIRLINE_ID,
-        FLIGHT_NO
+		FLIGHT_SEGMENT_NO,
+		FLIGHT_NUMBER,
+		FLIGHT_DEPART_DATE,
+		FLIGHT_ARRIVE_DATE,
+		FLIGHT_DURATION,
+		FLIGHT_DIRECTION,
+		FLIGHT_IS_DEL,
+		DEPART_AIRPORT,
+		DEST_AIRPORT,
+		OPER_AIRLINE_ID,
+		SELLING_AIRLINE_ID,
+		FLIGHT_OFFER_ID
     )
     VALUES (
-        #{flightId},
-        #{offerId},
-        #{direction},
-        #{segmentNo},
-        #{departAirport},
-        #{destAirport},
-        #{departDateTime},
-        #{arriveDateTime},
-        #{offerAirlineId},
-        #{sellAirlineId},
-        #{fligtNo}
+        TB_FLIGHT_SEQ.NEXTVAL,
+    	#{segmentNo},
+    	#{flightNo},
+    	#{departDateTime},
+    	#{arriveDateTime},
+    	#{duration},
+    	#{direction},
+    	#{isDel},
+    	#{departAirport},
+    	#{destAirport},
+    	#{offerAirlineId},
+    	#{sellAirlineId},
+    	#{offerId}
     )
 </insert>
 

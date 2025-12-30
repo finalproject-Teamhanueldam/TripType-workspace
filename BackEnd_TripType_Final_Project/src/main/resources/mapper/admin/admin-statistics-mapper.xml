@@ -2,11 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="adminStatisticsMapper">
+	
+	<!-- 검색량 많은 항공편 조회 resultMap -->
   	<resultMap id="PopularRouteMap" type="PopularRouteDto">
         <result column="DEPART_IATA_CODE" property="departIata"/>
         <result column="ARRIVE_IATA_CODE" property="arriveIata"/>
         <result column="SEARCH_COUNT" property="searchCount"/>
         
+    </resultMap>
+    
+    <!-- 탑 리부 항공사 resultMap-->
+    <resultMap id="TopReviewAirlineMap" type="TopReviewAirline">
+        <result column="AIRLINE_ID" property="airlineId"/>
+        <result column="AIRLINE_NAME" property="airlineName"/>
+        <result column="REVIEW_COUNT" property="reviewCount"/>
+        <result column="AVG_REVIEW_RATING" property="averageReviewRating"/>
     </resultMap>
     <!--
         인기 노선 TOP5 (검색량 기준)
@@ -32,5 +42,49 @@
 	    WHERE ROWNUM &lt;= 5
 	</select>
 	
+	<!-- 탑 리뷰, 평점 항공사 조회 -->
+	<select id="selectTopReviewAirline" resultMap="TopReviewAirlineMap" >
+		SELECT
+            AIRLINE_ID,
+            AIRLINE_NAME,
+            REVIEW_COUNT
+        FROM (
+            SELECT
+                r.AIRLINE_ID           AS AIRLINE_ID,
+                a.AIRLINE_AIRLINE_NAME AS AIRLINE_NAME,
+                COUNT(*)               AS REVIEW_COUNT
+            FROM TB_REVIEW r
+            JOIN TB_AIRLINE a
+              ON r.AIRLINE_ID = a.AIRLINE_ID
+            GROUP BY
+                r.AIRLINE_ID,
+                a.AIRLINE_AIRLINE_NAME
+            ORDER BY
+                REVIEW_COUNT DESC
+        )
+        WHERE ROWNUM &lt;= 5
+
+		
+	</select>
+	
+	<select id="selectTopRatingAirline" resultMap="TopReviewAirlineMap" >
+	
+	SELECT
+		   AIRLINE_NAME,
+		   AVG_REVIEW_RATING
+		FROM (
+		    SELECT
+		        a.AIRLINE_AIRLINE_NAME AS AIRLINE_NAME,
+		        AVG(r.REVIEW_RATING)   AS AVG_REVIEW_RATING
+		    FROM TB_REVIEW r
+		    JOIN TB_AIRLINE a
+		      ON r.AIRLINE_ID = a.AIRLINE_ID
+		    GROUP BY
+		        a.AIRLINE_AIRLINE_NAME 
+		    ORDER BY
+		        AVG_REVIEW_RATING DESC
+		)
+		WHERE ROWNUM &lt;= 5
+	</select>
 
 </mapper>
