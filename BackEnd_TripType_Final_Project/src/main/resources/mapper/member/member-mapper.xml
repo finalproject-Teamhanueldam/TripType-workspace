@@ -12,15 +12,6 @@
         WHERE MEMBER_ID = #{memberId}
     </select>
 
-    <!-- 인증번호 유효성 검사 -->
-    <select id="isValidAuthCode" resultType="int">
-        SELECT COUNT(*)
-        FROM TB_AUTH
-        WHERE AUTH_EMAIL = #{memberId}
-          AND AUTH_CODE = #{authCode}
-          AND AUTH_DATE >= SYSDATE - (#{expireMinutes} / 1440)
-    </select>
-
     <!-- 회원 가입 -->
     <insert id="insertMember"
             parameterType="Member">
@@ -51,4 +42,11 @@
         WHERE AUTH_EMAIL = #{memberId}
     </delete>
 
+	<!-- 이메일 인증 완료 여부 확인 -->
+	<select id="countVerifiedAuth" parameterType="map" resultType="int">
+	    SELECT COUNT(*)
+	    FROM TB_AUTH
+	    WHERE AUTH_EMAIL = #{authEmail}
+	      AND AUTH_VERIFIED = 'Y'
+	</select>
 </mapper>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale";
@@ -28,6 +28,7 @@ function JoinTab() {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   // 이메일 상태는 "서버 판단"만 반영
   const [emailStatus, setEmailStatus] = useState(null);
@@ -35,6 +36,53 @@ function JoinTab() {
 
   const [serverMsg, setServerMsg] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 타이머 (초 단위)
+  const [authTimer, setAuthTimer] = useState(0);      // 5분
+  const [resendCooldown, setResendCooldown] = useState(0); // 30초
+
+   // 인증번호 5분 타이머
+  useEffect(() => {
+    if (authTimer <= 0) return; // 타이머 끝나면 자동 정지
+
+    const interval = setInterval(() => { // setInterval 1초마다 실행
+      setAuthTimer(prev => prev - 1); // 이전 값에서 1초 줄임
+    }, 1000); // 1000은 1초(1000밀리초를 의미), 1초마다 authTimer를 1 줄여라
+
+    return () => clearInterval(interval);
+    // useEffect는 authTimer가 바뀔 때마다 다시 실행됨
+    // 그때마다 interval을 새로 만들면
+    // 시계가 여러 개 동시에 돌아감
+    // 그래서 이전 interval 제거, 항상 하나의 타이머만 유지
+
+  }, [authTimer]); // authTimer 값이 바뀔 때마다 이 useEffect를 다시 실행
+  // authTimer = 300
+  // useEffect 실행
+  // 1초 후 authTimer = 299
+  // authTimer 바뀜
+  // useEffect 다시 실행
+  // 이전 interval 제거
+  // 새 interval 생성
+
+  // 재발송 30초 쿨타임
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+
+    const interval = setInterval(() => {
+      setResendCooldown(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
+  useEffect(() => {
+    if (authTimer === 0 && isEmailSent && !isEmailVerified) {
+      setEmailStatus({
+        type: "err",
+        text: "인증 시간이 만료되었습니다. 다시 인증번호를 발송해주세요."
+      });
+    }
+  }, [authTimer]);
 
   /* =======================
      validation (프론트 형식만)
@@ -127,6 +175,7 @@ function JoinTab() {
     }
 
     try {
+      setIsSending(true);
       await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/mail/auth/send`,
         null,
@@ -139,14 +188,18 @@ function JoinTab() {
       });
       setIsEmailSent(true);
 
+      setAuthTimer(300);       // 5분 타이머 시작
+      setResendCooldown(30);   // 재발송 쿨타임 30초
+
     } catch (err) {
       setEmailStatus({
         type: "err",
         text:
           err?.response?.data?.message ||
-          err?.response?.data ||
           "이미 가입된 이메일입니다."
       });
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -167,7 +220,6 @@ function JoinTab() {
 
     } catch {
       setIsEmailVerified(false);
-      setEmailStatus({ type: "err", text: "인증번호가 올바르지 않습니다." });
     }
   };
 
@@ -232,10 +284,22 @@ function JoinTab() {
             disabled={isEmailSent}
             placeholder="example@email.com"
           />
-          <button type="button" className="ghost-btn" onClick={sendAuthCode}>
-            {isEmailSent ? "재발송" : "인증번호 발송"}
+          <button
+            type="button"
+            className="ghost-btn"
+            onClick={sendAuthCode}
+            disabled={isEmailVerified || isSending}
+          >
+            {isEmailVerified
+              ? "인증 완료"
+              : isSending
+                ? "발송 중..."
+                : isEmailSent
+                  ? "재발송"
+                  : "인증번호 발송"}
           </button>
         </div>
+        
         {msg.email && (
           <div className={`inline-msg ${msg.email.type}`}>
             {msg.email.text}
@@ -246,7 +310,7 @@ function JoinTab() {
       {isEmailSent && (
         <div className="field">
           <label>인증번호</label>
-          <div className="field-group">
+          <div className="field-group auth-code-group">
             <input
               type="text"
               name="authCode"
@@ -257,7 +321,15 @@ function JoinTab() {
             <button type="button" className="ghost-btn" onClick={verifyAuthCode}>
               확인
             </button>
+            {/* 확인 버튼 바로 아래 타이머 */}
+            {isEmailSent && !isEmailVerified && authTimer > 0 && (
+              <div className="auth-timer-below">
+                {Math.floor(authTimer / 60)}:
+                {String(authTimer % 60).padStart(2, "0")}
+              </div>
+            )}
           </div>
+
           {msg.auth && (
             <div className={`inline-msg ${msg.auth.type}`}>
               {msg.auth.text}

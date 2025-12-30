@@ -32,5 +32,12 @@
         DELETE FROM TB_AUTH
         WHERE AUTH_EMAIL = #{authEmail}
     </delete>
+    
+    <!-- 인증 완료 처리 -->
+	<update id="markVerified" parameterType="map">
+	    UPDATE TB_AUTH
+	    SET AUTH_VERIFIED = 'Y'
+	    WHERE AUTH_EMAIL = #{authEmail}
+	</update>
 
 </mapper>

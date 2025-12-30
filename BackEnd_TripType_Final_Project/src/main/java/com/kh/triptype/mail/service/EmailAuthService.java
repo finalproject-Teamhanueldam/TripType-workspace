@@ -60,9 +60,6 @@ public class EmailAuthService {
      * 인증번호 검증
      */
     public boolean verifyAuthCode(String email, String code) {
-    	if (email == null || code == null) {
-            return false;
-        }
 
         Map<String, Object> param = new HashMap<>();
         param.put("authEmail", email);
@@ -74,7 +71,16 @@ public class EmailAuthService {
             param
         );
 
-        return count != null && count > 0;
+        if (count != null && count > 0) {
+            // 인증 성공 → 상태 저장
+            sqlSession.update(
+                "emailAuthMapper.markVerified",
+                Map.of("authEmail", email)
+            );
+            return true;
+        }
+
+        return false;
     }
 
     /**
