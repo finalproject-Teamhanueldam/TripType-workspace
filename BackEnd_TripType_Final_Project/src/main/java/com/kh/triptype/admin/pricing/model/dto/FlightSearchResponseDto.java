@@ -14,7 +14,10 @@ import lombok.NoArgsConstructor;
 
 /**
  * 항공권 검색 응답 DTO
- * - 단일/왕복(DB) + 캐시 + 다구간(API) 공통 응답
+ * - 단일/왕복(DB)
+ * - 캐시(TB_FLIGHT_PRICE_HISTORY)
+ * - 다구간(API)
+ * 공통 응답
  */
 @Data
 @NoArgsConstructor
@@ -36,10 +39,17 @@ public class FlightSearchResponseDto {
 
         if (list != null) {
             for (FlightPriceHistoryVo vo : list) {
+
+                if (vo == null) continue;
+
                 result.add(
                     FlightOfferResultDto.builder()
                         .flightOfferId(vo.getFlightOfferId())
-                        .priceTotal(vo.getFlightOfferPriceTotal())
+                        .priceTotal(
+                            vo.getFlightOfferPriceTotal() != null
+                                ? vo.getFlightOfferPriceTotal().toString()
+                                : null
+                        )
                         .currency(vo.getFlightOfferCurrency())
                         .oneWay(vo.getFlightOfferOneWay())
                         .departDate(
@@ -52,6 +62,7 @@ public class FlightSearchResponseDto {
                                 ? vo.getFlightOfferReturnDate().toString()
                                 : null
                         )
+                        // 🔥 int 이므로 null 체크 금지
                         .airlineId(vo.getAirlineId())
                         .apiQueryDate(
                             vo.getFlightOfferApiQueryDate() != null
@@ -77,37 +88,46 @@ public class FlightSearchResponseDto {
 
         List<FlightOfferResultDto> result = new ArrayList<>();
 
-        if (list != null) {
-            for (FlightSearchCacheVo vo : list) {
-                result.add(
-                    FlightOfferResultDto.builder()
-                        .flightOfferId(vo.getFlightOfferId())
-                        .priceTotal(String.valueOf(vo.getFlightOfferPriceTotal()))
-                        .currency(vo.getFlightOfferCurrency())
-                        .oneWay(vo.getFlightOfferOneWay())
-                        .departDate(
-                            vo.getFlightOfferDepartDate() != null
-                                ? vo.getFlightOfferDepartDate().toString()
-                                : null
-                        )
-                        .returnDate(
-                            vo.getFlightOfferReturnDate() != null
-                                ? vo.getFlightOfferReturnDate().toString()
-                                : null
-                        )
-                        .airlineId(
-                            vo.getAirlineId() != null
-                                ? vo.getAirlineId()
-                                : 0
-                        )
-                        .apiQueryDate(
-                            vo.getFlightOfferApiQueryDate() != null
-                                ? vo.getFlightOfferApiQueryDate().toString()
-                                : null
-                        )
-                        .build()
-                );
-            }
+        if (list == null || list.isEmpty()) {
+            return FlightSearchResponseDto.builder()
+                    .flightList(result)
+                    .build();
+        }
+
+        for (FlightSearchCacheVo vo : list) {
+
+            // 🔥 null row 방어
+            if (vo == null) continue;
+
+            result.add(
+                FlightOfferResultDto.builder()
+                    .flightOfferId(vo.getFlightOfferId())
+                    .priceTotal(
+                        vo.getFlightOfferPriceTotal() != null
+                            ? vo.getFlightOfferPriceTotal().toString()
+                            : null
+                    )
+                    .currency(vo.getFlightOfferCurrency())
+                    .oneWay(vo.getFlightOfferOneWay())
+                    .departDate(
+                        vo.getFlightOfferDepartDate() != null
+                            ? vo.getFlightOfferDepartDate().toString()
+                            : null
+                    )
+                    .returnDate(
+                        vo.getFlightOfferReturnDate() != null
+                            ? vo.getFlightOfferReturnDate().toString()
+                            : null
+                    )
+                    // 🔥 int 이므로 null 체크 금지
+                    .airlineId(vo.getAirlineId())
+                    .apiQueryDate(
+                        vo.getFlightOfferApiQueryDate() != null
+                            ? vo.getFlightOfferApiQueryDate().toString()
+                            : null
+                    )
+                    .build()
+            );
         }
 
         return FlightSearchResponseDto.builder()
@@ -133,6 +153,8 @@ public class FlightSearchResponseDto {
 
         for (Map<String, Object> item : apiData) {
 
+            if (item == null) continue;
+
             Map<String, Object> price =
                     (Map<String, Object>) item.get("price");
 
@@ -141,8 +163,16 @@ public class FlightSearchResponseDto {
             result.add(
                 FlightOfferResultDto.builder()
                     .flightOfferId(0) // MULTI는 DB 저장 안 함
-                    .priceTotal(String.valueOf(price.get("total")))
-                    .currency(String.valueOf(price.get("currency")))
+                    .priceTotal(
+                        price.get("total") != null
+                            ? String.valueOf(price.get("total"))
+                            : null
+                    )
+                    .currency(
+                        price.get("currency") != null
+                            ? String.valueOf(price.get("currency"))
+                            : null
+                    )
                     .oneWay("N")
                     .departDate(null)
                     .returnDate(null)

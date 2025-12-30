@@ -1,24 +1,16 @@
 import { FaPlane, FaClock, FaMapMarkerAlt } from 'react-icons/fa'; 
-import "../css/TicketBoxComponent.css";
+import "./TicketBoxComponent.css";
+import plus from "./images/plus.svg";
 
-const TicketBoxComponent = ({segment, tripType}) => {
+const TicketBoxComponent = ({segment, tripType, setOpen, showPlus=false}) => {
 
-    console.log(segment);
-    console.log(tripType);
+
+    console.log(segment, tripType);
 
     const tripTypeLabel = (tripType === "TRANSIT") ?  "경유" : 
-                          (tripType === "ONE") ? "편도" :
+                          (tripType === "ONEWAY") ? "편도" :
                           (tripType === "ROUND") ? "왕복" : "해당없음";
 
-
-    const 
-        { 
-            airline,
-            departure, arrival,
-            duration,
-            flightNumber,
-            segmentNo
-        } = segment;
 
 
     // 날짜 및 요일 함수
@@ -74,6 +66,19 @@ const TicketBoxComponent = ({segment, tripType}) => {
     };
 
 
+    // 시간 파싱
+    const parseDuration = (duration) => {
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+
+    const hours = match?.[1] ? Number(match[1]) : 0;
+    const minutes = match?.[2] ? Number(match[2]) : 0;
+
+    return { hours, minutes };
+    };
+
+
+    const { hours, minutes } = parseDuration(segment.flightDuration);
+
 
     return (
         <div className="ticket-box">
@@ -86,9 +91,12 @@ const TicketBoxComponent = ({segment, tripType}) => {
                     className="airline-logo" 
                     alt="아시아나항공 로고" 
                 />
-                <div className="airline-name">{ airline.name }</div>
+                <div className="airline-name">
+                    {segment.airlineName}
+                </div>
                 <div className="flight-number">
-                    <FaPlane className="icon-tiny" /> {flightNumber}
+                    <FaPlane className="icon-tiny" /> 
+                    {segment.flightNumber}
                 </div>
             </div>
 
@@ -102,13 +110,17 @@ const TicketBoxComponent = ({segment, tripType}) => {
                 <div className="flight-block">
                     <div className="date">
                         {/* 년, 월, 일 / 요일 */}
-                        { findDay(departure.time) }({findDate(departure.time)})
+                        { findDay(segment.departDate) }({findDate(segment.departDate)})
                     </div>
                     {/* 출발 시간 */}
-                    <div className="time">{findTime(departure.time)}</div>
+                    <div className="time">
+                        {/* {findTime(segment.departDate)} */}
+                    </div>
                     <div className="airport">
-                        { departure.city }
-                        <span className="airport-iata">({ departure.airportCode })</span>
+                        { segment.departCity }
+                        <span className="airport-iata">
+                            ({ segment.departAirportCode })
+                        </span>
                     </div>
                 </div>
 
@@ -121,17 +133,27 @@ const TicketBoxComponent = ({segment, tripType}) => {
                         <div className="flight-line right"></div>
                     </div>
                     
-                    <div className="duration">{`${Math.floor(duration/60)}시간 ${Math.floor(duration%60)}분`}</div>
-                    <div className="via via-tag">{tripTypeLabel}</div>
+                    <div className="duration">
+                        {`${hours}시간 ${minutes}분`}
+                    </div>
+                    <div className="via via-tag">
+                        { tripTypeLabel }
+                    </div>
                 </div>
 
                 {/* 도착 */}
                 <div className="flight-block">
-                    <div className="date">{findDay(arrival.time)}({findDate(arrival.time)})</div>
-                    <div className="time">{findTime(arrival.time)}</div>
+                    <div className="date">
+                        {findDay(segment.arriveDate)}({findDate(segment.arriveDate)})
+                    </div>
+                    <div className="time">
+                        {/* {findTime(segments[0].arrival.time)} */}
+                    </div>
                     <div className="airport">
-                        { arrival.city }
-                        <span className="airport-iata">({ arrival.airportCode })</span>
+                        { segment.arriveCity }
+                        <span className="airport-iata">
+                            ({ segment.arriveAirportCode })
+                        </span>
                     </div>
                 </div>
             </div>
@@ -140,14 +162,24 @@ const TicketBoxComponent = ({segment, tripType}) => {
             <div className="extra-info-row">
                 <div className="seat-status">
                     <span className="status-label">잔여 좌석: </span>
-                    <span className="status-value highlight">7석 이상</span>
+                    <span className="status-value highlight">{ segment.extraSeat }</span>
                 </div>
                 <div className="terminal-info">
                     <FaMapMarkerAlt className="icon-tiny" /> 
-                    <span>{departure.city} T2 - {arrival.city} T2</span>
+                    <span>
+                        {/* 터미널 */}
+                        {/* {segments[0].departure.city} T2 - {segments[0].arrival.city} T2 */}
+                    </span>
                 </div>
             </div>
-            
+
+            {
+                showPlus && (
+                <div className='plus'>
+                    <img src={plus} style={{"width" : "20px"}} onClick={setOpen}/>
+                </div>
+                )
+            }
         </div>
     );
 };

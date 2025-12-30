@@ -1,11 +1,17 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale";
 import AuthDateInput from "../../../common/component/AuthDateInput";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function JoinTab() {
+  const navigate = useNavigate();
+
+  /* =======================
+     state
+  ======================= */
   const [form, setForm] = useState({
     memberId: "",
     memberPassword: "",
@@ -20,68 +26,129 @@ function JoinTab() {
 
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [isAuthChecked, setIsAuthChecked] = useState(false); // 확인 버튼 클릭 여부 추가
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEmailSubmitted, setIsEmailSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
-  const [serverMsg, setServerMsg] = useState(null); // { type: "ok"|"err", text: string }
+  // 이메일 상태는 "서버 판단"만 반영
+  const [emailStatus, setEmailStatus] = useState(null);
+  // null | { type: "ok" | "err", text: string }
+
+  const [serverMsg, setServerMsg] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 실시간 유효성 검사
+  // 타이머 (초 단위)
+  const [authTimer, setAuthTimer] = useState(0);      // 5분
+  const [resendCooldown, setResendCooldown] = useState(0); // 30초
+
+   // 인증번호 5분 타이머
+  useEffect(() => {
+    if (authTimer <= 0) return; // 타이머 끝나면 자동 정지
+
+    const interval = setInterval(() => { // setInterval 1초마다 실행
+      setAuthTimer(prev => prev - 1); // 이전 값에서 1초 줄임
+    }, 1000); // 1000은 1초(1000밀리초를 의미), 1초마다 authTimer를 1 줄여라
+
+    return () => clearInterval(interval);
+    // useEffect는 authTimer가 바뀔 때마다 다시 실행됨
+    // 그때마다 interval을 새로 만들면
+    // 시계가 여러 개 동시에 돌아감
+    // 그래서 이전 interval 제거, 항상 하나의 타이머만 유지
+
+  }, [authTimer]); // authTimer 값이 바뀔 때마다 이 useEffect를 다시 실행
+  // authTimer = 300
+  // useEffect 실행
+  // 1초 후 authTimer = 299
+  // authTimer 바뀜
+  // useEffect 다시 실행
+  // 이전 interval 제거
+  // 새 interval 생성
+
+  // 재발송 30초 쿨타임
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+
+    const interval = setInterval(() => {
+      setResendCooldown(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
+  useEffect(() => {
+    if (authTimer === 0 && isEmailSent && !isEmailVerified) {
+      setEmailStatus({
+        type: "err",
+        text: "인증 시간이 만료되었습니다. 다시 인증번호를 발송해주세요."
+      });
+    }
+  }, [authTimer]);
+
+  /* =======================
+     validation (프론트 형식만)
+  ======================= */
   const msg = useMemo(() => {
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.memberId);
+    const emailFormatOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.memberId);
     const pwOk = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[^\s]{8,16}$/.test(form.memberPassword);
     const pwMatch = form.memberPassword && form.memberPassword === form.passwordConfirm;
-    const nameOk = /^[가-힣]{2,20}$/.test(form.memberName) || /^[a-zA-Z\s]{2,20}$/.test(form.memberName);
+    const nameOk =
+      /^[가-힣]{2,20}$/.test(form.memberName) ||
+      /^[a-zA-Z\s]{2,20}$/.test(form.memberName);
     const phoneOk =
       !form.memberPhone ||
-      form.memberPhone.length < 13 ||
       /^010-\d{4}-\d{4}$/.test(form.memberPhone);
 
-    // 인증번호 로직
-    const authCodeOk = form.authCode === "123456";
-
-    let emailMsg = null;
-    if (form.memberId) {
-      emailMsg = emailOk 
-        ? { type: "ok", text: "사용 가능한 이메일입니다." } 
-        : { type: "err", text: "올바른 이메일 형식이 아닙니다." };
-    } else if (isEmailSubmitted) {
-      emailMsg = { type: "err", text: "이메일을 입력해주세요." };
-    }
-
-    // 인증번호 메시지: 확인 버튼(isAuthChecked)을 눌렀을 때만 표시
-    let authMsg = null;
-    if (isAuthChecked) {
-      if (isEmailVerified) {
-        authMsg = { type: "ok", text: "인증되었습니다." };
-      } else {
-        authMsg = authCodeOk 
-          ? { type: "ok", text: "인증번호가 일치합니다. 확인을 눌러주세요." } // 사실상 클릭 후엔 바로 위 '인증되었습니다'로 갈 확률이 높음
-          : { type: "err", text: "인증번호 6자리를 확인해주세요." };
-      }
-    }
-
     return {
-      email: emailMsg,
-      pw: form.memberPassword ? (pwOk ? { type: "ok", text: "안전한 비밀번호입니다." } : { type: "err", text: "영문+숫자+특수문자 포함 8-16자" }) : null,
-      pw2: form.passwordConfirm ? (pwMatch ? { type: "ok", text: "비밀번호가 일치합니다." } : { type: "err", text: "비밀번호가 일치하지 않습니다." }) : null,
-      name: form.memberName ? (nameOk ? { type: "ok", text: "유효한 이름입니다." } : { type: "err", text: "한글 2자 이상 또는 영문 이름을 입력해주세요." }) : null,
-      phone: form.memberPhone && form.memberPhone.length >= 13 ? phoneOk ? { type: "ok", text: "유효한 휴대폰 번호입니다." } : { type: "err", text: "010-XXXX-XXXX 형식으로 입력해주세요." } : null,
-      auth: authMsg // 가공된 authMsg 할당
+      email:
+        form.memberId && !emailFormatOk
+          ? { type: "err", text: "올바른 이메일 형식이 아닙니다." }
+          : emailStatus,
+      pw: form.memberPassword
+        ? pwOk
+          ? { type: "ok", text: "안전한 비밀번호입니다." }
+          : { type: "err", text: "영문+숫자+특수문자 포함 8~16자" }
+        : null,
+      pw2: form.passwordConfirm
+        ? pwMatch
+          ? { type: "ok", text: "비밀번호가 일치합니다." }
+          : { type: "err", text: "비밀번호가 일치하지 않습니다." }
+        : null,
+      name: form.memberName
+        ? nameOk
+          ? { type: "ok", text: "유효한 이름입니다." }
+          : { type: "err", text: "한글 2자 이상 또는 영문 이름" }
+        : null,
+      phone:
+        form.memberPhone && !phoneOk
+          ? { type: "err", text: "010-XXXX-XXXX 형식" }
+          : null,
+      auth:
+        isAuthChecked
+          ? isEmailVerified
+            ? { type: "ok", text: "인증되었습니다." }
+            : { type: "err", text: "인증번호를 확인해주세요." }
+          : null
     };
-  }, [form, isEmailVerified, isEmailSubmitted, isAuthChecked]); // 의존성에 isAuthChecked 추가
+  }, [form, emailStatus, isAuthChecked, isEmailVerified]);
 
+  /* =======================
+     handlers
+  ======================= */
   const onChange = (e) => {
     const { name, value } = e.target;
-    // 인증번호를 수정하면 다시 확인 버튼을 누르도록 상태 초기화
+
+    if (name === "memberId") {
+      setEmailStatus(null);
+      setIsEmailSent(false);
+      setIsEmailVerified(false);
+      setIsAuthChecked(false);
+    }
+
     if (name === "authCode") {
       setIsAuthChecked(false);
-      setIsEmailVerified(false); // 인증번호 바꾸면 인증상태도 다시 false로(안전)
     }
-    // 입력이 바뀌면 서버 메시지 지우기(UX)
-    setServerMsg(null);
 
+    setServerMsg(null);
     setForm({ ...form, [name]: value });
   };
 
@@ -91,74 +158,91 @@ function JoinTab() {
       value.length < 4
         ? value
         : value.length < 8
-          ? `${value.substr(0, 3)}-${value.substr(3)}`
-          : `${value.substr(0, 3)}-${value.substr(3, 4)}-${value.substr(7, 4)}`;
-    setServerMsg(null);
-    setForm({ ...form, memberPhone: result.slice(0, 13) });
+        ? `${value.slice(0, 3)}-${value.slice(3)}`
+        : `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7, 11)}`;
+
+    setForm({ ...form, memberPhone: result });
   };
 
-  const sendAuthCode = () => {
-    setIsEmailSubmitted(true);
-    if (!form.memberId || (msg.email && msg.email.type === 'err')) return;
-    
-    
-    setIsEmailSent(true);
-    setIsAuthChecked(false); // 재발송 시 체크 상태 초기화
-    setServerMsg(null);
-  };
+  /* =======================
+     email auth
+  ======================= */
+  const sendAuthCode = async () => {
+    const emailFormatOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.memberId);
+    if (!emailFormatOk) {
+      setEmailStatus({ type: "err", text: "올바른 이메일 형식이 아닙니다." });
+      return;
+    }
 
-  // TODO: 실제로는 여기서 /mail/verify 호출해야 함 (현재는 더미 UI)
-  const verifyAuthCode = () => {
-    setIsAuthChecked(true); // 버튼 클릭 시점에 메시지 활성화
+    try {
+      setIsSending(true);
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/mail/auth/send`,
+        null,
+        { params: { email: form.memberId } }
+      );
 
+      setEmailStatus({
+        type: "ok",
+        text: "사용 가능한 이메일입니다. 인증번호를 확인해주세요."
+      });
+      setIsEmailSent(true);
 
-    if (form.authCode === "123456") {
-      setIsEmailVerified(true);
-      setServerMsg(null);
+      setAuthTimer(300);       // 5분 타이머 시작
+      setResendCooldown(30);   // 재발송 쿨타임 30초
+
+    } catch (err) {
+      setEmailStatus({
+        type: "err",
+        text:
+          err?.response?.data?.message ||
+          "이미 가입된 이메일입니다."
+      });
+    } finally {
+      setIsSending(false);
     }
   };
 
-  // 여기! handleSubmit을 "verifyAuthCode 아래"에 추가하면 흐름이 자연스럽다.
+  const verifyAuthCode = async () => {
+    setIsAuthChecked(true);
+
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/mail/auth/verify`,
+        {
+          email: form.memberId,
+          authCode: form.authCode
+        }
+      );
+
+      setIsEmailVerified(true);
+      setEmailStatus({ type: "ok", text: "이메일 인증이 완료되었습니다." });
+
+    } catch {
+      setIsEmailVerified(false);
+    }
+  };
+
+  /* =======================
+     submit
+  ======================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerMsg(null);
 
-    // 1) 프론트 최종 검증 (이미 msg로 다 해놨으니까 결과만 활용)
     if (!isEmailVerified) {
       setServerMsg({ type: "err", text: "이메일 인증을 완료해주세요." });
       return;
     }
-    if (msg.pw?.type === "err" || !form.memberPassword) {
-      setServerMsg({ type: "err", text: "비밀번호 조건을 확인해주세요." });
-      return;
-    }
-    if (msg.pw2?.type === "err" || !form.passwordConfirm) {
-      setServerMsg({ type: "err", text: "비밀번호 확인이 필요합니다." });
-      return;
-    }
-    if (msg.name?.type === "err" || !form.memberName) {
-      setServerMsg({ type: "err", text: "이름을 확인해주세요." });
-      return;
-    }
-    if (!form.memberBirthDate) {
-      setServerMsg({ type: "err", text: "생년월일을 선택해주세요." });
-      return;
-    }
-    if (!form.memberGender) {
-      setServerMsg({ type: "err", text: "성별을 선택해주세요." });
-      return;
-    }
-    if (form.memberPhone && msg.phone?.type === "err") {
-      setServerMsg({ type: "err", text: "휴대폰 번호를 확인해주세요." });
-      return;
-    }
 
-    // 2) 백엔드 DTO와 필드명 1:1 맞춘 payload
+    const birth = form.memberBirthDate;
     const payload = {
       memberId: form.memberId,
       memberPassword: form.memberPassword,
       memberName: form.memberName,
-      memberBirthDate: form.memberBirthDate.toISOString().slice(0, 10), // yyyy-MM-dd
+      memberBirthDate: `${birth.getFullYear()}-${String(
+        birth.getMonth() + 1
+      ).padStart(2, "0")}-${String(birth.getDate()).padStart(2, "0")}`,
       memberGender: form.memberGender,
       memberPhone: form.memberPhone.replaceAll("-", ""),
       authCode: form.authCode
@@ -166,79 +250,93 @@ function JoinTab() {
 
     try {
       setIsSubmitting(true);
-
       await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/member/join`,
         payload
       );
 
-      setServerMsg({ type: "ok", text: "회원가입이 완료되었습니다. 로그인 해주세요." });
-
-      // 필요하면 폼 초기화
-      // setForm({ ...초기값 });
-      // navigate("/member/login");
+      setServerMsg({ type: "ok", text: "회원가입이 완료되었습니다." });
+      setTimeout(() => navigate("/member?tab=login"), 1500);
 
     } catch (err) {
-      const message =
-        err?.response?.data?.message ||
-        err?.response?.data ||
-        "회원가입 중 오류가 발생했습니다.";
-      setServerMsg({ type: "err", text: String(message) });
+      setServerMsg({
+        type: "err",
+        text: err?.response?.data?.message || "회원가입 실패"
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  /* =======================
+     render
+  ======================= */
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
-      {/* 이메일 & 인증번호 */}
       <div className="field">
         <label>이메일</label>
         <div className="field-group">
-          <input type="email"
-                 name="memberId"
-                 value={form.memberId}
-                 onChange={onChange}
-                 placeholder="example@email.com"
-                 disabled={isEmailVerified}
+          <input
+            type="email"
+            name="memberId"
+            value={form.memberId}
+            onChange={onChange}
+            disabled={isEmailSent}
+            placeholder="example@email.com"
           />
-          <button type="button"
-                  className="ghost-btn"
-                  onClick={sendAuthCode}
-                  disabled={isEmailVerified}
+          <button
+            type="button"
+            className="ghost-btn"
+            onClick={sendAuthCode}
+            disabled={isEmailVerified || isSending}
           >
-            {isEmailSent ? "재발송" : "인증번호 발송"}
+            {isEmailVerified
+              ? "인증 완료"
+              : isSending
+                ? "발송 중..."
+                : isEmailSent
+                  ? "재발송"
+                  : "인증번호 발송"}
           </button>
         </div>
-        {msg.email && <div className={`inline-msg ${msg.email.type}`}>{msg.email.text}</div>}
-
-        {/* 인증번호 확인 영역 */}
-        {isEmailSent && (
-          <div style={{ marginTop: '18px' }}>
-            <label>인증번호 확인</label>
-            <div className="field-group">
-              <input
-                type="text"
-                name="authCode"
-                value={form.authCode}
-                onChange={onChange}
-                placeholder="인증번호 6자리"
-                disabled={isEmailVerified}
-              />
-              <button 
-                type="button"
-                className={`ghost-btn ${isEmailVerified ? 'verify' : ''}`}
-                onClick={verifyAuthCode}
-                disabled={isEmailVerified}
-              >
-                {isEmailVerified ? "인증 완료" : "확인"}
-              </button>
-            </div>
-            {/* 확인 버튼을 누른 후에만 메시지 출력 */}
-            {msg.auth && <div className={`inline-msg ${msg.auth.type}`}>{msg.auth.text}</div>}
+        
+        {msg.email && (
+          <div className={`inline-msg ${msg.email.type}`}>
+            {msg.email.text}
           </div>
         )}
       </div>
+
+      {isEmailSent && (
+        <div className="field">
+          <label>인증번호</label>
+          <div className="field-group auth-code-group">
+            <input
+              type="text"
+              name="authCode"
+              value={form.authCode}
+              onChange={onChange}
+              disabled={isEmailVerified}
+            />
+            <button type="button" className="ghost-btn" onClick={verifyAuthCode}>
+              확인
+            </button>
+            {/* 확인 버튼 바로 아래 타이머 */}
+            {isEmailSent && !isEmailVerified && authTimer > 0 && (
+              <div className="auth-timer-below">
+                {Math.floor(authTimer / 60)}:
+                {String(authTimer % 60).padStart(2, "0")}
+              </div>
+            )}
+          </div>
+
+          {msg.auth && (
+            <div className={`inline-msg ${msg.auth.type}`}>
+              {msg.auth.text}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="field">
         <label>비밀번호</label>
@@ -267,7 +365,7 @@ function JoinTab() {
         <label>생년월일</label>
         <DatePicker
           selected={form.memberBirthDate}
-          onChange={(date) => setForm({ ...form, memberBirthDate: date })}
+          onChange={(date) => setForm(prev => ({ ...prev, memberBirthDate: date }))}
           locale={ko}
           dateFormat="yyyy-MM-dd"
           maxDate={new Date()}
@@ -278,7 +376,7 @@ function JoinTab() {
           customInput={<AuthDateInput />} // className 도 여기 들어있다.
         />
       </div>
-
+      
       <div className="field">
         <label>성별</label>
         <div className="gender-selection">

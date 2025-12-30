@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">  
+  <mapper namespace="airlineList">
+	<resultMap id="AirlineListResultMap" type="AirlineList">
+	    <id property="flightNumber" column="FLIGHT_NUMBER"/>
+
+	    <result property="airlineName" column="AIRLINE_AIRLINE_NAME"/>
+	    <result property="flightNumber" column="FLIGHT_NUMBER"/>
+	
+	    <result property="departDate" column="FLIGHT_DEPART_DATE"/>
+	    <result property="departCity" column="DEPART_CITY"/>
+	    <result property="departAirportCode" column="DEPART_CODE"/>
+	
+	    <result property="flightDuration" column="FLIGHT_DURATION"/>
+	    <result property="tripType" column="FLIGHT_OFFER_ONE_WAY"/>
+	
+	    <result property="arriveDate" column="FLIGHT_ARRIVE_DATE"/>
+	    <result property="arriveCity" column="ARRIVE_CITY"/>
+	    <result property="arriveAirportCode" column="ARRIVE_CODE"/>
+	
+	    <result property="extraSeat" column="SEAT"/>
+	    <result property="flightOfferId" column="FLIGHT_OFFER_ID"/>
+	</resultMap>
+
+  	
+  	
+	<select id="selectAirlineList" parameterType="AirlineFilter" resultMap="AirlineListResultMap">
+	    /* 1. 가는 편 (인천 -> 나리타, 1/10) */
+	    SELECT
+	        al.AIRLINE_AIRLINE_NAME,
+	        f.FLIGHT_NUMBER,
+	        f.FLIGHT_DEPART_DATE,
+	        f.FLIGHT_ARRIVE_DATE,
+	        f.FLIGHT_DURATION,
+	        f.FLIGHT_OFFER_ID,
+	        dep.AIRPORT_CITY AS DEPART_CITY,
+	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
+	        arr.AIRPORT_CITY AS ARRIVE_CITY,
+	        arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
+	        offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
+	        offer.FLIGHT_OFFER_ONE_WAY
+	    FROM TB_FLIGHT f
+	    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
+	    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
+	    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+	    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
+	    WHERE f.DEPART_AIRPORT = #{depart}
+	      AND f.DEST_AIRPORT = #{arrive}
+	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{departDate}, 'YYYY-MM-DD')
+	      AND f.FLIGHT_IS_DEL = 'N'
+	
+	    UNION ALL
+	
+	    /* 2. 오는 편 (나리타 -> 인천, 1/17) */
+	    SELECT
+	        al.AIRLINE_AIRLINE_NAME,
+	        f.FLIGHT_NUMBER,
+	        f.FLIGHT_DEPART_DATE,
+	        f.FLIGHT_ARRIVE_DATE,
+	        f.FLIGHT_DURATION,
+	        f.FLIGHT_OFFER_ID,
+	        dep.AIRPORT_CITY AS DEPART_CITY,
+	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
+	        arr.AIRPORT_CITY AS ARRIVE_CITY,
+	        arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
+	        offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
+	        offer.FLIGHT_OFFER_ONE_WAY
+	    FROM TB_FLIGHT f
+	    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
+	    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
+	    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+	    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
+	    WHERE f.DEPART_AIRPORT = #{arrive}   /* 출발/도착 반전 */
+	      AND f.DEST_AIRPORT = #{depart}    /* 출발/도착 반전 */
+	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{returnDate}, 'YYYY-MM-DD')
+	      AND f.FLIGHT_IS_DEL = 'N'
+	</select>
+  </mapper>
+
+  

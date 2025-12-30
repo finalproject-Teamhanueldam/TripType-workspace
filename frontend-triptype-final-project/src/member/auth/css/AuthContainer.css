@@ -154,6 +154,12 @@
   cursor: default;
 }
 
+/* 버튼 로딩 스타일 살짝 주기*/
+.ghost-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* 유효성 메시지 */
 .inline-msg {
   font-size: 12px;
@@ -413,4 +419,18 @@
   overflow: visible !important;
 }
 
+/* 인증번호 input + 버튼 컨테이너 */
+.auth-code-group {
+  position: relative;
+}
 
+/* 확인 버튼 바로 아래 타이머 */
+.auth-timer-below {
+  position: absolute;
+  right: 12px;
+  bottom: -18px; /* 버튼 바로 아래 */
+  font-size: 12px;
+  color: #e63946;
+  font-weight: 600;
+  white-space: nowrap;
+}

@@ -12,18 +12,9 @@
         WHERE MEMBER_ID = #{memberId}
     </select>
 
-    <!-- 인증번호 유효성 검사 -->
-    <select id="isValidAuthCode" resultType="int">
-        SELECT COUNT(*)
-        FROM TB_AUTH
-        WHERE AUTH_EMAIL = #{memberId}
-          AND AUTH_CODE = #{authCode}
-          AND AUTH_DATE >= SYSDATE - (#{expireMinutes} / 1440)
-    </select>
-
     <!-- 회원 가입 -->
     <insert id="insertMember"
-            parameterType="com.kh.triptype.member.model.vo.Member">
+            parameterType="Member">
         INSERT INTO TB_MEMBER (
             MEMBER_NO,
             MEMBER_ID,
@@ -34,7 +25,7 @@
             MEMBER_PHONE,
             MEMBER_CREATE_AT
         ) VALUES (
-            SEQ_TB_MEMBER.NEXTVAL,
+            TB_MEMBER_SEQ.NEXTVAL,
             #{memberId},
             #{memberPassword},
             #{memberName},
@@ -45,10 +36,17 @@
         )
     </insert>
 
-    <!-- 인증 정보 삭제 -->
+    <!-- 인증 정보 삭제 AUTH_EMAIL이랑 MEMBER_ID는 기능적으로 같다 -->
     <delete id="deleteAuth" parameterType="string">
-        DELETE FROM TB_EMAIL_AUTH
-        WHERE MEMBER_ID = #{memberId}
+        DELETE FROM TB_AUTH
+        WHERE AUTH_EMAIL = #{memberId}
     </delete>
 
+	<!-- 이메일 인증 완료 여부 확인 -->
+	<select id="countVerifiedAuth" parameterType="map" resultType="int">
+	    SELECT COUNT(*)
+	    FROM TB_AUTH
+	    WHERE AUTH_EMAIL = #{authEmail}
+	      AND AUTH_VERIFIED = 'Y'
+	</select>
 </mapper>

@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class FlightOfferResultDto {
 
     /** 항공편 제안 ID (DB 기준, MULTI는 0) */
-    private int flightOfferId;
+    private long flightOfferId;
 
     /** 총 가격 */
     private String priceTotal;

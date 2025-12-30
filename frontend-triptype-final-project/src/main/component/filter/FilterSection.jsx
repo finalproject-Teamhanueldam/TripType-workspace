@@ -85,6 +85,7 @@ const FilterSection = () => {
         setTripType={setTripType}
         depart={depart}
         arrive={arrive}
+        passengers={passengers}
         setDepart={setDepart}
         setArrive={setArrive}
         onSwap={handleSwap}

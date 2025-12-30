@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="flight">
+
+    <!-- ===============================
+         FLIGHT 세그먼트 batch insert
+         - PK(FLIGHT_ID)는 트리거에서 자동 생성
+         - INSERT ALL + 트리거 조합 (Oracle 안전)
+         =============================== -->
+    <insert id="insertFlights" parameterType="list">
+
+        INSERT ALL
+        <foreach collection="list" item="f">
+            INTO TB_FLIGHT (
+                FLIGHT_SEGMENT_NO,
+                FLIGHT_NUMBER,
+                FLIGHT_DEPART_DATE,
+                FLIGHT_ARRIVE_DATE,
+                FLIGHT_DURATION,
+                FLIGHT_DIRECTION,
+                FLIGHT_IS_DEL,
+                DEPART_AIRPORT,
+                DEST_AIRPORT,
+                OPER_AIRLINE_ID,
+                SELLING_AIRLINE_ID,
+                FLIGHT_OFFER_ID
+            ) VALUES (
+                #{f.flightSegmentNo},
+                #{f.flightNumber},
+                #{f.flightDepartDate},
+                #{f.flightArriveDate},
+                #{f.flightDuration},
+                #{f.flightDirection},
+                'N',
+                #{f.departAirport},
+                #{f.destAirport},
+                #{f.operAirlineId},
+                #{f.sellingAirlineId},
+                #{f.flightOfferId}
+            )
+        </foreach>
+        SELECT 1 FROM DUAL
+
+    </insert>
+
+</mapper>

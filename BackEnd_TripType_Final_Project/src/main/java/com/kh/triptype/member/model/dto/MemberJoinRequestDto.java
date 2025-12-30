@@ -1,5 +1,7 @@
 package com.kh.triptype.member.model.dto;
 
+import java.time.LocalDate;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +11,7 @@ public class MemberJoinRequestDto {
 	private String memberId;
     private String memberPassword;
     private String memberName;
-    private String memberBirthDate;
+    private LocalDate memberBirthDate;
     private String memberGender;
     private String memberPhone;
     private String authCode;

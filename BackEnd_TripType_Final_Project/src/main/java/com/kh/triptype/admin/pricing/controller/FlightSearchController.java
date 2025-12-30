@@ -38,10 +38,11 @@ public class FlightSearchController {
         // 🔍 요청 확인 로그 (디버깅용)
         System.out.println("✈️ 항공권 검색 요청 수신");
         System.out.println(request);
+        System.out.println("👉 searchFlights service 호출 직전");
 
         FlightSearchResponseDto response =
                 flightSearchService.searchFlights(request);
-
+        System.out.println("👉 searchFlights service 호출 완료");
         return ResponseEntity.ok(response);
     }
 }

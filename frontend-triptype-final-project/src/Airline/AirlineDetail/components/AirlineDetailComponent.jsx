@@ -2,8 +2,8 @@ import "../css/TotalCss.css";
 import "../css/AirlineDetailComponent.css";
 import left from "../images/left.svg";
 
-import TicketPriceChart from "./TicketPriceChart";
-import TicketBoxComponent from "./TicketBoxComponent";
+import TicketPriceChart from "./AlertChartDetailComponent";
+import TicketBoxComponent from "../../common/TicketBoxComponent";
 import ReviewComponent from "./ReviewComponent";
 
 import { useParams } from "react-router-dom";
@@ -163,11 +163,11 @@ const AirlineDetailComponent = () => {
               <>
                 {/* 가는 편 */}
                 <p className="section-title">가는 편</p>
-                <TicketBoxComponent />
+                <TicketBoxComponent  showPlus={false}/>
 
                 {/* 오는 편 */}
                 <p className="section-title">오는 편</p>
-                <TicketBoxComponent />
+                <TicketBoxComponent  showPlus={false}/>
               </>
             )
           }
@@ -176,7 +176,7 @@ const AirlineDetailComponent = () => {
           {
             (tripInfo.tripType  == "TRANSIT") && (
               tripInfo.segments.map((segment, index) => 
-                <TicketBoxComponent key={segment.segmentNo} segment={segment} tripType={tripInfo.tripType}/>
+                <TicketBoxComponent key={segment.segmentNo} segment={segment} tripType={tripInfo.tripType} showPlus={false}/>
               ))
           }
 
@@ -202,7 +202,6 @@ const AirlineDetailComponent = () => {
         {/* 오른쪽 차트 */}
         <aside className="right-section">
           <div className="sticky-box">
-            <h3>이번주 가격 변동</h3>
             <TicketPriceChart />
           </div>
         </aside>

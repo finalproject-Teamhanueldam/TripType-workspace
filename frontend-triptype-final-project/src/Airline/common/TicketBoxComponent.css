@@ -183,3 +183,17 @@
     color: #777;
     margin-top: -2px;
 }
+
+.plus {
+    margin-top: 10px;
+}
+
+.plus img {
+    transition: all 0.2s ease;
+}
+
+.plus img:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+    filter: brightness(1.1);
+}
