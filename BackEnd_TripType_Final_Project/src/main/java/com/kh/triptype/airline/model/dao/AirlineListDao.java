@@ -11,10 +11,19 @@ import com.kh.triptype.airline.model.vo.AirlineListVo;
 @Repository
 public class AirlineListDao {
 
-	public ArrayList<AirlineListVo> selectAirlineList(SqlSessionTemplate sqlSession, AirlineFilter airlineFilter) {
-		return (ArrayList) sqlSession.selectList("airlineList.selectAirlineList", airlineFilter);
+	// 가격순 정렬 DAO
+	public ArrayList<AirlineListVo> selectAirlineListPrice(SqlSessionTemplate sqlSession, AirlineFilter airlineFilter) {
+		return (ArrayList) sqlSession.selectList("airlineList.selectAirlineListPrice", airlineFilter);
 	}
 	
+	// 비행 시간순 정렬
+	public ArrayList<AirlineListVo> selectAirlineListDuration(SqlSessionTemplate sqlSession, AirlineFilter airlineFilter) {
+		return (ArrayList) sqlSession.selectList("airlineList.selectAirlineListDuration", airlineFilter);
+	}
 	
+	// 늦는 시간순 정렬
+	public ArrayList<AirlineListVo> selectAirlineListLate(SqlSessionTemplate sqlSession, AirlineFilter airlineFilter) {
+		return (ArrayList) sqlSession.selectList("airlineList.selectAirlineListLate", airlineFilter);
+	}
 	
 }

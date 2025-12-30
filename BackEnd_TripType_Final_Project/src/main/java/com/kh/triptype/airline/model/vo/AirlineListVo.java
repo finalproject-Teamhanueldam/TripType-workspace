@@ -65,6 +65,10 @@ public class AirlineListVo {
     // 잔여 좌석 수
     private int extraSeat;                 // FLIGHT_OFFER_EXTRA_SEAT
     
+    // 오퍼 번호
     private int flightOfferId;
+    
+    // 가격
+    private int totalPrice;
 }
 

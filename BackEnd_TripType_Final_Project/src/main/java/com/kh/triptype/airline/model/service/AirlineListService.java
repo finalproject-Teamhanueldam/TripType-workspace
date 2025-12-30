@@ -8,6 +8,10 @@ import com.kh.triptype.airline.model.vo.AirlineListVo;
 
 public interface AirlineListService {
 	
-	public ArrayList<AirlineListVo> selectAirlineList(AirlineFilter airlineFilter);
+	public ArrayList<AirlineListVo> selectAirlineListPrice(AirlineFilter airlineFilter);
+	
+	public ArrayList<AirlineListVo> selectAirlineListDuration(AirlineFilter airlineFilter);
+	
+	public ArrayList<AirlineListVo> selectAirlineListLate(AirlineFilter airlineFilter);
 
 }

@@ -14,6 +14,7 @@ const AirlineListComponent = () => {
   const location = useLocation().state;
   const { searchParams, res } = location;
 
+
   // 일주일간 최저가 상단 데이터
   let weekPriceList = [
   { date: "12월20일", price: "-" },
@@ -32,9 +33,6 @@ const AirlineListComponent = () => {
   // 경유 필터
   const transitList = ["직항", "1회 경유", "2회 이상"];
 
-
-  // 항공사
-  const airline = ["대한항공", "아시아나", "티웨이"];
 
 
   // State
@@ -65,6 +63,10 @@ const AirlineListComponent = () => {
   const [ roundList, setRoundList ] = useState([]); // 왕복 (가는 편/오는 편)
 
   const [ result, setResult ] = useState(0); // 검색 결과 개수
+
+
+  // 항공사
+  const [ airline, setAirline ] = useState([]);
 
 
 
@@ -116,61 +118,72 @@ const AirlineListComponent = () => {
     setAirlineStatus(airline[index]);
   };
 
-
+  // 최저가 / 비행시간순 / 늦는순 정렬 타입
+  const sortType = activeFilter === 0 ? "PRICE" :
+                   activeFilter === 1 ? "DURATION" : "LATE"
 
   useEffect(() => {
-    const renderCall = async () => {
-      try {
-        const url = 'http://localhost:8001/triptype/airline/list';
-        const response = await axios.get(url, { params: searchParams });
 
-        const allFlights = response.data;
+      const renderCall = async () => {
+        try {
+          const url = 'http://localhost:8001/triptype/airline/list';
+          const method = 'get';
 
-        console.log("all", allFlights);
+          const response = await axios({
+            url,
+            method,
+            params : { ...searchParams, sortType }
+          });
 
-        // flightOfferId 기준으로 outbound/inbound 묶기
-        // reduce : 초기로 빈 객체 생성
-        // acc 가상 객체에 쌓아서 return으로 반환
-        const pairedFlights = allFlights.reduce((acc, flight) => {
-          const id = flight.flightOfferId;
-          if (!acc[id]) acc[id] = { outbound: null, inbound: null };
+          const allFlights = response.data;
 
-          if (flight.departAirportCode === searchParams.depart) {
-            acc[id].outbound = flight; // 출국
-          } else {
-            acc[id].inbound = flight; // 귀국
+          console.log("all", allFlights);
+
+          // flightOfferId 기준으로 outbound/inbound 묶기
+          // reduce : 초기로 빈 객체 생성
+          // acc 가상 객체에 쌓아서 return으로 반환
+          const pairedFlights = allFlights.reduce((acc, flight) => {
+            const id = flight.flightOfferId;
+            if (!acc[id]) acc[id] = { outbound: null, inbound: null };
+
+            if (flight.departAirportCode === searchParams.depart) {
+              acc[id].outbound = flight; // 출국
+            } else {
+              acc[id].inbound = flight; // 귀국
+            }
+
+            return acc;
+          }, {});
+
+          console.log("pairedFlights", pairedFlights);
+
+          const pairedArray = Object.values(pairedFlights); // [{outbound, inbound}, {outbound, inbound}, ...]
+
+          console.log("pairedArray", pairedArray);
+
+          if(searchParams.tripType == "ROUND") {
+            setRoundList(pairedArray); // 왕복
+            setResult(pairedArray.filter((pair) => { return pair.outbound.tripType === "N" }).length); // 전체 검색 결과 개수
+
+            const airlines = Array.from(new Set(pairedArray.flatMap((pair) => [
+              pair.outbound?.airlineName, 
+              pair.inbound?.airlineName
+            ].filter(Boolean)
+            )));
+            setAirline(airlines);
+          } 
+          else if(searchParams.tripType == "ONEWAY") {
+            setOutboundList(pairedArray); // 편도
+            setResult(pairedArray.filter((pair) => { return pair.outbound.tripType === "Y" }).length); // 전체 검색 결과 개수
           }
-
-          return acc;
-        }, {});
-
-        console.log("pairedFlights", pairedFlights);
-
-        const pairedArray = Object.values(pairedFlights); // [{outbound, inbound}, {outbound, inbound}, ...]
-
-        console.log("pairedArray", pairedArray);
-
-        if(searchParams.tripType == "ROUND") {
-          setRoundList(pairedArray); // 왕복
-          setResult(pairedArray.filter((pair) => { return pair.outbound.tripType === "N" }).length); // 전체 검색 결과 개수
-        } 
-        else if(searchParams.tripType == "ONEWAY") {
-          setOutboundList(pairedArray); // 편도
-          setResult(pairedArray.filter((pair) => { return pair.outbound.tripType === "Y" }).length); // 전체 검색 결과 개수
+        } catch (error) {
+          console.log(error);
         }
+      };
+      renderCall();
 
-        
+  }, [activeFilter, searchParams, sortType]);
 
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    renderCall();
-  }, []);
-
-
-  console.log("result", result.length);
   console.log(outboundList);
 
   return (
@@ -243,7 +256,7 @@ const AirlineListComponent = () => {
               <span className={ activeFilter == 1 ? "active" : "" } onClick={() => changeFilter(1)}>비행시간순</span>
             </div>
 
-            <select value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)}>
+            <select value={activeFilter} onChange={(e) => setActiveFilter(Number(e.target.value))}>
               {
                 filterList.map((item, index) => 
                   <option key={index} value={index}>{ item }</option>

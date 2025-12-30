@@ -19,9 +19,22 @@ public class AirlineListServiceImpl implements AirlineListService {
 	@Autowired
 	private SqlSessionTemplate sqlSession;
 
+	// 가격 기준 정렬
 	@Override
-	public ArrayList<AirlineListVo> selectAirlineList(AirlineFilter airlineFilter) {
-		return airlineListDao.selectAirlineList(sqlSession, airlineFilter);
+	public ArrayList<AirlineListVo> selectAirlineListPrice(AirlineFilter airlineFilter) {
+		return airlineListDao.selectAirlineListPrice(sqlSession, airlineFilter);
+	}
+	
+	// 비행시간 순 정렬
+	@Override
+	public ArrayList<AirlineListVo> selectAirlineListDuration(AirlineFilter airlineFilter) {
+		return airlineListDao.selectAirlineListDuration(sqlSession, airlineFilter);
+	}
+
+	// 늦는 시간 순 정렬
+	@Override
+	public ArrayList<AirlineListVo> selectAirlineListLate(AirlineFilter airlineFilter) {
+		return airlineListDao.selectAirlineListLate(sqlSession, airlineFilter);
 	}
 
 }

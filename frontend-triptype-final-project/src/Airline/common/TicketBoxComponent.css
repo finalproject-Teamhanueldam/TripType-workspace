@@ -1,22 +1,19 @@
-/* TicketBoxComponent.css */
-
-/* --- 항공권 카드 컨테이너 --- */
 .ticket-box {
     padding: 22px;
     border-radius: 16px;
     background: #fff;
     border: 1px solid #e5e5e5;
     box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-    transition: box-shadow 0.2s ease; /* transition 속성 수정 */
-    font-family: 'Pretendard', sans-serif; /* 폰트 설정 (필요에 따라 변경) */
     margin-bottom: 50px;
+    transition: box-shadow 0.2s ease;
+    font-family: 'Pretendard', sans-serif;
 }
 
 .ticket-box:hover {
-    box-shadow: 0 6px 14px rgba(0,0,0,0.09);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
 }
 
-/* --- 1. 항공사 정보 라인 --- */
+/* 항공사 */
 .ticket-airline {
     display: flex;
     align-items: center;
@@ -26,10 +23,9 @@
 
 .airline-logo {
     width: 28px;
-    height: 28px; /* 높이 추가 */
+    height: 28px;
     border-radius: 50%;
-    object-fit: contain;
-    border: 1px solid #f0f0f0; /* 로고 테두리 추가 */
+    border: 1px solid #eee;
 }
 
 .airline-name {
@@ -38,9 +34,9 @@
 }
 
 .flight-number {
+    margin-left: auto;
     font-size: 13px;
     color: #777;
-    margin-left: auto; /* 오른쪽으로 밀기 */
     display: flex;
     align-items: center;
 }
@@ -51,14 +47,13 @@
     color: #777;
 }
 
-/* --- 구분선 --- */
 .ticket-divider {
     margin: 14px 0;
     height: 1px;
     background: #ececec;
 }
 
-/* --- 2. 출발-도착 정보 3칸 --- */
+/* 출발/도착 */
 .ticket-detail-row {
     display: flex;
     justify-content: space-between;
@@ -66,134 +61,123 @@
     text-align: center;
 }
 
-/* 각 블록 공통 */
 .flight-block {
-    flex: 1; /* 너비 균등 분배 */
+    flex: 1;
 }
 
 .flight-block .date {
     font-size: 13px;
     color: #777;
-    margin-bottom: 5px; /* 간격 추가 */
-}
-
-.flight-block .time {
-    font-size: 28px; /* 더 강조 */
-    font-weight: 800; /* 더 강조 */
-    margin: 0; /* 기본 margin 덮어쓰기 */
-    color: #000;
+    margin-bottom: 5px;
 }
 
 .flight-block .airport {
     font-size: 14px;
+    font-weight: 600;
     color: #444;
-    font-weight: 500;
-    margin-top: 5px;
 }
 
 .airport-iata {
-    color: #007bff; /* IATA 코드 색상 강조 */
+    margin-left: 3px;
+    color: #007bff;
     font-weight: 700;
-    margin-left: 2px;
 }
 
-
-/* --- Duration 영역 --- */
+/* Duration */
 .duration-block {
-    flex-shrink: 0;
-    width: 130px; /* 너비 지정 */
+    width: 130px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 10px;
 }
 
-/* 아이콘 대신 사용되는 비행 시간 시각화 요소 */
 .duration-line-wrapper {
     display: flex;
     align-items: center;
     width: 100%;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
 }
 
 .flight-line {
-    flex-grow: 1;
+    flex: 1;
     height: 1px;
-    background-color: #ccc;
-    opacity: 0.7;
+    background: #ccc;
 }
 
 .duration-icon-clock {
-    font-size: 16px; /* FaClock 아이콘 크기 */
-    color: #007bff; /* 아이콘 색상 변경 */
+    font-size: 16px;
+    color: #007bff;
     margin: 0 8px;
 }
 
-.duration-block .duration {
+.duration {
     font-size: 14px;
     font-weight: 600;
-    color: #333;
 }
 
-.duration-block .via { /* 기존 .via 스타일 */
-    font-size: 12px;
-    color: #777;
-    margin-top: 2px;
-}
-
-.via-tag { /* 직항/경유 태그 스타일 (추가) */
-    background-color: #e6f3ff;
-    color: #007bff;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-weight: 600;
+.via-tag {
     margin-top: 4px;
-    display: inline-block;
+    background: #e6f3ff;
+    color: #007bff;
+    padding: 2px 10px;
+    border-radius: 12px;
     font-size: 11px;
+    font-weight: 700;
 }
 
-/* --- 3. 부가 정보 섹션 (추가) --- */
+/* 가격 / 부가정보 */
 .extra-info-row {
-    margin-top: 20px;
+    margin-top: 22px;
     padding-top: 15px;
     border-top: 1px solid #f0f0f0;
     display: flex;
     justify-content: space-between;
-    font-size: 13px;
-    color: #555;
-    align-items: center;
+    align-items: flex-end;
+}
+
+.price-wrapper {
+    display: flex;
+    align-items: flex-end;
+}
+
+.price {
+    font-size: 24px;
+    font-weight: 900;
+    color: #111;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+}
+
+.sub-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
 }
 
 .seat-status {
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-value {
+    margin-left: 6px;
 }
 
 .status-value.highlight {
-    color: #d9534f; /* 좌석 부족 강조 색상 */
-    font-weight: 700;
+    color: #e74c3c;
+    font-weight: 800;
 }
 
 .terminal-info {
     display: flex;
     align-items: center;
     color: #777;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 .terminal-info .icon-tiny {
     color: #777;
     margin-top: -2px;
-}
-
-.plus {
-    margin-top: 10px;
-}
-
-.plus img {
-    transition: all 0.2s ease;
-}
-
-.plus img:hover {
-    cursor: pointer;
-    transform: scale(1.1);
-    filter: brightness(1.1);
 }
