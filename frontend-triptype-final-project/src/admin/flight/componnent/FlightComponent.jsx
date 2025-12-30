@@ -169,13 +169,13 @@ const FlightComponent = () => {
                                             <div className="date-display">{formatDate(ticket.arriveDateTime || ticket.arriveDate)}</div>
                                             <div className="time-display">{formatTime(ticket.arriveDateTime || ticket.arriveDate)}</div>
                                         </td>
-                                        <td><div className="price-info">{Number(ticket.priceTotal || ticket.price || 0).toLocaleString()}원</div></td>
+                                        <td><div className="admin-flight-price-info">{Number(ticket.priceTotal || ticket.price || 0).toLocaleString()}원</div></td>
                                         <td className="datetime-info last-checked">
                                             <div className="date-display">{formatDate(ticket.apiQueryDate)}</div>
                                             <div className="time-display">{formatTime(ticket.apiQueryDate)}</div>
                                         </td>
                                         <td className="action-cell">
-                                            <button className="delete-btn" onClick={() => handleDelete(ticket.id)}>삭제</button>
+                                            <button className="admin-flight-delete-btn" onClick={() => handleDelete(ticket.id)}>삭제</button>
                                         </td>
                                     </tr>
                                 ))

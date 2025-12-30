@@ -102,7 +102,7 @@
 }
 
 .ticket-list-table td {
-    padding: 12px 8px;
+    padding: 11px 8px;
     border-bottom: 1px solid #eee;
     text-align: center;
     vertical-align: middle;
@@ -124,9 +124,9 @@
 .secondary-btn { background-color: #007bff; color: white; }
 .danger-btn { background-color: #dc3545; color: white; }
 
-.delete-btn {
-    background: white;
-    color: #dc3545;
+.admin-flight-delete-btn {
+    background: #ff3a3a;
+    color: white;
     border: 1px solid #dc3545;
     padding: 4px 12px;
     border-radius: 4px;
@@ -135,3 +135,4 @@
 
 .airport-code { font-size: 16px; font-weight: bold; color: #0056b3; }
 .time-display { font-size: 16px; font-weight: bold; }
+.admin-flight-price-info { font-size : 16px; font-weight: bold;}
