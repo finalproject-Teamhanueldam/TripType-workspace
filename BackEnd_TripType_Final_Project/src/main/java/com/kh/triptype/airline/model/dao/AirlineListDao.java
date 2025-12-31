@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.WeeklyPrice;
 
 @Repository
 public class AirlineListDao {
@@ -24,6 +25,10 @@ public class AirlineListDao {
 	// 늦는 시간순 정렬
 	public ArrayList<AirlineListVo> selectAirlineListLate(SqlSessionTemplate sqlSession, AirlineFilter airlineFilter) {
 		return (ArrayList) sqlSession.selectList("airlineList.selectAirlineListLate", airlineFilter);
+	}
+
+	public ArrayList<WeeklyPrice> selectWeeklyPrice(SqlSessionTemplate sqlSession, AirlineFilter airlineFilter) {
+		return (ArrayList) sqlSession.selectList("airlineList.selectWeeklyPrice", airlineFilter);
 	}
 	
 }

@@ -1,6 +1,7 @@
 package com.kh.triptype.airline.model.vo;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 import org.apache.ibatis.type.Alias;
 
@@ -30,7 +31,7 @@ public class AirlineListVo {
     /* ================= 출발 정보 ================= */
 
     // 출발 날짜
-    private Date departDate;             // FLIGHT_DEPART_DATE
+    private LocalDateTime departDate;             // FLIGHT_DEPART_DATE
 
     // 출발 도시
     private String departCity;             // AIRPORT_CITY
@@ -51,7 +52,7 @@ public class AirlineListVo {
     /* ================= 도착 정보 ================= */
 
     // 도착 날짜
-    private Date arriveDate;             // FLIGHT_ARRIVE_DATE
+    private LocalDateTime arriveDate;             // FLIGHT_ARRIVE_DATE
 
     // 도착 도시
     private String arriveCity;             // AIRPORT_CITY
@@ -69,6 +70,6 @@ public class AirlineListVo {
     private int flightOfferId;
     
     // 가격
-    private int totalPrice;
+    private Double totalPrice;
 }
 

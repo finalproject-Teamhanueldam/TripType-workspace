@@ -1,6 +1,5 @@
 package com.kh.triptype.airline.controller;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kh.triptype.airline.model.service.AirlineListService;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.WeeklyPrice;
 
 @RequestMapping("airline")
 @RestController
@@ -25,7 +25,6 @@ public class AirlineListController {
 	// sortType에 따른 최저가순/비행시간순/늦는시간순 으로 정렬 호출
 	@GetMapping("list")
 	public ArrayList<AirlineListVo> selectAirlineList(@ModelAttribute AirlineFilter filter) {
-		System.out.println("호출 : " + filter);
 		
 		ArrayList<AirlineListVo> list = null;
 		
@@ -36,8 +35,7 @@ public class AirlineListController {
 		case "ROUND" : filter.setTripType("N"); break;
 		case "ONEWAY" : filter.setTripType("Y"); break;
 		}
-		
-		System.out.println(filter);
+
 		
 		switch(sortType) {
 			case "PRICE" : 
@@ -58,8 +56,8 @@ public class AirlineListController {
 		} 
 		else {
 			for(AirlineListVo item : list) {
-				int money = item.getTotalPrice();
-				int won = (money * 1690);			
+				double money = item.getTotalPrice();
+				double won = (money * 1690);			
 				item.setTotalPrice(won);
 			}
 		}
@@ -67,6 +65,37 @@ public class AirlineListController {
 		return list;
 	}
 	
-	// 비행시간 순으로 호출
+	// 주간 최저가 가격
+	@GetMapping("weeklyPrice")
+	public ArrayList<WeeklyPrice> selectWeeklyPrice(AirlineFilter filter) {
+		
+		System.out.println("weeklyPrice 호출");
+		System.out.println(filter);
+		
+		String tripType = filter.getTripType();
+		
+		switch(tripType) {
+		case "ROUND" : filter.setTripType("N"); break;
+		case "ONEWAY" : filter.setTripType("Y"); break;
+		}
+		
+		System.out.println("변경 후 : " + filter);
+		
+		ArrayList<WeeklyPrice> list = null;
+		
+		list = airlineListService.selectWeeklyPrice(filter);
+		
+		if(!list.isEmpty()) {
+			for(WeeklyPrice item : list) {
+				double money = item.getOfferPriceTotal();
+				double won = (money * 1690);
+				item.setOfferPriceTotal(won);
+			}
+		} else {
+			System.out.println("empty");
+		}
+		
+		return list;
+	};
 	
 }

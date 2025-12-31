@@ -2,7 +2,11 @@ import { FaPlane, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 import "./TicketBoxComponent.css";
 import plus from "./images/plus.svg";
 
-const TicketBoxComponent = ({ segment, tripType, setOpen, showPlus = false }) => {
+const TicketBoxComponent = ({ segment, returnSegment, tripType, setOpen, showPlus = false }) => {
+
+    // 왕복일 경우 +에 더 자세하게
+    // console.log('segment', segment);
+    // console.log('returnSegment', returnSegment);
 
     const tripTypeLabel =
         tripType === "TRANSIT" ? "경유" :
@@ -23,6 +27,11 @@ const TicketBoxComponent = ({ segment, tripType, setOpen, showPlus = false }) =>
 
     /* Duration 파싱 */
     const parseDuration = (duration) => {
+
+        if(!duration || typeof duration != "string") {
+            return { hours : 0, minutes : 0 }
+        }
+
         const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
         return {
             hours: match?.[1] ? Number(match[1]) : 0,
@@ -54,8 +63,11 @@ const TicketBoxComponent = ({ segment, tripType, setOpen, showPlus = false }) =>
                         {findDay(segment.departDate)} ({findDate(segment.departDate)})
                     </div>
                     <div className="airport">
-                        {segment.departCity}
-                        <span className="airport-iata">({segment.departAirportCode})</span>
+                        <div>
+                            {segment.departCity}
+                            <span className="airport-iata">({segment.departAirportCode})</span>
+                        </div>
+                        <span className='time'>{new Date(segment.departDate).toLocaleTimeString("ko-KR", { hour: "numeric", minute: "numeric" })}</span>
                     </div>
                 </div>
 
@@ -76,8 +88,11 @@ const TicketBoxComponent = ({ segment, tripType, setOpen, showPlus = false }) =>
                         {findDay(segment.arriveDate)} ({findDate(segment.arriveDate)})
                     </div>
                     <div className="airport">
-                        {segment.arriveCity}
-                        <span className="airport-iata">({segment.arriveAirportCode})</span>
+                        <div>
+                            {segment.arriveCity}
+                            <span className="airport-iata">({segment.arriveAirportCode})</span>
+                        </div>
+                        <span className='time'>{new Date(segment.arriveDate).toLocaleTimeString("ko-KR", { hour: "numeric", minute: "numeric" })}</span>
                     </div>
                 </div>
             </div>
@@ -98,7 +113,8 @@ const TicketBoxComponent = ({ segment, tripType, setOpen, showPlus = false }) =>
                 </div>
                 <div className="price-wrapper">
                     <span className="price">
-                        {segment.totalPrice?.toLocaleString()}원
+                        { tripType != "ROUND" ? Math.floor(segment.totalPrice).toLocaleString() + '원' : 
+                                                Math.floor(segment.totalPrice + returnSegment.totalPrice).toLocaleString()+'원'}
                     </span>
                 </div>
             </div>

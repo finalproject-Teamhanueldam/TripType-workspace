@@ -2,6 +2,7 @@ package com.kh.triptype.admin.pricing.service;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +32,8 @@ import com.kh.triptype.admin.pricing.model.dto.AmadeusItineraryDto;
 import com.kh.triptype.admin.pricing.model.dto.AmadeusSegmentDto;
 import com.kh.triptype.admin.pricing.model.dto.FlightSearchRequestDto;
 import com.kh.triptype.admin.pricing.model.dto.FlightSearchResponseDto;
-import com.kh.triptype.admin.pricing.model.dto.ParsedOfferDto;
 import com.kh.triptype.admin.pricing.model.dto.FlightSegmentDto;
+import com.kh.triptype.admin.pricing.model.dto.ParsedOfferDto;
 import com.kh.triptype.admin.pricing.model.vo.FlightSearchCacheVo;
 import com.kh.triptype.admin.pricing.model.vo.FlightSearchHistoryVo;
 import com.kh.triptype.admin.pricing.model.vo.FlightVo;
@@ -360,11 +361,13 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                                 .flightSegmentNo(segNo++)
                                 .flightNumber(seg.getCarrierCode() + seg.getNumber())
                                 .flightDepartDate(
-                                        Date.valueOf(seg.getDeparture().getAt().substring(0, 10))
+                                       //Date.valueOf(seg.getDeparture().getAt().substring(0, 10))
+                                		LocalDateTime.parse(seg.getDeparture().getAt())
                                 )
                                 .flightArriveDate(
-                                        Date.valueOf(seg.getArrival().getAt().substring(0, 10))
-                                )
+                                        //Date.valueOf(seg.getArrival().getAt().substring(0, 10))
+                                		LocalDateTime.parse(seg.getArrival().getAt())
+                        		)
                                 .flightDuration(seg.getDuration())
                                 .flightDirection(direction)
                                 .departAirport(seg.getDeparture().getIataCode())

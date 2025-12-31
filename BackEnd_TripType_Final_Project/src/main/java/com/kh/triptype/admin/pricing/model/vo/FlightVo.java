@@ -1,7 +1,14 @@
 package com.kh.triptype.admin.pricing.model.vo;
 
 import java.sql.Date;
-import lombok.*;
+import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
@@ -21,10 +28,10 @@ public class FlightVo {
     private String flightNumber;
 
     /** 출발 일자(또는 시각이 필요하면 Timestamp로 확장) */
-    private Date flightDepartDate;
+    private LocalDateTime flightDepartDate;
 
     /** 도착 일자 */
-    private Date flightArriveDate;
+    private LocalDateTime flightArriveDate;
 
     /** 세그먼트 소요 시간 (PT2H35M) */
     private String flightDuration;
