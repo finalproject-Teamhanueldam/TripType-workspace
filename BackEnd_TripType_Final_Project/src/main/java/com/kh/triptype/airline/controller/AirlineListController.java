@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kh.triptype.airline.model.service.AirlineListService;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.WeeklyPrice;
 
 @RequestMapping("airline")
 @RestController
@@ -21,9 +22,55 @@ public class AirlineListController {
 	@Autowired
 	private AirlineListService airlineListService;
 	
+	// sortType에 따른 최저가순/비행시간순/늦는시간순 으로 정렬 호출
 	@GetMapping("list")
 	public ArrayList<AirlineListVo> selectAirlineList(@ModelAttribute AirlineFilter filter) {
-		System.out.println("호출 : " + filter);
+		
+		ArrayList<AirlineListVo> list = null;
+		
+		String tripType = filter.getTripType();
+		String sortType = filter.getSortType();
+		
+		switch(tripType) {
+		case "ROUND" : filter.setTripType("N"); break;
+		case "ONEWAY" : filter.setTripType("Y"); break;
+		}
+
+		
+		switch(sortType) {
+			case "PRICE" : 
+				list = airlineListService.selectAirlineListPrice(filter);
+				break;
+			case "DURATION" : 
+				list = airlineListService.selectAirlineListDuration(filter);
+				break;
+			case "LATE" : 
+				list = airlineListService.selectAirlineListLate(filter);
+				break;
+		}
+		
+		 
+		
+		if(list.isEmpty()) {
+			System.out.println("empty");
+		} 
+		else {
+			for(AirlineListVo item : list) {
+				double money = item.getTotalPrice();
+				double won = (money * 1690);			
+				item.setTotalPrice(won);
+			}
+		}
+		
+		return list;
+	}
+	
+	// 주간 최저가 가격
+	@GetMapping("weeklyPrice")
+	public ArrayList<WeeklyPrice> selectWeeklyPrice(AirlineFilter filter) {
+		
+		System.out.println("weeklyPrice 호출");
+		System.out.println(filter);
 		
 		String tripType = filter.getTripType();
 		
@@ -32,19 +79,23 @@ public class AirlineListController {
 		case "ONEWAY" : filter.setTripType("Y"); break;
 		}
 		
-		System.out.println(filter);
+		System.out.println("변경 후 : " + filter);
 		
-		ArrayList<AirlineListVo> list = airlineListService.selectAirlineList(filter);
+		ArrayList<WeeklyPrice> list = null;
 		
-		if(list.isEmpty()) {
-			System.out.println("empty");
-		} else {
-			for(AirlineListVo item : list) {
-				System.out.println(item);
+		list = airlineListService.selectWeeklyPrice(filter);
+		
+		if(!list.isEmpty()) {
+			for(WeeklyPrice item : list) {
+				double money = item.getOfferPriceTotal();
+				double won = (money * 1690);
+				item.setOfferPriceTotal(won);
 			}
+		} else {
+			System.out.println("empty");
 		}
 		
 		return list;
-	}
+	};
 	
 }

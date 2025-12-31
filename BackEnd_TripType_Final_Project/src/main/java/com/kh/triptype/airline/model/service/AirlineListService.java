@@ -4,10 +4,21 @@ import java.util.ArrayList;
 
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.WeeklyPrice;
 
 
 public interface AirlineListService {
 	
-	public ArrayList<AirlineListVo> selectAirlineList(AirlineFilter airlineFilter);
+	// 가격순 정렬
+	public ArrayList<AirlineListVo> selectAirlineListPrice(AirlineFilter airlineFilter);
+	
+	// 비행시간순 정렬
+	public ArrayList<AirlineListVo> selectAirlineListDuration(AirlineFilter airlineFilter);
+	
+	// 늦게 출발하는순 정렬
+	public ArrayList<AirlineListVo> selectAirlineListLate(AirlineFilter airlineFilter);
+	
+	// 주간 가격정보 불러오기
+	public ArrayList<WeeklyPrice> selectWeeklyPrice(AirlineFilter airlineFilter);
 
 }
