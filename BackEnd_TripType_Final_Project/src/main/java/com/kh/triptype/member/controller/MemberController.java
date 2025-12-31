@@ -1,5 +1,8 @@
 package com.kh.triptype.member.controller;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,5 +36,33 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
         // 응답 body는 없고 상태코드만 보내겠다
         // 실제 응답 예시 HTTP/1.1 201 Created
+    }
+    
+    @PostMapping("/password/reset")
+    public ResponseEntity<Void> resetPassword(
+            @RequestBody Map<String, String> body
+    ) {
+        memberService.resetPassword(
+            body.get("memberName"),
+            body.get("memberId"),
+            body.get("newPassword")
+        );
+
+        return ResponseEntity.ok().build();
+    }
+    
+    @PostMapping("/id/find")
+    public ResponseEntity<Map<String, Object>> findId(
+            @RequestBody Map<String, String> body
+    ) {
+    	
+    	List<String> ids = memberService.findMemberIds(
+	        body.get("memberName"),
+	        body.get("memberBirthDate")
+	    );
+
+	    return ResponseEntity.ok(
+	        Map.of("memberIds", ids)
+	    );
     }
 }

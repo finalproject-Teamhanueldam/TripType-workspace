@@ -33,5 +33,8 @@ public class AirlineFilter {
     /* 소아 승객 수 */
     private int minorCount;
     
+    /* 정렬 타입 */
+    private String sortType;
+    
     
 }

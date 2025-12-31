@@ -367,8 +367,9 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                                 )
                                 .flightArriveDate(
                                         //Date.valueOf(seg.getArrival().getAt().substring(0, 10))
-                                		LocalDateTime.parse(seg.getDeparture().getAt())
-                        		)
+
+                                		LocalDateTime.parse(seg.getArrival().getAt()))
+
                                 .flightDuration(seg.getDuration())
                                 .flightDirection(direction)
                                 .departAirport(seg.getDeparture().getIataCode())

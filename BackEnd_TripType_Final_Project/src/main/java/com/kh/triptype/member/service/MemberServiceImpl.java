@@ -1,5 +1,7 @@
 package com.kh.triptype.member.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,5 +48,68 @@ public class MemberServiceImpl implements MemberService {
 
         // 4 인증 정보 삭제 (선택이지만 권장)
         memberDao.deleteAuth(req.getMemberId());
+    }
+    
+    @Override
+    @Transactional
+    public void resetPassword(
+            String memberName,
+            String memberId,
+            String newPassword
+    ) {
+        // 1️ 이름 + 이메일 존재 확인
+    	int count = memberDao.countByNameAndMemberId(memberName, memberId);
+
+        if (count == 0) {
+            throw new IllegalArgumentException("이름 또는 이메일이 일치하지 않습니다.");
+        }
+
+        // 2️ 이메일 인증 완료 여부 확인
+        int verified = memberDao.countVerifiedAuth(memberId);
+        if (verified == 0) {
+            throw new IllegalStateException("이메일 인증을 완료해주세요.");
+        }
+
+        // 3️ 비밀번호 암호화
+        String encodedPw = passwordEncoder.encode(newPassword);
+
+        // 4️ 비밀번호 업데이트
+        int result = memberDao.updatePasswordByMemberId(memberId, encodedPw);
+        if (result != 1) {
+            throw new RuntimeException("비밀번호 재설정에 실패했습니다.");
+        }
+
+        // 5️ 인증 정보 삭제 (선택이지만 강력 추천)
+        memberDao.deleteAuth(memberId);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<String> findMemberIds(String memberName, String memberBirthDate) {
+
+        List<String> ids =
+            memberDao.findIdsByNameAndBirth(memberName, memberBirthDate);
+
+        if (ids.isEmpty()) {
+            throw new IllegalArgumentException("일치하는 회원 정보가 없습니다.");
+        }
+
+        return ids.stream()
+                .map(this::maskEmail)
+                .toList();
+    }
+
+    /**
+     * 이메일 마스킹
+     * 예) triptype123@naver.com → tr***@naver.com
+     */
+    private String maskEmail(String email) {
+        String[] parts = email.split("@");
+        String id = parts[0];
+        String domain = parts[1];
+
+        return id.substring(0, 3)
+             + "*".repeat(id.length() - 3)
+             + "@"
+             + domain;
     }
 }
