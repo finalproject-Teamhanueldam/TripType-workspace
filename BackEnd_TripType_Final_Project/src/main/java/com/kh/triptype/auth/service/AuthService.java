@@ -50,7 +50,16 @@ public class AuthService {
             memberDao.increaseLoginFailCount(member.getMemberNo());
 
             int failCount = member.getMemberLoginFailCount() + 1;
-
+            
+            if (failCount >= 5) {
+                memberDao.lockMember(member.getMemberNo()); // MEMBER_IS_LOCKED = 'Y'
+                throw new LoginFailException(
+                    "로그인 실패 횟수 초과로 계정이 잠겼습니다.",
+                    failCount,
+                    true
+                );
+            }
+            
             throw new LoginFailException(
                 "비밀번호가 일치하지 않습니다.",
                 failCount,

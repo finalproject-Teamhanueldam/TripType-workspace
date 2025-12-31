@@ -135,9 +135,19 @@ function LoginTab() {
             )}
 
             {loginError.locked && (
-              <div className="login-error__lock">
-                계정이 잠겨 로그인할 수 없습니다.
-              </div>
+              <>
+                <div className="login-error__lock">
+                  계정이 잠겨 로그인할 수 없습니다.
+                </div>
+                <button
+                  type="button"
+                  className="ghost-btn"
+                  style={{ marginTop: "10px", width: "100%" }}
+                  onClick={() => navigate("/member/unlock")}
+                >
+                  계정 잠금 해제
+                </button>
+              </>
             )}
           </div>
         )}

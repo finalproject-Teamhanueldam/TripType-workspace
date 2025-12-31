@@ -543,3 +543,34 @@
     opacity: 1;
   }
 }
+
+
+/* 행동 결과 메시지 전용 (marginTop 문제 해결) */
+.action-msg {
+  font-size: 12px;
+  margin: -12px 0 8px 4px;
+}
+
+.action-msg.ok {
+  color: #10B981;
+}
+
+.action-msg.err {
+  color: #EF4444;
+}
+
+/* 인증번호 input 내부 타이머 */
+.auth-input-wrap {
+  position: relative;
+}
+
+.auth-timer-inline {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 600;
+  color: #e63946;
+  pointer-events: none;
+}

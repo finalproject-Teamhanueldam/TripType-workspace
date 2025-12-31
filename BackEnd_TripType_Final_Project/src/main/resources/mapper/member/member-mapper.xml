@@ -136,4 +136,10 @@
 	       AND MEMBER_IS_ACTIVE = 'Y'
 	</select>
 	
+	<update id="lockMember">
+	  UPDATE TB_MEMBER
+	     SET MEMBER_IS_LOCKED = 'Y',
+	         MEMBER_UNLOCK_TIME = SYSDATE
+	   WHERE MEMBER_NO = #{memberNo}
+	</update>
 </mapper>

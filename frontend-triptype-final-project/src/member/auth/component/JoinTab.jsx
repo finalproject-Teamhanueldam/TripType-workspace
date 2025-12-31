@@ -311,23 +311,27 @@ function JoinTab() {
         <div className="field">
           <label>인증번호</label>
           <div className="field-group auth-code-group">
-            <input
-              type="text"
-              name="authCode"
-              value={form.authCode}
-              onChange={onChange}
-              disabled={isEmailVerified}
-            />
+            {/* input 감싸기 */}
+            <div className="auth-input-wrap" style={{ flex: 1 }}>
+              <input
+                type="text"
+                name="authCode"
+                value={form.authCode}
+                onChange={onChange}
+                disabled={isEmailVerified}
+              />
+
+              {/* input 내부로 타이머 이동 */}
+              {isEmailSent && !isEmailVerified && authTimer > 0 && (
+                <span className="auth-timer-inline">
+                  {Math.floor(authTimer / 60)}:{String(authTimer % 60).padStart(2, "0")}
+                </span>
+              )}
+            </div>
+
             <button type="button" className="ghost-btn" onClick={verifyAuthCode}>
               확인
             </button>
-            {/* 확인 버튼 바로 아래 타이머 */}
-            {isEmailSent && !isEmailVerified && authTimer > 0 && (
-              <div className="auth-timer-below">
-                {Math.floor(authTimer / 60)}:
-                {String(authTimer % 60).padStart(2, "0")}
-              </div>
-            )}
           </div>
 
           {msg.auth && (

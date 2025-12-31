@@ -116,4 +116,12 @@ public class MemberDao {
             )
         );
     }
+    
+    // 계정 잠금 처리
+    public int lockMember(int memberNo) {
+        return sqlSession.update(
+            NAMESPACE + "lockMember",
+            memberNo
+        );
+    }
 }

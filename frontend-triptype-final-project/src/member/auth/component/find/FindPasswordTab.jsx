@@ -232,7 +232,9 @@ function FindPasswordTab() {
           <label>인증번호 확인</label>
 
           <div className="auth-code-group">
-            <div className="field-group">
+          <div className="field-group">
+            {/* input을 감싸서 타이머를 input 내부에 올림 */}
+            <div className="auth-input-wrap" style={{ flex: 1 }}>
               <input
                 type="text"
                 name="authCode"
@@ -242,25 +244,24 @@ function FindPasswordTab() {
                 disabled={isEmailVerified || timer === 0}
               />
 
-              <button
-                type="button"
-                className={`ghost-btn ${isEmailVerified ? "verify" : ""}`}
-                onClick={verifyAuthCode}
-                disabled={isEmailVerified || timer === 0}
-              >
-                {isEmailVerified ? "인증 완료" : "확인"}
-              </button>
-            </div>
-
-            {/* 버튼 바로 아래: 타이머만 */}
-            {!isEmailVerified && (
-              <div className="auth-timer-below">
-                <span className={`auth-timer ${timer <= 30 ? "danger" : ""}`}>
+              {/* 버튼 아래가 아니라 input 안쪽에 타이머 표시 */}
+              {!isEmailVerified && (
+                <span className={`auth-timer-inline ${timer <= 30 ? "danger" : ""}`}>
                   {formatTime(timer)}
                 </span>
-              </div>
-            )}
+              )}
+            </div>
+
+            <button
+              type="button"
+              className={`ghost-btn ${isEmailVerified ? "verify" : ""}`}
+              onClick={verifyAuthCode}
+              disabled={isEmailVerified || timer === 0}
+            >
+              {isEmailVerified ? "인증 완료" : "확인"}
+            </button>
           </div>
+        </div>
 
           {/* 메시지는 원래 위치(입력칸 아래)로 */}
           {authMsg && (
