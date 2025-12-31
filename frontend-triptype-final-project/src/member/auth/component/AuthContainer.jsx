@@ -5,7 +5,7 @@ import JoinTab from "./JoinTab";
 import FindTab from "./FindTab";
 import "../css/AuthContainer.css";
 
-// 로고 경로: src/images/logo.png 라고 가정
+// 로고 경로: src/images/logo.png
 import logo from "../../../images/logo.png";
 
 function AuthContainer() {

@@ -43,6 +43,9 @@ import UserFaqPage from "./faq/component/UserFaqPage";
 // 카카오톡 상담 버튼 추가(최경환)
 import KakaoChatButton from "./common/component/KakaoChatButton";
 
+// 계정 잠금 해제 페이지 추가(최경환)
+import UnlockTab from "./member/auth/component/UnlockTab";
+
 
 function App() {
   const location = useLocation();
@@ -88,6 +91,9 @@ function App() {
 
         {/* 로그인 페이지(최경환) */}
         <Route path="/member" element={<AuthContainer />} />
+
+        {/* 계정 잠금 해제 페이지(12.31 최경환) */}
+        <Route path="/member/unlock" element={<UnlockTab />} />
 
         {/* 사용자 공지 (12.16 김동윤)*/}
         <Route path="/notice" element={<UserNoticeList />} />
