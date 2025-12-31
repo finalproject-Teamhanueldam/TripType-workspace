@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class AmadeusFlightOfferDto {
     private List<AmadeusItineraryDto> itineraries;
     private AmadeusPriceDto price;
+
 }

@@ -44,7 +44,7 @@ const TopSearchedDestinationComponent = () => {
     const options ={
         title : "인기 노선(검색량 기준) Top5",
         hAxis: { title: "검색량" },
-        vAxis: { title: "노선" }
+
     }
 
     return (

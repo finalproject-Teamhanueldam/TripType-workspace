@@ -1,5 +1,11 @@
 package com.kh.triptype.admin.review.service;
 
-public class AdminReviewService {
+import java.util.List;
+
+import com.kh.triptype.admin.review.model.vo.AirlineReviewVo;
+
+public interface AdminReviewService {
+
+	List<AirlineReviewVo> SelectAdminAirlineReview();
 
 }

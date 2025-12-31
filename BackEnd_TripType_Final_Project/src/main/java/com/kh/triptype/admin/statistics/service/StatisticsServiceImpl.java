@@ -6,6 +6,8 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Service;
 
 import com.kh.triptype.admin.statistics.dao.StatisticsDao;
+import com.kh.triptype.admin.statistics.model.dto.LoginDataDto;
+import com.kh.triptype.admin.statistics.model.dto.MonthlySignUpDto;
 import com.kh.triptype.admin.statistics.model.dto.PopularRouteDto;
 import com.kh.triptype.admin.statistics.model.dto.TopReviewAirlineDto;
 
@@ -36,6 +38,19 @@ public class StatisticsServiceImpl implements StatisticsService {
 		
 		return statisticsDao.getTopRatingAirline(sqlSession);
 	
+	}
+
+	@Override
+	public LoginDataDto getLoginData() {
+		
+		return statisticsDao.getLoginData(sqlSession);
+		
+	}
+
+	@Override
+	public List<MonthlySignUpDto> getMonthlySignUpData() {
+
+		return statisticsDao.getMonthlySignUpData(sqlSession);
 	}
 	
 }

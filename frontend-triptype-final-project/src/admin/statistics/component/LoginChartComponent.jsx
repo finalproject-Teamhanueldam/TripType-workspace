@@ -1,18 +1,43 @@
 import { Chart } from "react-google-charts";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const LoginChartComponent = () => {
+        const [loginData, setLoginData] = useState(null);     
+
+        useEffect(() => {
+            const fetchLoginData = async () => {
+                try {
+
+                    const response = await axios.get("http://localhost:8001/triptype/admin/statistics/logindata");
+                    setLoginData(response.data);
+                    
+                } catch (error) {
+
+                    console.error("로그인 데이터 조회 실패", error);
+                }
+
+            };
+
+            fetchLoginData();
+
+        }, []);
+
+        if (!loginData) {
+            return <div>데이터 없음</div>;
+        }               
+        
+
+        const { loginCount, notLoginCount } = loginData;
 
         const data = [
-            // pie 차트의 첫번째 행은 두번째 행부터 나열할 데이터들의 대한 설명? 정도이다
-           ["로그인 여부", "비율"],
-           // 두번째 행부터는 첫 번째 값 : 문자, 두번째 값 : 숫자 이다
-           // 현재 하드코딩 된 상태
-           ["로그인", 70],
-           ["비로그인", 30],     
+            ["상태", "사용자 수"],
+            ["로그인", loginCount],
+            ["비로그인", notLoginCount],
         ];
-
+        
         const options = {
-            title: "로그인 / 비로그인 비율",
+            title: "로그인 / 비로그인 검색 비율",
             pieHole: 0.4,  // 도넛 차트
             legend: { position: "bottom" },
             pieSliceText: "percentage",

@@ -1,23 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import "../css/AdminReviewList.css";
 
 const AdminAirlineReviewListComponent = () => {
   // 항공사 목록 목데이터
-  const [summaries] = useState([
-    { airlineName: "대한항공", averageRating: 4.8, reviewCount: 1250 },
-    { airlineName: "아시아나항공", averageRating: 4.5, reviewCount: 980 },
-    { airlineName: "제주항공", averageRating: 3.9, reviewCount: 750 },
-    { airlineName: "진에어", averageRating: 3.7, reviewCount: 540 },
-    { airlineName: "티웨이항공", averageRating: 3.5, reviewCount: 420 },
-    { airlineName: "에어서울", averageRating: 4.1, reviewCount: 310 },
-    { airlineName: "에어부산", averageRating: 3.8, reviewCount: 290 },
-    { airlineName: "이스타항공", averageRating: 3.2, reviewCount: 150 },
-    { airlineName: "싱가포르항공", averageRating: 4.9, reviewCount: 2100 },
-  ]);
-
+  
+  const [summaries, setSummaries] = useState([]);;
   const [filterAirline, setFilterAirline] = useState('');
   const [selectedAirline, setSelectedAirline] = useState(null);
-  const [page, setPage] = useState(0);
+ 
+
+  useEffect(() => {
+    const selectAirlineReviews = async () => {
+      try {
+        const url = "http://localhost:8001/triptype/admin/review/airlineReviews";
+        const response = await axios.get(url);
+
+        setSummaries(response.data);
+
+      }
+      catch (error) {
+
+        console.error("항공사 리뷰 데이터 로드 실패", error);
+      
+      } 
+
+    };
+
+    selectAirlineReviews();
+
+  }, []);
+
 
   // 검색 필터링
   const filteredSummaries = summaries.filter(s => 
@@ -46,23 +59,16 @@ const AdminAirlineReviewListComponent = () => {
               key={idx}
               onClick={() => setSelectedAirline(item)}
             >
-              <div className="card-no-badge">No. {idx + 1 + (page * 9)}</div>
+
               <div className="card-airline-name">{item.airlineName}</div>
               <div className="card-info">
-                <span className="card-rating">★ {item.averageRating.toFixed(1)}</span>
-                <span className="card-count">리뷰 {item.reviewCount.toLocaleString()}건</span>
+                <span className="card-rating">★ {Number(item.avgRating || 0).toFixed(1)}</span>
+                <span className="card-count">리뷰 {Number(item.reviewCount || 0).toLocaleString()}건</span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* 페이징 처리 */}
-        <div className="admin-review-pagination">
-          <button className="page-node">이전</button>
-          <button className="page-node active">1</button>
-          <button className="page-node">2</button>
-          <button className="page-node">다음</button>
-        </div>
       </div>
 
       {/* 상세 조회 모달 */}

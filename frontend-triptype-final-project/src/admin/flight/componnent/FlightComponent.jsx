@@ -15,7 +15,7 @@ const formatTime = (dateTimeString) => {
 
 const FlightComponent = () => {
     const [allTickets, setAllTickets] = useState([]); // 원본 데이터
-    const [tickets, setTickets] = useState([]);       // 화면 표시용
+    const [ticket, setTickets] = useState([]);       // 화면 표시용
     const [selectedTickets, setSelectedTickets] = useState([]);
 
     // 다중 필터 상태 (destDate 제거, airlineName 추가)
@@ -33,6 +33,8 @@ const FlightComponent = () => {
     const selectTickets = async () => {
         try {
             const response = await axios.get("http://localhost:8001/triptype/admin/flight/selectTickets");
+
+            
             setTickets(response.data);
             setAllTickets(response.data);
         } catch (error) {
@@ -127,7 +129,7 @@ const FlightComponent = () => {
                     </div>
 
                     <div className="status-and-bulk-actions">
-                        <span className="total-count">조회 결과 총 <strong>{tickets.length}</strong>건</span>
+                        <span className="total-count">조회 결과 총 <strong>{ticket.length}</strong>건</span>
                         {/* 버튼 간격 조정을 위한 inline-style 또는 CSS gap 적용 */}
                         <div className="action-group" style={{ display: 'flex', gap: '10px' }}>
                             <button className="action-btn secondary-btn" onClick={fetchflight}>API 조회</button>
@@ -141,7 +143,7 @@ const FlightComponent = () => {
                         <thead>
                             <tr>
                                 <th style={{ width: '4%' }}>
-                                    <input type="checkbox" onChange={handleSelectAll} checked={tickets.length > 0 && selectedTickets.length === tickets.length} />
+                                    <input type="checkbox" onChange={handleSelectAll} checked={ticket.length > 0 && selectedTickets.length === ticket.length} />
                                 </th>
                                 <th style={{ width: '12%' }}>항공사</th>
                                 <th style={{ width: '10%' }}>출발 공항</th>
@@ -154,8 +156,8 @@ const FlightComponent = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {tickets.length > 0 ? (
-                                tickets.map(ticket => (
+                            {ticket.length > 0 ? (
+                                ticket.map(ticket => (
                                     <tr key={ticket.id} className="ticket-item-row">
                                         <td><input type="checkbox" checked={selectedTickets.includes(ticket.id)} onChange={() => handleSelectTicket(ticket.id)} /></td>
                                         <td className="airline-name">{ticket.sellingAirlineName || ticket.airlineName}</td>
@@ -169,7 +171,7 @@ const FlightComponent = () => {
                                             <div className="date-display">{formatDate(ticket.arriveDateTime || ticket.arriveDate)}</div>
                                             <div className="time-display">{formatTime(ticket.arriveDateTime || ticket.arriveDate)}</div>
                                         </td>
-                                        <td><div className="admin-flight-price-info">{Number(ticket.priceTotal || ticket.price || 0).toLocaleString()}원</div></td>
+                                        <td><div className="admin-flight-price-info">{Number(ticket.priceTotal || ticket.price || 0).toLocaleString()}({ticket.currency})</div></td>
                                         <td className="datetime-info last-checked">
                                             <div className="date-display">{formatDate(ticket.apiQueryDate)}</div>
                                             <div className="time-display">{formatTime(ticket.apiQueryDate)}</div>

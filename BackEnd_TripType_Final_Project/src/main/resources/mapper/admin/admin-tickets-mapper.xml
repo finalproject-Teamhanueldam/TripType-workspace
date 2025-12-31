@@ -19,36 +19,55 @@
 	    <result column="FLIGHT_ARRIVE_DATE" property="arriveDateTime"/>
 	    <result column="DEPART_DURATION" property="departDuration"/>
 		<result column="FLIGHT_OFFER_PRICE_TOTAL" property="priceTotal"/>
-		
+		<result column="FLIGHT_OFFER_CURRENCY" property="currency"/>
 	    <!-- 가격 조회 기준 -->
 	    <result column="FLIGHT_OFFER_API_QUERY_DATE" property="apiQueryDate"/>
 
 </resultMap>
   
     <select id="selectTickets" resultMap="Ticket">
-	 SELECT
-     
-	    fo.FLIGHT_OFFER_ID,
-        a.AIRLINE_AIRLINE_NAME,
-	    fo.FLIGHT_OFFER_ONE_WAY,
-	    f.FLIGHT_DIRECTION,
-	    f.FLIGHT_DEPART_DATE,
-	    f.FLIGHT_ARRIVE_DATE,
-	    f.DEPART_AIRPORT,
-	    f.DEST_AIRPORT,
-	    ph.FLIGHT_OFFER_API_QUERY_DATE,
-	    ph.FLIGHT_OFFER_PRICE_TOTAL,
-	    ph.FLIGHT_OFFER_CURRENCY
-	    
-		FROM TB_FLIGHT_OFFER fo
+	SELECT *
+		FROM (
+		    SELECT
+		        fo.FLIGHT_OFFER_ID,
+		        a.AIRLINE_AIRLINE_NAME,
+		        fo.FLIGHT_OFFER_ONE_WAY,
+		        f.FLIGHT_DIRECTION,
+		        f.FLIGHT_DEPART_DATE,
+		        f.FLIGHT_ARRIVE_DATE,
+		        f.DEPART_AIRPORT,
+		        f.DEST_AIRPORT,
+		        ph.FLIGHT_OFFER_API_QUERY_DATE,
+		        ph.FLIGHT_OFFER_PRICE_TOTAL,
+		        ph.FLIGHT_OFFER_CURRENCY,
 		
-		JOIN TB_FLIGHT f
-		    ON f.FLIGHT_OFFER_ID = fo.FLIGHT_OFFER_ID
-		JOIN TB_FLIGHT_PRICE_HISTORY ph
-		    ON ph.FLIGHT_OFFER_ID = fo.FLIGHT_OFFER_ID
-        JOIN TB_AIRLINE a
-            ON a.AIRLINE_ID = f.SELLING_AIRLINE_ID
-	    
+		        ROW_NUMBER() OVER (
+		            PARTITION BY
+		                a.AIRLINE_AIRLINE_NAME,
+		                f.DEPART_AIRPORT,
+		                f.DEST_AIRPORT,         
+		                f.FLIGHT_DEPART_DATE
+		            ORDER BY
+		                ph.FLIGHT_OFFER_PRICE_TOTAL ASC,
+		                ph.FLIGHT_OFFER_API_QUERY_DATE DESC
+		        ) AS RN
+		    FROM TB_FLIGHT_OFFER fo
+		    JOIN TB_FLIGHT f
+		        ON f.FLIGHT_OFFER_ID = fo.FLIGHT_OFFER_ID
+		    JOIN TB_FLIGHT_PRICE_HISTORY ph
+		        ON ph.FLIGHT_OFFER_ID = fo.FLIGHT_OFFER_ID
+		    JOIN TB_AIRLINE a
+		        ON a.AIRLINE_ID = f.SELLING_AIRLINE_ID
+	        WHERE f.FLIGHT_IS_DEL = 'N'
+	        AND fo.FLIGHT_OFFER_IS_DEL = 'N'
+		)
+		WHERE RN = 1
+		ORDER BY
+		    FLIGHT_DEPART_DATE ASC,
+		    FLIGHT_OFFER_PRICE_TOTAL ASC,
+		    FLIGHT_OFFER_API_QUERY_DATE DESC
+	
+		    
 	</select>
 	
 

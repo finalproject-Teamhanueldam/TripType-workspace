@@ -25,14 +25,14 @@ public class AdminFlightController {
     private final AdminFlightService adminFlightService;
     
 
-    
+    // api호출
     @GetMapping("/fetchflight")
     public ResponseEntity<List<Map<String, Object>>> collectRoutes() {
 
         List<Map<String, Object>> result =
                 adminFlightService.collectFixedRoutes();
 
-        System.out.println(result);
+        
         return ResponseEntity.ok(result);
     }
     

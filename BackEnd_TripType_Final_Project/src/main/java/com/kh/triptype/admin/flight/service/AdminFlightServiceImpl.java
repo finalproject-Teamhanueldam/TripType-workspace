@@ -198,6 +198,7 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 				);
 		List<Map<String, Object>> result = (List<Map<String, Object>>) response.getBody().get("data");
 		
+		
 		saveAdminFlightOffers(result);
 		
 		return result;			

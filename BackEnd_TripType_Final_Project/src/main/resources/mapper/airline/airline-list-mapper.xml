@@ -47,7 +47,7 @@
 	    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
 	    WHERE f.DEPART_AIRPORT = #{depart}
 	      AND f.DEST_AIRPORT = #{arrive}
-	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{departDate}, 'YYYY-MM-DD')
+	   
 	      AND f.FLIGHT_IS_DEL = 'N'
 	
 	    UNION ALL
@@ -73,7 +73,7 @@
 	    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
 	    WHERE f.DEPART_AIRPORT = #{arrive}   /* 출발/도착 반전 */
 	      AND f.DEST_AIRPORT = #{depart}    /* 출발/도착 반전 */
-	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{returnDate}, 'YYYY-MM-DD')
+	     
 	      AND f.FLIGHT_IS_DEL = 'N'
 	</select>
   </mapper>

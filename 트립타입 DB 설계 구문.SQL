@@ -846,4 +846,106 @@ INSERT INTO TB_SEARCH_LOG (
 --    SYSDATE
 --);
 
+
+-- 통계 더미 데이터
+INSERT INTO TB_MEMBER (
+    MEMBER_NO,
+    MEMBER_ID,
+    MEMBER_PASSWORD,
+    MEMBER_NAME,
+    MEMBER_BIRTH_DATE,
+    MEMBER_GENDER,
+    MEMBER_PHONE,
+    MEMBER_ROLE,
+    MEMBER_CREATE_AT,
+    MEMBER_IS_ACTIVE
+)
+SELECT
+    SEQ_MEMBER_NO.NEXTVAL,
+    'active_' || LEVEL || '@test.com',
+    'pass1234',
+    '활성회원' || LEVEL,
+    DATE '1995-01-01',
+    'M',
+    '010-1111-2222',
+    'USER',
+    ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -MOD(LEVEL, 12)),
+    'Y'
+FROM DUAL
+CONNECT BY LEVEL <= 60;
+
+
+INSERT INTO TB_MEMBER (
+    MEMBER_NO,
+    MEMBER_ID,
+    MEMBER_PASSWORD,
+    MEMBER_NAME,
+    MEMBER_BIRTH_DATE,
+    MEMBER_GENDER,
+    MEMBER_PHONE,
+    MEMBER_ROLE,
+    MEMBER_CREATE_AT,
+    MEMBER_WITHDRAWN_AT,
+    MEMBER_IS_ACTIVE
+)
+SELECT
+    SEQ_MEMBER_NO.NEXTVAL,
+    'withdraw_' || LEVEL || '_' || TO_CHAR(SYSDATE, 'HH24MISS') || '@test.com',
+    'pass1234',
+    '탈퇴회원' || LEVEL,
+    DATE '1990-01-01',
+    'F',
+    '010-3333-4444',
+    'USER',
+    ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -MOD(LEVEL, 12)),
+    ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -MOD(LEVEL, 12) + MOD(LEVEL, 3) + 1),
+    'N'
+FROM DUAL
+CONNECT BY LEVEL <= 36;
+
+-- 항공사 리뷰 더미 데이터
+-- 대한항공 (1)
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '서비스가 전반적으로 만족스러웠습니다.', 5, SYSDATE-10, SYSDATE-10, 'Y', 1, 1);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '좌석이 편안하고 승무원이 친절했어요.', 4, SYSDATE-9,  SYSDATE-9,  'Y', 2, 1);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '기내식이 조금 아쉬웠습니다.',        3, SYSDATE-8,  SYSDATE-8,  'Y', 3, 1);
+
+-- 아시아나항공 (2)
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '전반적으로 무난한 항공사입니다.',    4, SYSDATE-7,  SYSDATE-7,  'Y', 4, 2);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '승무원 응대가 좋았습니다.',          5, SYSDATE-6,  SYSDATE-6,  'Y', 5, 2);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '지연이 조금 있었습니다.',           3, SYSDATE-5,  SYSDATE-5,  'Y', 6, 2);
+
+-- 제주항공 (3)
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '가격 대비 만족합니다.',              4, SYSDATE-6,  SYSDATE-6,  'Y', 7, 3);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '좌석 간격이 좁아요.',                3, SYSDATE-5,  SYSDATE-5,  'Y', 8, 3);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '가성비 항공사로 괜찮아요.',          4, SYSDATE-4,  SYSDATE-4,  'Y', 9, 3);
+
+-- 진에어 (4)
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '가격이 합리적입니다.',               4, SYSDATE-6,  SYSDATE-6,  'Y', 10, 4);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '기내 서비스는 평범합니다.',         3, SYSDATE-5,  SYSDATE-5,  'Y', 11, 4);
+
+-- 티웨이항공 (5)
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '저가항공 치고 괜찮아요.',             4, SYSDATE-4,  SYSDATE-4,  'Y', 12, 5);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '좌석이 다소 불편했습니다.',         2, SYSDATE-3,  SYSDATE-3,  'Y', 13, 5);
+
+-- 에어부산 (6)
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '부산 출발 노선이 편리해요.',         5, SYSDATE-4,  SYSDATE-4,  'Y', 14, 6);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '승무원이 친절했습니다.',             4, SYSDATE-3,  SYSDATE-3,  'Y', 15, 6);
+
+-- ANA (8)
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '일본 항공사답게 서비스가 깔끔합니다.', 5, SYSDATE-6,  SYSDATE-6,  'Y', 16, 8);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '시간 정확도가 높아요.',              5, SYSDATE-5,  SYSDATE-5,  'Y', 17, 8);
+
+-- JAL (9)
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '기내 서비스가 매우 좋았습니다.',     5, SYSDATE-6,  SYSDATE-6,  'Y', 18, 9);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '가격이 조금 비싸요.',               4, SYSDATE-5,  SYSDATE-5,  'Y', 19, 9);
+
+-- 싱가포르항공 (11)
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '세계 최고 수준의 서비스입니다.',     5, SYSDATE-6,  SYSDATE-6,  'Y', 14, 11);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '기내식이 훌륭했어요.',               5, SYSDATE-5,  SYSDATE-5,  'Y', 12, 11);
+
+-- 에미레이트항공 (20)
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '좌석과 기내 시설이 최고입니다.',     5, SYSDATE-6,  SYSDATE-6,  'Y', 25, 20);
+INSERT INTO TB_REVIEW VALUES (TB_REVIEW_SEQ.NEXTVAL, '장거리 비행에도 편안했어요.',       5, SYSDATE-5,  SYSDATE-5,  'Y', 1, 20);
+
 COMMIT;
+

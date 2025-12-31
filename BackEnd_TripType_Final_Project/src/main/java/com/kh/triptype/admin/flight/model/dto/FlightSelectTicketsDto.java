@@ -30,4 +30,6 @@ public class FlightSelectTicketsDto {
     private BigDecimal priceTotal;
     // 조회 기준
     private LocalDateTime apiQueryDate;
+    
+    private String currency;
 }
