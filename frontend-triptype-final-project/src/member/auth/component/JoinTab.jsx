@@ -272,7 +272,7 @@ function JoinTab() {
      render
   ======================= */
   return (
-    <form className="auth-form" onSubmit={handleSubmit}>
+    <form className="auth-form join" onSubmit={handleSubmit}>
       <div className="field">
         <label>이메일</label>
         <div className="field-group">
@@ -288,14 +288,14 @@ function JoinTab() {
             type="button"
             className="ghost-btn"
             onClick={sendAuthCode}
-            disabled={isEmailVerified || isSending}
+            disabled={isEmailVerified || isSending || resendCooldown > 0}
           >
             {isEmailVerified
               ? "인증 완료"
               : isSending
                 ? "발송 중..."
                 : isEmailSent
-                  ? "재발송"
+                  ? `재발송 (${resendCooldown}초)`
                   : "인증번호 발송"}
           </button>
         </div>

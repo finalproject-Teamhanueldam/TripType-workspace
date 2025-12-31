@@ -1,10 +1,12 @@
 package com.kh.triptype.member.dao;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
 import com.kh.triptype.member.model.vo.Member;
 
 @Repository
@@ -76,6 +78,42 @@ public class MemberDao {
         return sqlSession.update(
             NAMESPACE + "updateLastLogin",
             memberNo
+        );
+    }
+    
+    // 비밀번호 찾기에서 비밀번호 재설정
+    public int updatePasswordByMemberId(String memberId, String encodedPw) {
+        return sqlSession.update(
+            NAMESPACE + "updatePasswordByMemberId",
+            Map.of(
+                "memberId", memberId,
+                "memberPassword", encodedPw
+            )
+        );
+    }
+    
+    // 이름 + 이메일(아이디) 존재 여부 확인
+    public int countByNameAndMemberId(String memberName, String memberId) {
+        return sqlSession.selectOne(
+            NAMESPACE + "countByNameAndMemberId",
+            Map.of(
+                "memberName", memberName,
+                "memberId", memberId
+            )
+        );
+    }
+    
+    // 이름 + 생년월일로 아이디 찾기
+    public List<String> findIdsByNameAndBirth(
+            String memberName,
+            String memberBirthDate
+    ) {
+        return sqlSession.selectList(
+            "memberMapper.findIdsByNameAndBirth",
+            Map.of(
+                "memberName", memberName,
+                "memberBirthDate", memberBirthDate
+            )
         );
     }
 }

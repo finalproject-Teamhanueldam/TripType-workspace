@@ -4,7 +4,14 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
 <mapper namespace="emailAuthMapper">
-
+	
+	<resultMap id="emailAuthResultMap" type="EmailAuth">
+	  <id column="AUTH_EMAIL" property="authEmail"/>
+	  <result column="AUTH_CODE" property="authCode"/>
+	  <result column="AUTH_DATE" property="authDate"/>
+	  <result column="AUTH_VERIFIED" property="authVerified"/>
+	</resultMap>
+	
     <!-- 인증번호 저장 -->
     <insert id="insertAuth" parameterType="EmailAuth">
         INSERT INTO TB_AUTH (
@@ -17,6 +24,21 @@
             SYSDATE
         )
     </insert>
+
+	<!-- 비밀번호 재설정용 인증번호 저장 -->
+	<insert id="insertAuthReset" parameterType="map">
+	    INSERT INTO TB_AUTH (
+	        AUTH_EMAIL,
+	        AUTH_CODE,
+	        AUTH_DATE,
+	        AUTH_VERIFIED
+	    ) VALUES (
+	        #{authEmail},
+	        #{authCode},
+	        SYSDATE,
+	        'N'
+	    )
+	</insert>
 
     <!-- 인증번호 검증 -->
     <select id="countValidAuth" resultType="int">
@@ -40,4 +62,5 @@
 	    WHERE AUTH_EMAIL = #{authEmail}
 	</update>
 
+	
 </mapper>

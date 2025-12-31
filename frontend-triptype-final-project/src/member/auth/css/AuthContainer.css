@@ -435,6 +435,16 @@
   white-space: nowrap;
 }
 
+/* JoinTab 전용 */
+.join .auth-timer-below {
+  transform: translateX(-4px); /* 아주 살짝 */
+}
+
+/* FindTab 전용 */
+.find .auth-timer-below {
+  transform: translateX(0);
+}
+
 /* 로그인 에러 메시지 공통 */
 .login-error {
   margin: 8px 0 12px;

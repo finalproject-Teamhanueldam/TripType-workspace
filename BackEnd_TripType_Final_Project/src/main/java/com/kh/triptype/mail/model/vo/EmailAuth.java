@@ -14,4 +14,5 @@ public class EmailAuth {
     private String authEmail;
     private String authCode;
     private Date authDate;
+    private String authVerified; // 'Y' or 'N'
 }

@@ -4,26 +4,35 @@ import { ko } from "date-fns/locale";
 import "react-datepicker/dist/react-datepicker.css";
 import "../../css/AuthContainer.css";
 import AuthDateInput from "../../../../common/component/AuthDateInput";
+import axios from "axios";
 
 function FindIdTab() {
   const [info, setInfo] = useState({ name: "", birth: null });
-  const [resultId, setResultId] = useState(null); // 찾은 아이d 저장
+  const [resultId, setResultId] = useState(null); // 찾은 아이디 저장
   const [error, setError] = useState("");
 
-  const handleFindId = () => {
-    // 임시 로직 (나중에 axios로 DB 연동)
-    if (info.name === "테스트" && info.birth) {
-      const foundId = "triptype123@naver.com";
-      
-      // 아이디 마스킹 처리 (앞 3글자 + @ 전까지 * + 도메인)
-      const [id, domain] = foundId.split("@");
-      const maskedId = id.substring(0, 3) + "*".repeat(id.length - 3) + "@" + domain;
-      
-      setResultId(maskedId);
+  const handleFindId = async () => {
+    const yyyy = info.birth.getFullYear();
+    const mm = String(info.birth.getMonth() + 1).padStart(2, "0");
+    const dd = String(info.birth.getDate()).padStart(2, "0");
+
+    try {
+      const res = await axios.post(
+        "http://localhost:8001/triptype/member/id/find",
+        {
+          memberName: info.name,
+          memberBirthDate: `${yyyy}-${mm}-${dd}`
+        }
+      );
+
+      const ids = res.data.memberIds;
+      setResultId(ids);
       setError("");
-    } else {
+    } catch (e) {
       setResultId(null);
-      setError("일치하는 회원 정보가 없습니다.");
+      setError(
+        e.response?.data?.message || "일치하는 회원 정보가 없습니다."
+      );
     }
   };
 
@@ -77,9 +86,11 @@ function FindIdTab() {
             color: "#111827",
             marginBottom: "20px"
           }}>
-            {resultId}
+            {resultId.map((id, idx) => (
+              <div key={idx}>{id}</div>
+            ))}
           </div>
-          <button type="button" className="primary-btn" onClick={() => window.location.href = "/login"}>
+          <button type="button" className="primary-btn" onClick={() => window.location.href = "/member?tab=login"}>
             로그인하러 가기
           </button>
         </div>
