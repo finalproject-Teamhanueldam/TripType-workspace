@@ -124,4 +124,12 @@ public class MemberDao {
             memberNo
         );
     }
+    
+    // 계정 잠금 해제
+    public int unlockMember(int memberNo) {
+        return sqlSession.update(
+            NAMESPACE + "unlockMember",
+            memberNo
+        );
+    }
 }
