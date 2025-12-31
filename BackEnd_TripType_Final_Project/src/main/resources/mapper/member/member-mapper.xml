@@ -142,4 +142,12 @@
 	         MEMBER_UNLOCK_TIME = SYSDATE
 	   WHERE MEMBER_NO = #{memberNo}
 	</update>
+	
+	<update id="unlockMember" parameterType="int">
+    UPDATE TB_MEMBER
+       SET MEMBER_IS_LOCKED = 'N',
+           MEMBER_LOGIN_FAIL_COUNT = 0,
+           MEMBER_UNLOCK_TIME = SYSDATE
+     WHERE MEMBER_NO = #{memberNo}
+	</update>
 </mapper>

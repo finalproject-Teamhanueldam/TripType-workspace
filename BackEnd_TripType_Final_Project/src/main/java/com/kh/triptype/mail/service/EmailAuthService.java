@@ -159,4 +159,59 @@ public class EmailAuthService {
             throw new IllegalStateException("메일 전송에 실패했습니다.");
         }
     }
+    
+    /**
+     * 계정 잠금 해제용 인증번호 발송
+     */
+    public void sendUnlockAuthMail(String memberName, String email) {
+
+        // 1) 이름 + 이메일 존재 확인
+        Integer count = sqlSession.selectOne(
+            "memberMapper.countByNameAndMemberId",
+            Map.of("memberName", memberName, "memberId", email)
+        );
+
+        if (count == null || count == 0) {
+            throw new IllegalArgumentException("이름 또는 이메일이 일치하지 않습니다.");
+        }
+
+        // 2) 인증번호 생성
+        String authCode = generateCode();
+
+        // 3) 기존 인증 삭제
+        sqlSession.delete(
+            "emailAuthMapper.deleteAuth",
+            Map.of("authEmail", email)
+        );
+
+        // 4) 인증번호 저장
+        sqlSession.insert(
+            "emailAuthMapper.insertAuthReset",
+            Map.of(
+                "authEmail", email,
+                "authCode", authCode
+            )
+        );
+
+        // 5) 메일 발송 (제목만 다르게)
+        sendUnlockMail(email, authCode);
+    }
+    
+    private void sendUnlockMail(String toEmail, String authCode) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(toEmail);
+            message.setSubject("[TripType] 계정 잠금 해제 인증번호 안내");
+            message.setText(
+                "안녕하세요.\n\n" +
+                "계정 잠금 해제를 위한 인증번호는 아래와 같습니다.\n\n" +
+                "인증번호 : " + authCode + "\n\n" +
+                "※ 본 인증번호는 5분간 유효합니다."
+            );
+            mailSender.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalStateException("메일 전송에 실패했습니다.");
+        }
+    }
 }
