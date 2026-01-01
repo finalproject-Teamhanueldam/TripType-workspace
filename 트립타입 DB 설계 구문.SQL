@@ -861,7 +861,7 @@ INSERT INTO TB_MEMBER (
     MEMBER_IS_ACTIVE
 )
 SELECT
-    SEQ_MEMBER_NO.NEXTVAL,
+    TB_MEMBER_SEQ.NEXTVAL,
     'active_' || LEVEL || '@test.com',
     'pass1234',
     '활성회원' || LEVEL,
@@ -889,7 +889,7 @@ INSERT INTO TB_MEMBER (
     MEMBER_IS_ACTIVE
 )
 SELECT
-    SEQ_MEMBER_NO.NEXTVAL,
+    TB_MEMBER_SEQ.NEXTVAL,
     'withdraw_' || LEVEL || '_' || TO_CHAR(SYSDATE, 'HH24MISS') || '@test.com',
     'pass1234',
     '탈퇴회원' || LEVEL,

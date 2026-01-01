@@ -1,5 +1,9 @@
 package com.kh.triptype.mypage.service;
 
-public class MyPageService {
+import com.kh.triptype.mypage.model.dto.MyProfileRes;
+
+public interface MyPageService {
+
+    MyProfileRes getMyProfile(int memberNo);
 
 }
