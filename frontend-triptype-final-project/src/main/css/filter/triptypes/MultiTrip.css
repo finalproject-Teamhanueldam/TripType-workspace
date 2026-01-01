@@ -40,7 +40,7 @@
    🔷 삭제 버튼 (사이즈 정상화)
    -------------------------------------------- */
 .delete-btn {
-  background: none;
+  background: red;
   border: none;
   cursor: pointer;
   margin-right: 10px;
@@ -59,11 +59,10 @@
 .delete-btn svg {
   width: 18px;
   height: 18px;
+  color: white;
 }
 
-.delete-btn:hover {
-  color: #ff5b5b;
-}
+
 
 /* --------------------------------------------
    🔷 하단 액션 버튼 영역 (추가/검색)

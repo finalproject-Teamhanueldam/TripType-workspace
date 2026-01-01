@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="adminAirportMapper">
+	<select id="selectAirportIata" parameterType="string" resultType="int">
+	    SELECT COUNT(*)
+	    FROM TB_AIRPORT
+	    WHERE AIRPORT_IATA_CODE = #{iata}
+	</select>
+	
+	<insert id="insertAirportIata" parameterType="string">
+	    INSERT INTO TB_AIRPORT (
+	        AIRPORT_IATA_CODE,
+	        AIRPORT_NAME,
+	        AIRPORT_CITY,
+	        AIRPORT_COUNTRY,
+	        AIRPORT_TIMEZONE,
+	        AIRPORT_LATITUDE,
+	        AIRPORT_LONGITUDE,
+	        AIRPORT_STATUS
+	    ) VALUES (
+	        #{iata},
+	        'UNKNOWN',
+	        'UNKNOWN',
+	        'UNKNOWN',
+	        'UTC',
+	        0,
+	        0,
+	        'Y'
+	    )
+	</insert>
+
+</mapper>

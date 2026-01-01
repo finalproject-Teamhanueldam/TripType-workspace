@@ -12,12 +12,16 @@ const CalendarPanel = ({
   open,
   onClose,
 
-  tripType,            // "ROUND" | "ONEWAY" | "MULTI"
-  onTripTypeChange,    // ROUND <-> ONEWAY 만 처리
+  tripType, // "ROUND" | "ONEWAY" | "MULTI"
+  onTripTypeChange, // ROUND <-> ONEWAY 만 처리
 
   startDate,
   endDate,
   onChange,
+
+  // ✅ MULTI에서만: 클릭된 날짜 input 바로 아래에 띄우기 위한 inline style
+  // (ROUND/ONEWAY는 기존 CSS absolute(top:100%) 그대로 사용)
+  style,
 }) => {
   const panelRef = useRef(null);
 
@@ -32,30 +36,32 @@ const CalendarPanel = ({
 
     const handleOutside = (e) => {
       if (!panelRef.current) return;
-      if (!panelRef.current.contains(e.target)) {
-        onClose();
-      }
+
+      // ✅ 패널 내부면 무시
+      if (panelRef.current.contains(e.target)) return;
+
+      onClose();
     };
 
     const handleEsc = (e) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
+      if (e.key === "Escape") onClose();
     };
 
-    document.addEventListener("mousedown", handleOutside);
+    // ✅ MULTI에서도 확실히: pointerdown + capture
+    document.addEventListener("pointerdown", handleOutside, true);
     document.addEventListener("keydown", handleEsc);
 
     return () => {
-      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("pointerdown", handleOutside, true);
       document.removeEventListener("keydown", handleEsc);
     };
   }, [open, onClose]);
 
+
   if (!open) return null;
 
   return (
-    <div className="calendar-panel" ref={panelRef}>
+    <div className="calendar-panel" ref={panelRef} style={style}>
       {/* ===============================
           🔹 Header
          =============================== */}
@@ -66,6 +72,7 @@ const CalendarPanel = ({
             <select
               value={tripType}
               onChange={(e) => onTripTypeChange(e.target.value)}
+              className="calender-dropbox"
             >
               <option value="ROUND">왕복</option>
               <option value="ONEWAY">편도</option>
@@ -82,8 +89,8 @@ const CalendarPanel = ({
         locale="ko"
         monthsShown={2}
         minDate={new Date()}
-        showOutsideMonth={false}   // ✅ 이게 진짜
-         fixedHeight={false}       // 🔥 이게 결정타
+        showOutsideMonth={false} // ✅ 이게 진짜
+        fixedHeight={false} // 🔥 이게 결정타
 
         /* ROUND만 range */
         selectsRange={isRound}
@@ -92,7 +99,6 @@ const CalendarPanel = ({
 
         /* ONEWAY / MULTI는 단일 선택 */
         selected={!isRound ? startDate : undefined}
-
         onChange={(value) => {
           if (isRound) {
             const [start, end] = value || [];

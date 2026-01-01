@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="adminAirlineMapper">
+	<select id="selectAllAirlineIata" resultType="string">
+	    SELECT AIRLINE_IATA_CODE,
+	    	   AIRLINE_ID
+	    FROM TB_AIRLINE
+	</select>
+
+
+	<select id="selectAirlineIataIdList" resultType="map">
+        SELECT
+            AIRLINE_IATA_CODE,
+            AIRLINE_ID
+        FROM
+            TB_AIRLINE
+ 
+    </select>
+</mapper>

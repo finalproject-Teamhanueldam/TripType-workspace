@@ -8,7 +8,12 @@
     <!-- ===============================
          FLIGHT 세그먼트 batch insert
          - PK(FLIGHT_ID)는 트리거에서 자동 생성
-         - INSERT ALL + 트리거 조합 (Oracle 안전)
+         - INSERT ALL 사용
+         ✅ 수정 포인트
+           1) Date/LocalDateTime 모두 안전하게 처리하도록 jdbcType 지정
+           2) airlineId가 null일 때 ORA-01400/ORA-02291 방지 목적: jdbcType 지정
+              (실제 NOT NULL/FK 정책에 따라 null 허용이면 그대로 들어가고,
+               null 불가면 서비스/데이터 쪽에서 반드시 채워야 함)
          =============================== -->
     <insert id="insertFlights" parameterType="list">
 
@@ -28,18 +33,18 @@
                 SELLING_AIRLINE_ID,
                 FLIGHT_OFFER_ID
             ) VALUES (
-                #{f.flightSegmentNo},
-                #{f.flightNumber},
-                #{f.flightDepartDate},
-                #{f.flightArriveDate},
-                #{f.flightDuration},
-                #{f.flightDirection},
+                #{f.flightSegmentNo, jdbcType=INTEGER},
+                #{f.flightNumber, jdbcType=VARCHAR},
+                #{f.flightDepartDate, jdbcType=TIMESTAMP},
+                #{f.flightArriveDate, jdbcType=TIMESTAMP},
+                #{f.flightDuration, jdbcType=VARCHAR},
+                #{f.flightDirection, jdbcType=VARCHAR},
                 'N',
-                #{f.departAirport},
-                #{f.destAirport},
-                #{f.operAirlineId},
-                #{f.sellingAirlineId},
-                #{f.flightOfferId}
+                #{f.departAirport, jdbcType=VARCHAR},
+                #{f.destAirport, jdbcType=VARCHAR},
+                #{f.operAirlineId, jdbcType=INTEGER},
+                #{f.sellingAirlineId, jdbcType=INTEGER},
+                #{f.flightOfferId, jdbcType=INTEGER}
             )
         </foreach>
         SELECT 1 FROM DUAL

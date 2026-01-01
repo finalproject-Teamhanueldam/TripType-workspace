@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd" >
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="flightSearchHistoryMapper">
 
@@ -7,6 +9,10 @@
         항공권 검색 기록 저장
         - 사용자가 검색 버튼을 누를 때마다 1건 INSERT
         - 캐시 여부와 관계없이 항상 기록
+
+        ✅ 수정 포인트
+          1) jdbcType 명시 (Oracle에서 null/타입 변환 안정화)
+          2) 날짜 컬럼은 DATE로 고정
     -->
     <insert id="insertSearchHistory"
             parameterType="com.kh.triptype.admin.pricing.model.vo.FlightSearchHistoryVo">
@@ -23,14 +29,14 @@
             ARRIVE_IATA_CODE
         ) VALUES (
             TB_SEARCH_LOG_SEQ.NEXTVAL,
-            #{searchLogOneWay},
-            #{searchLogPassengerCount},
-            #{searchLogDepartDate},
-            #{searchLogReturnDate},
+            #{searchLogOneWay, jdbcType=CHAR},
+            #{searchLogPassengerCount, jdbcType=INTEGER},
+            #{searchLogDepartDate, jdbcType=DATE},
+            #{searchLogReturnDate, jdbcType=DATE},
             SYSDATE,
-            #{memberNo},
-            #{departIataCode},
-            #{arriveIataCode}
+            #{memberNo, jdbcType=NUMERIC},
+            #{departIataCode, jdbcType=VARCHAR},
+            #{arriveIataCode, jdbcType=VARCHAR}
         )
 
     </insert>

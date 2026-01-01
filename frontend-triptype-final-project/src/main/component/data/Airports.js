@@ -1,30 +1,78 @@
 export const AIRPORTS = [
-  // 🔹 인으로 시작
-    { label: "인천(ICN)", iata: "ICN" },
-    { label: "인디애나폴리스(IND)", iata: "IND" },
-    { label: "인디라간디(DEL)", iata: "DEL" },     // 인도 델리
-    { label: "인도르(IDR)", iata: "IDR" },
-    { label: "인스브루크(INN)", iata: "INN" },
-    { label: "인버네스(INV)", iata: "INV" },       // 영국
-    { label: "인촨(INC)", iata: "INC" },            // 중국 은촨
-    { label: "인촨허둥(ZUH)", iata: "ZUH" },         // 중국 주하이 (표기상 인촨 허용)
+  /* ===============================
+     🔹 인으로 시작
+     =============================== */
+  { label: "인디애나폴리스(IND)", iata: "IND" },
+  { label: "인디라간디(DEL)", iata: "DEL" },     // 델리
+  { label: "인도르(IDR)", iata: "IDR" },
+  { label: "인스브루크(INN)", iata: "INN" },
+  { label: "인버네스(INV)", iata: "INV" },
+  { label: "인촨(INC)", iata: "INC" },            // 중국 은촨
+  { label: "인촨허둥(ZUH)", iata: "ZUH" },         // 주하이
+  { label: "인디애나폴리스 이글크릭(EYE)", iata: "EYE" },
+  { label: "인디펜던스(IDP)", iata: "IDP" },
 
-    // 🔹 나로 시작
-    { label: "나리타(NRT)", iata: "NRT" },
-    { label: "나하(OKA)", iata: "OKA" },
-    { label: "나고야(NGO)", iata: "NGO" },
-    { label: "나폴리(NAP)", iata: "NAP" },
-    { label: "나이로비(NBO)", iata: "NBO" },
-    { label: "나슈빌(BNA)", iata: "BNA" },
-    { label: "나가사키(NGS)", iata: "NGS" },
-    { label: "나디(NAN)", iata: "NAN" },
-    { label: "나이아가라(IAG)", iata: "IAG" },
-    { label: "나브리안(LCJ)", iata: "LCJ" },        // 폴란드
-    { label: "나트랑(CXR)", iata: "CXR" },
-    { label: "나폴스(APF)", iata: "APF" },          // 미국
+  /* ===============================
+     🔹 나로 시작
+     =============================== */
+  { label: "나하(OKA)", iata: "OKA" },
+  { label: "나고야(NGO)", iata: "NGO" },
+  { label: "나폴리(NAP)", iata: "NAP" },
+  { label: "나이로비(NBO)", iata: "NBO" },
+  { label: "나슈빌(BNA)", iata: "BNA" },
+  { label: "나가사키(NGS)", iata: "NGS" },
+  { label: "나디(NAN)", iata: "NAN" },
+  { label: "나이아가라(IAG)", iata: "IAG" },
+  { label: "나브리안(LCJ)", iata: "LCJ" },
+  { label: "나트랑(CXR)", iata: "CXR" },
+  { label: "나폴스(APF)", iata: "APF" },
 
-  // 🔹 기존
+  /* ===============================
+     🔹 가 / 그 / 도 (자주 쓰는 실제 공항)
+     =============================== */
   { label: "김포(GMP)", iata: "GMP" },
+  { label: "광저우(CAN)", iata: "CAN" },
+  { label: "구마모토(KMJ)", iata: "KMJ" },
+  { label: "구이양(KWE)", iata: "KWE" },
+
   { label: "간사이(KIX)", iata: "KIX" },
+  { label: "고베(UKB)", iata: "UKB" },
+  { label: "고치(KCZ)", iata: "KCZ" },
+
+  { label: "도쿄 하네다(HND)", iata: "HND" },
+  { label: "도쿄 나리타(NRT)", iata: "NRT" },
+  { label: "도하(DOH)", iata: "DOH" },
+  { label: "도이체프랑크푸르트(FRA)", iata: "FRA" },
+
+  /* ===============================
+     🔹 바 / 방 / 베
+     =============================== */
+  { label: "방콕(BKK)", iata: "BKK" },
+  { label: "방콕 돈므앙(DMK)", iata: "DMK" },
+  { label: "바르셀로나(BCN)", iata: "BCN" },
+  { label: "베이징(PEK)", iata: "PEK" },
+  { label: "베이징 다싱(PKX)", iata: "PKX" },
+  { label: "베를린(BER)", iata: "BER" },
+
+  /* ===============================
+     🔹 상 / 서 / 시
+     =============================== */
+  { label: "상하이 푸동(PVG)", iata: "PVG" },
+  { label: "상하이 홍차오(SHA)", iata: "SHA" },
+  { label: "서울 인천(ICN)", iata: "ICN" },
+  { label: "시드니(SYD)", iata: "SYD" },
+  { label: "시애틀(SEA)", iata: "SEA" },
+
+  /* ===============================
+     🔹 오 / 요 / 유
+     =============================== */
+  { label: "오사카 이타미(ITM)", iata: "ITM" },
+  { label: "오클랜드(AKL)", iata: "AKL" },
+  { label: "요코하마(HND)", iata: "HND" }, // 하네다로 매핑
+  { label: "유후인(OIT)", iata: "OIT" },
+
+  /* ===============================
+     🔹 후쿠오카
+     =============================== */
   { label: "후쿠오카(FUK)", iata: "FUK" },
 ];

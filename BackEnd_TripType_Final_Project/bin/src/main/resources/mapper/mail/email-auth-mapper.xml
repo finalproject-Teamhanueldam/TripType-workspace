@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="emailAuthMapper">
+	
+	<resultMap id="emailAuthResultMap" type="EmailAuth">
+	  <id column="AUTH_EMAIL" property="authEmail"/>
+	  <result column="AUTH_CODE" property="authCode"/>
+	  <result column="AUTH_DATE" property="authDate"/>
+	  <result column="AUTH_VERIFIED" property="authVerified"/>
+	</resultMap>
+	
+    <!-- 인증번호 저장 -->
+    <insert id="insertAuth" parameterType="EmailAuth">
+        INSERT INTO TB_AUTH (
+            AUTH_EMAIL,
+            AUTH_CODE,
+            AUTH_DATE
+        ) VALUES (
+            #{authEmail},
+            #{authCode},
+            SYSDATE
+        )
+    </insert>
+
+	<!-- 비밀번호 재설정용 인증번호 저장 -->
+	<insert id="insertAuthReset" parameterType="map">
+	    INSERT INTO TB_AUTH (
+	        AUTH_EMAIL,
+	        AUTH_CODE,
+	        AUTH_DATE,
+	        AUTH_VERIFIED
+	    ) VALUES (
+	        #{authEmail},
+	        #{authCode},
+	        SYSDATE,
+	        'N'
+	    )
+	</insert>
+
+    <!-- 인증번호 검증 -->
+    <select id="countValidAuth" resultType="int">
+        SELECT COUNT(*)
+        FROM TB_AUTH
+        WHERE AUTH_EMAIL = #{authEmail}
+          AND AUTH_CODE = #{authCode}
+          AND AUTH_DATE >= SYSDATE - (#{expireMinutes} / 1440)
+    </select>
+
+    <!-- 인증정보 삭제 -->
+    <delete id="deleteAuth">
+        DELETE FROM TB_AUTH
+        WHERE AUTH_EMAIL = #{authEmail}
+    </delete>
+    
+    <!-- 인증 완료 처리 -->
+	<update id="markVerified" parameterType="map">
+	    UPDATE TB_AUTH
+	    SET AUTH_VERIFIED = 'Y'
+	    WHERE AUTH_EMAIL = #{authEmail}
+	</update>
+
+	
+</mapper>

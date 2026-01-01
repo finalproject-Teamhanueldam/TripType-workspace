@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd" >
+
+<mapper namespace="flightSearchHistoryMapper">
+
+    <!--
+        항공권 검색 기록 저장
+        - 사용자가 검색 버튼을 누를 때마다 1건 INSERT
+        - 캐시 여부와 관계없이 항상 기록
+    -->
+    <insert id="insertSearchHistory"
+            parameterType="com.kh.triptype.admin.pricing.model.vo.FlightSearchHistoryVo">
+
+        INSERT INTO TB_SEARCH_LOG (
+            SEARCH_LOG_NO,
+            SEARCH_LOG_ONE_WAY,
+            SEARCH_LOG_PASSENGER_COUNT,
+            SEARCH_LOG_DEPART_DATE,
+            SEARCH_LOG_RETURN_DATE,
+            SEARCH_LOG_DATE,
+            MEMBER_NO,
+            DEPART_IATA_CODE,
+            ARRIVE_IATA_CODE
+        ) VALUES (
+            TB_SEARCH_LOG_SEQ.NEXTVAL,
+            #{searchLogOneWay},
+            #{searchLogPassengerCount},
+            #{searchLogDepartDate},
+            #{searchLogReturnDate},
+            SYSDATE,
+            #{memberNo},
+            #{departIataCode},
+            #{arriveIataCode}
+        )
+
+    </insert>
+
+</mapper>

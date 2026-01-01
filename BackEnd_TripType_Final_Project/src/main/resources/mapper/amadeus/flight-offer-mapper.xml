@@ -7,7 +7,8 @@
 
     <!-- ===============================
          1️⃣ 세그먼트 조합으로 기존 OFFER 조회
-         (Oracle 대응: ROWNUM)
+         - ORA-00907 방지: AND + 괄호 강제
+         - "세그먼트가 정확히 동일한 offer" 찾기
          =============================== -->
     <select id="selectOfferIdBySegments"
             parameterType="map"
@@ -20,7 +21,8 @@
             WHERE FLIGHT_OFFER_ID IN (
                 SELECT FLIGHT_OFFER_ID
                 FROM TB_FLIGHT
-                <where>
+                WHERE FLIGHT_IS_DEL = 'N'
+                AND (
                     <foreach collection="segments"
                              item="seg"
                              separator=" OR ">
@@ -34,7 +36,7 @@
                             AND DEST_AIRPORT = #{seg.destAirport}
                         )
                     </foreach>
-                </where>
+                )
                 GROUP BY FLIGHT_OFFER_ID
                 HAVING COUNT(*) = #{segmentCount}
             )

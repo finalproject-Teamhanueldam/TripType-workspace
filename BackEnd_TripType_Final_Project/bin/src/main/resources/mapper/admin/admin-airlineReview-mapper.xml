@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="adminAirlineReviewMapper">
+	<resultMap id="airlineReview" type="adminAirlineReview">
+		<result column="REVIEW_NO" property="reviewNo"/>
+		<result column="REVIEW_CONTENT" property="reviewContent"/>
+		<result column="REVIEW_RATING" property="reviewRating"/>
+		<result column="REVIEW_CREATE_DATE" property="reviewCreateDate"/>
+		<result column="REVIEW_MODIFY_DATE" property="reviewModifyDate"/>
+		<result column="REVIEW_STATUS" property="reviewStatus"/>
+		<result column="MEMBER_NO" property="memberNo"/>
+		<result column="AIRLINE_ID" property="airlineId"/>
+		<result column="AIRLINE_NAME" property="airlineName"/>
+		<result column="REVIEW_COUNT" property="reviewCount"/>
+		<result column="AVG_RATING" property="avgRating"/>
+	</resultMap>
+	
+	<select id="selectAirlineReview" resultMap="airlineReview">
+	 	SELECT
+		    a.AIRLINE_ID,
+		    a.AIRLINE_AIRLINE_NAME AS AIRLINE_NAME,
+		    ROUND(AVG(r.REVIEW_RATING), 2) AS AVG_RATING,
+		    COUNT(r.REVIEW_NO) AS REVIEW_COUNT
+		FROM TB_AIRLINE a
+		LEFT JOIN TB_REVIEW r
+		    ON a.AIRLINE_ID = r.AIRLINE_ID
+		GROUP BY
+		    a.AIRLINE_ID,
+		    a.AIRLINE_AIRLINE_NAME
+		ORDER BY REVIEW_COUNT DESC
+
+    </select>
+</mapper>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="adminStatisticsMapper">
+	
+	<!-- 검색량 많은 항공편 조회 resultMap -->
+  	<resultMap id="PopularRouteMap" type="PopularRouteDto">
+        <result column="DEPART_IATA_CODE" property="departIata"/>
+        <result column="ARRIVE_IATA_CODE" property="arriveIata"/>
+        <result column="SEARCH_COUNT" property="searchCount"/>
+        
+    </resultMap>
+    
+    <!-- 탑 리부 항공사 resultMap-->
+    <resultMap id="TopReviewAirlineMap" type="TopReviewAirline">
+        <result column="AIRLINE_ID" property="airlineId"/>
+        <result column="AIRLINE_NAME" property="airlineName"/>
+        <result column="REVIEW_COUNT" property="reviewCount"/>
+        <result column="AVG_REVIEW_RATING" property="averageReviewRating"/>
+    </resultMap>
+    
+    <!-- 로그인 데이터 resultMap -->
+    <resultMap id="loginDataMap" type="LoginData">
+    	<result column="LOGIN_COUNT" property="loginCount"/>
+    	<result column="NOT_LOGIN_COUNT" property="notLoginCount"/>
+   </resultMap>
+   
+   
+    <!--
+        인기 노선 TOP5 (검색량 기준)
+        - 기준 테이블: TB_SEARCH_LOG
+        - 집계 단위: 출발지 + 도착지
+        - 기간: 최근 30일
+    -->
+    <select id="selectPopularRoutesTop5" resultMap="PopularRouteMap">
+	    SELECT
+	        DEPART_IATA_CODE,
+	        ARRIVE_IATA_CODE,
+	        SEARCH_COUNT
+	    FROM (
+	        SELECT
+	            DEPART_IATA_CODE,
+	            ARRIVE_IATA_CODE,
+	            COUNT(*) AS SEARCH_COUNT
+	        FROM TB_SEARCH_LOG
+	        WHERE TRUNC(SEARCH_LOG_DATE) >= TRUNC(SYSDATE) - 30
+	        GROUP BY DEPART_IATA_CODE, ARRIVE_IATA_CODE
+	        ORDER BY COUNT(*) DESC
+	    )
+	    WHERE ROWNUM &lt;= 5
+	</select>
+	
+	<!-- 탑 리뷰, 평점 항공사 조회 -->
+	<select id="selectTopReviewAirline" resultMap="TopReviewAirlineMap" >
+		SELECT
+            AIRLINE_ID,
+            AIRLINE_NAME,
+            REVIEW_COUNT
+        FROM (
+            SELECT
+                r.AIRLINE_ID           AS AIRLINE_ID,
+                a.AIRLINE_AIRLINE_NAME AS AIRLINE_NAME,
+                COUNT(*)               AS REVIEW_COUNT
+            FROM TB_REVIEW r
+            JOIN TB_AIRLINE a
+              ON r.AIRLINE_ID = a.AIRLINE_ID
+            GROUP BY
+                r.AIRLINE_ID,
+                a.AIRLINE_AIRLINE_NAME
+            ORDER BY
+                REVIEW_COUNT DESC
+        )
+        WHERE ROWNUM &lt;= 5
+
+		
+	</select>
+	
+	<select id="selectTopRatingAirline" resultMap="TopReviewAirlineMap" >
+	
+	SELECT
+		   AIRLINE_NAME,
+		   AVG_REVIEW_RATING
+		FROM (
+		    SELECT
+		        a.AIRLINE_AIRLINE_NAME AS AIRLINE_NAME,
+		        AVG(r.REVIEW_RATING)   AS AVG_REVIEW_RATING
+		    FROM TB_REVIEW r
+		    JOIN TB_AIRLINE a
+		      ON r.AIRLINE_ID = a.AIRLINE_ID
+		    GROUP BY
+		        a.AIRLINE_AIRLINE_NAME 
+		    ORDER BY
+		        AVG_REVIEW_RATING DESC
+		)
+		WHERE ROWNUM &lt;= 5
+	</select>
+	
+	<!-- 로그인 데이터 조회 쿼리문 -->
+	<select id="selectLoginData" resultMap="loginDataMap">
+	SELECT
+	    COUNT(CASE WHEN MEMBER_NO IS NOT NULL THEN 1 END) AS LOGIN_COUNT,
+	    COUNT(CASE WHEN MEMBER_NO IS NULL THEN 1 END)     AS NOT_LOGIN_COUNT
+	FROM TB_SEARCH_LOG
+	
+	</select>
+	
+	<select id="selectMonthlySignUpData"
+        resultType="com.kh.triptype.admin.statistics.model.dto.MonthlySignUpDto">
+
+    WITH months AS (
+        SELECT
+            TO_CHAR(
+                ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -LEVEL + 1),
+                'YYYY-MM'
+            ) AS month
+        FROM DUAL
+        CONNECT BY LEVEL &lt;= 12
+    )
+    SELECT
+        m.month,
+        NVL(s.joinCount, 0)     AS joinCount,
+        NVL(s.withdrawCount, 0) AS withdrawCount
+    FROM months m
+    LEFT JOIN (
+        SELECT
+            month,
+            SUM(join_count)     AS joinCount,
+            SUM(withdraw_count) AS withdrawCount
+        FROM (
+            SELECT
+                TO_CHAR(MEMBER_CREATE_AT, 'YYYY-MM') AS month,
+                COUNT(*) AS join_count,
+                0 AS withdraw_count
+            FROM TB_MEMBER
+            WHERE MEMBER_CREATE_AT &gt;= TRUNC(ADD_MONTHS(SYSDATE, -11), 'MM')
+            GROUP BY TO_CHAR(MEMBER_CREATE_AT, 'YYYY-MM')
+
+            UNION ALL
+
+            -- 탈퇴자
+            SELECT
+                TO_CHAR(MEMBER_WITHDRAWN_AT, 'YYYY-MM') AS month,
+                0 AS join_count,
+                COUNT(*) AS withdraw_count
+            FROM TB_MEMBER
+            WHERE MEMBER_WITHDRAWN_AT &gt;= TRUNC(ADD_MONTHS(SYSDATE, -11), 'MM')
+              AND MEMBER_IS_ACTIVE = 'N'
+            GROUP BY TO_CHAR(MEMBER_WITHDRAWN_AT, 'YYYY-MM')
+        )
+        GROUP BY month
+    ) s
+        ON m.month = s.month
+    ORDER BY m.month
+
+
+</select>
+
+</mapper>
