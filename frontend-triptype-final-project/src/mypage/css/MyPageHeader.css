@@ -1,0 +1,56 @@
+.mypage-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.mypage-menu-btn {
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 16px;
+}
+
+.mypage-today-date {
+  font-size: 17px;
+  color: #6b7280;
+}
+
+.mypage-header-right {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+
+  margin-left: auto;
+  margin-right: 50px;
+}
+
+.mypage-name {
+  font-size: 17px;
+  color: #374151;
+}
+
+.mypage-logout-btn {
+  background: #f87171;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 17px;
+  color: white;
+  cursor: pointer;
+}
+
+.mypage-logout-btn:hover {
+  background-color: #ef4444;
+}

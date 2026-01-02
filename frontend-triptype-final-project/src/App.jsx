@@ -46,6 +46,15 @@ import KakaoChatButton from "./common/component/KakaoChatButton";
 // 계정 잠금 해제 페이지 추가(최경환)
 import UnlockTab from "./member/auth/component/UnlockTab";
 
+// 마이페이지 페이지 추가(최경환)
+import MyPageLayout from "./mypage/component/MyPageLayout";
+import Profile from "./mypage/component/Profile";
+import PasswordChange from "./mypage/component/PasswordChange";
+import SurveyResult from "./mypage/component/SurveyResult";
+import Wishlist from "./mypage/component/Wishlist";
+import SearchHistory from "./mypage/component/SearchHistory";
+import Withdraw from "./mypage/component/Withdraw";
+
 
 function App() {
   const location = useLocation();
@@ -56,6 +65,7 @@ function App() {
   const hideHeaderPaths = [
     "/member",
     "/admin",
+    "/mypage"
   ];
 
   const hideHeader = hideHeaderPaths.some(path =>
@@ -125,7 +135,16 @@ function App() {
           {/* <Route path="notice/comment" element={<AdminNoticeCommentList/>} /> */}
         </Route>
         
-
+        {/* 마이페이지 */}
+        <Route path="/mypage" element={<MyPageLayout />}>
+          <Route index element={<Profile />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="password" element={<PasswordChange />} />
+          <Route path="survey" element={<SurveyResult />} />
+          <Route path="wishlist" element={<Wishlist />} />
+          <Route path="history" element={<SearchHistory />} />
+          <Route path="withdraw" element={<Withdraw />} />
+        </Route>
 
       </Routes>
 

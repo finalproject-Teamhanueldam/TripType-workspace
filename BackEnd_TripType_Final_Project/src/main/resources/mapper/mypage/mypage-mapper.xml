@@ -18,4 +18,27 @@
 		  WHERE MEMBER_NO = #{memberNo}
 		    AND MEMBER_IS_ACTIVE = 'Y'
 	</select>
+	
+	<update id="updateMyProfile">
+	  UPDATE TB_MEMBER
+	  SET
+	    MEMBER_NAME = #{req.memberName},
+	    MEMBER_BIRTH_DATE = #{req.memberBirthDate},
+	    MEMBER_GENDER = #{req.memberGender},
+	    MEMBER_PHONE = #{req.memberPhone}
+	  WHERE MEMBER_NO = #{memberNo}
+	    AND MEMBER_IS_ACTIVE = 'Y'
+	</update>
+	
+	<select id="selectPassword" parameterType="int" resultType="String">
+	  SELECT MEMBER_PASSWORD
+	  FROM TB_MEMBER
+	  WHERE MEMBER_NO = #{memberNo}
+	</select>
+	
+	<update id="updatePassword">
+	  UPDATE TB_MEMBER
+	  SET MEMBER_PASSWORD = #{password}
+	  WHERE MEMBER_NO = #{memberNo}
+	</update>
 </mapper>

@@ -1,0 +1,124 @@
+.profile-wrap {
+  margin-left: 330px;
+  padding: 40px 0;
+}
+
+.profile-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a237e;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.profile-card {
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 30px;
+  width: 650px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* 기본 조회 */
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.label {
+  font-weight: 700;
+  color: #64748b;
+}
+
+.value {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* 소셜 연동 */
+.social-section {
+  display: flex;
+  gap: 12px;
+  margin: 10px 0 20px 0;
+}
+
+.social-box {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.social-box.connected {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.social-box.disconnected {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.social-provider {
+  font-weight: 700;
+}
+
+.social-email {
+  font-size: 13px;
+}
+
+.social-none {
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* 구분선 */
+.divider {
+  margin: 20px 0;
+  border: none;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* 수정 영역 */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.form-row label {
+  font-weight: 700;
+  color: #334155;
+}
+
+.form-row input,
+.form-row select,
+.datepicker {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 15px;
+}
+
+/* 버튼 */
+.btn-area {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.primary-btn {
+  background-color: #6EBFF4;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #023059;
+}

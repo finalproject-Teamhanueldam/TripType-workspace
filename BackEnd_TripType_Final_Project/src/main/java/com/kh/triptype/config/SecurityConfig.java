@@ -6,12 +6,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.kh.triptype.auth.jwt.JwtAuthenticationFilter;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 
@@ -21,13 +23,6 @@ public class SecurityConfig {
 
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-	// 🔹 JwtProvider 주입 (필터에 넘기기 위함) (김동윤)
-//    private final JwtProvider jwtProvider;
-//
-//    public SecurityConfig(JwtProvider jwtProvider) {
-//        this.jwtProvider = jwtProvider;
-//    }
 	
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -37,17 +32,32 @@ public class SecurityConfig {
             .cors(cors -> {}) // ⭐ 아래 Bean과 연결됨
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
+            
+            // 마이페이지 principal을 직접 꺼내서 오류나는 부분 수정
+            .anonymous(anonymous -> anonymous.disable())
 
-            // JWT 인증 필터 등록 (갬둉온)
-            // UsernamePasswordAuthenticationFilter 전에 실행됨
-//            .addFilterBefore(
-//                new JwtAuthFilter(jwtProvider),
-//                UsernamePasswordAuthenticationFilter.class
-//            )
+            // 인증 실패 시 OAuth redirect 금지 (마이페이지 관련 문제 때문에 추가)
+            .exceptionHandling(e -> e
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write(
+                        "{\"message\":\"UNAUTHORIZED\"}"
+                    );
+                })
+            )
+            
+
+            // 세션 완전 비활성화
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(
+                    org.springframework.security.config.http.SessionCreationPolicy.STATELESS
+                )
+            )
             
             .authorizeHttpRequests(auth -> auth
 
-                // ✅ 회원가입 + 이메일 인증은 로그인 없이 허용
+                // 회원가입 + 이메일 인증은 로그인 없이 허용
             	// 첨부파일 "/upload/**", "/triptype/upload/**", 추가 26.1.1
                 .requestMatchers(
                 	"/triptype/notice/download/**",
@@ -70,17 +80,14 @@ public class SecurityConfig {
                     "/triptype/js/**"
                 ).permitAll()
 
-                .requestMatchers("/triptype/airline/review").authenticated() 
+                // JWT 보호 API
+                .requestMatchers("/triptype/airline/review", "/airline/review").authenticated()
+                .requestMatchers("/triptype/api/mypage/**", "/api/mypage/**").authenticated()
                 
                 .anyRequest().permitAll()
             )
             
-            // ⭐⭐⭐ 여기 추가
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
-            )
-            
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             // 네이버 OAuth
             .oauth2Login(oauth -> oauth
                 .defaultSuccessUrl("/triptype/login/success", true)
