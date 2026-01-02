@@ -34,7 +34,10 @@ function LoginTab() {
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("memberName", res.data.memberName);
       localStorage.setItem("role", res.data.role);
-
+      localStorage.setItem(
+        "memberId",
+        res.data.memberId ?? loginForm.memberId
+      );
       // (선택) 아이디 저장 체크 시
       if (loginForm.saveId) {
         localStorage.setItem("savedMemberId", loginForm.memberId);
