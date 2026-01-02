@@ -117,6 +117,7 @@ public class AirlineListController {
 	                .body("로그인이 필요합니다.");
 	    }
 	    review.setMemberNo(authUser.getMemberNo());
+	    System.out.println(review);
 	    airlineListService.writeReview(review);
 	    return ResponseEntity.ok().build();
 	}
