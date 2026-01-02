@@ -7,6 +7,7 @@ import WeekPriceList from "./WeekPriceListComponent.jsx";
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const AirlineListComponent = () => {
 
@@ -199,6 +200,28 @@ const AirlineListComponent = () => {
   console.log('outboundList', outboundList);
   console.log('roundList', roundList);
 
+  // detail 페이지 이동
+  const goDetail = (pair) => {
+    console.log("onClick", pair);
+    const flightOfferId =
+      pair.outbound?.flightOfferId || pair.inbound?.flightOfferId;
+
+    if (!flightOfferId) {
+      toast.info("존재하지 않는 항공권입니다.");
+      return;
+    }
+
+    navigate(`/airline/detail/${flightOfferId}`, {
+      state: {
+        outbound: pair.outbound,
+        inbound: pair.inbound,
+        tripType: pair.outbound?.tripType === "N" ? "ROUND" : "ONEWAY",
+      },
+    });
+  };
+
+
+
   return (
     <div className="airline-list-wrapper">
       {/* ================= 가격 요약 ================= */}
@@ -282,6 +305,7 @@ const AirlineListComponent = () => {
                 tripType={pair.outbound.tripType === "N" ? "ROUND" : "ONEWAY"}
                 setOpen={() => setOpen(true)}
                 showPlus={pair.outbound.tripType !== "Y"}
+                onClick={() => goDetail(pair)}
               />
           ))
           ) : searchParams.tripType == "ONEWAY" ? 
@@ -300,6 +324,7 @@ const AirlineListComponent = () => {
                 tripType={pair.outbound.tripType === "N" ? "ROUND" : "ONEWAY"}
                 setOpen={() => setOpen(true)}
                 showPlus={pair.outbound.tripType !== "Y"}
+                onClick={() => goDetail(pair)}
               />
           ))
           ) : null

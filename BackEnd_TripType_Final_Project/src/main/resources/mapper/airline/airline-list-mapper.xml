@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
   <mapper namespace="airlineList">
 	<resultMap id="AirlineListResultMap" type="AirlineList">
 	    <id property="flightNumber" column="FLIGHT_NUMBER"/>
-
 	    <result property="airlineName" column="AIRLINE_AIRLINE_NAME"/>
 	    <result property="flightNumber" column="FLIGHT_NUMBER"/>
 	
@@ -28,7 +27,6 @@
 		<id column="DEPART_DATE" property="offerDepartDay"/>
 		<result column="TOTAL_PRICE" property="offerPriceTotal"/>
 	</resultMap>
-
   	
 	<select id="selectAirlineListPrice" parameterType="AirlineFilter" resultMap="AirlineListResultMap">
 	    /* 1. 가는 편 */
@@ -38,6 +36,7 @@
 	        f.FLIGHT_ARRIVE_DATE,
 	        f.FLIGHT_DURATION,
 	        f.FLIGHT_OFFER_ID,
+	        f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
 	        dep.AIRPORT_CITY AS DEPART_CITY,
 	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	        arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -56,7 +55,6 @@
 	      AND f.DEST_AIRPORT = #{arrive}
 	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{departDate}, 'YYYY-MM-DD')
 	      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
-
 	      AND f.FLIGHT_IS_DEL = 'N'
 	
 	
@@ -70,6 +68,7 @@
 	        f.FLIGHT_ARRIVE_DATE,
 	        f.FLIGHT_DURATION,
 	        f.FLIGHT_OFFER_ID,
+	        f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
 	        dep.AIRPORT_CITY AS DEPART_CITY,
 	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	        arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -86,7 +85,7 @@
         JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
 	    WHERE f.DEPART_AIRPORT = #{arrive}   /* 출발/도착 반전 */
 	      AND f.DEST_AIRPORT = #{depart}    /* 출발/도착 반전 */
-	     
+	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{returnDate}, 'YYYY-MM-DD')
 	      AND f.FLIGHT_IS_DEL = 'N'
 	      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
 	    ORDER BY FLIGHT_OFFER_PRICE_TOTAL asc
@@ -150,9 +149,9 @@
 	          AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
 	          AND f.FLIGHT_IS_DEL = 'N'
 	    )
-	    ORDER BY 
+	    ORDER BY
 	        /* ISO 8601 Duration(PT2H20M)을 숫자로 변환하여 정렬 */
-	        TO_NUMBER(NVL(REGEXP_SUBSTR(FLIGHT_DURATION, '(\d+)H', 1, 1, 'i', 1), 0)) * 60 + 
+	        TO_NUMBER(NVL(REGEXP_SUBSTR(FLIGHT_DURATION, '(\d+)H', 1, 1, 'i', 1), 0)) * 60 +
 	        TO_NUMBER(NVL(REGEXP_SUBSTR(FLIGHT_DURATION, '(\d+)M', 1, 1, 'i', 1), 0)) ASC
 	</select>
 	
@@ -221,11 +220,11 @@
 	
 	<!-- 주간 가격 정보 -->
 	<select id="selectWeeklyPrice" parameterType="AirlineFilter" resultMap="WeeklyPriceResultMap">
-	  SELECT 
+	  SELECT
 	       TO_CHAR(FLIGHT_OFFER_DEPART_DATE, 'YYYY-MM-DD') AS DEPART_DATE,
 	       MIN(FLIGHT_OFFER_PRICE_TOTAL) AS TOTAL_PRICE
-	  FROM  
-	       TB_FLIGHT_PRICE_HISTORY history 
+	  FROM
+	       TB_FLIGHT_PRICE_HISTORY history
 	       JOIN TB_FLIGHT f ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
 	  WHERE FLIGHT_OFFER_ONE_WAY = #{tripType}
 	    AND DEPART_IATA_CODE = #{depart}
@@ -236,5 +235,3 @@
 	  GROUP BY FLIGHT_OFFER_DEPART_DATE
 	</select>
   </mapper>
-
-  

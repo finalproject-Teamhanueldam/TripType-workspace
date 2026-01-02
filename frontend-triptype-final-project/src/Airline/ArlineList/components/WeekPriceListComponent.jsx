@@ -101,7 +101,6 @@ const WeekPriceList = ({ setActiveFilter, searchParams}) => {
                     </tr>
                 </tbody>
             </table>
-            asdsad
         </div>
     );
 };

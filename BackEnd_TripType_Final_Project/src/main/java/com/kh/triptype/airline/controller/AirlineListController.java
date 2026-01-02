@@ -6,12 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.triptype.airline.model.service.AirlineListService;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.Review;
 import com.kh.triptype.airline.model.vo.WeeklyPrice;
 
 @RequestMapping("airline")
@@ -56,8 +59,9 @@ public class AirlineListController {
 		} 
 		else {
 			for(AirlineListVo item : list) {
+				System.out.println(item);
 				double money = item.getTotalPrice();
-				double won = (money * 1690);			
+				double won = (money * 1692);			
 				item.setTotalPrice(won);
 			}
 		}
@@ -88,7 +92,7 @@ public class AirlineListController {
 		if(!list.isEmpty()) {
 			for(WeeklyPrice item : list) {
 				double money = item.getOfferPriceTotal();
-				double won = (money * 1690);
+				double won = (money * 1692);
 				item.setOfferPriceTotal(won);
 			}
 		} else {
@@ -97,5 +101,14 @@ public class AirlineListController {
 	
 		return list;
 	};
+	
+	
+	// 댓글 등록
+	@PostMapping("review")
+	public String writeReview(@RequestBody Review review) {
+		System.out.println(review);
+		return "";
+	}
+	
 	
 }

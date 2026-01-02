@@ -1,5 +1,7 @@
 import { FaStar, FaRegStar, FaEllipsisV, FaTrashAlt, FaPen } from 'react-icons/fa';
 import "../css/ReviewComponent.css";
+import { useState } from 'react';
+import axios from 'axios';
 
 // 별점 렌더링 함수
 // const renderStars = (rating) => {
@@ -45,10 +47,51 @@ const dummyReviews = [
     },
 ];
 
+
 const ReviewComponent = () => {
-    // 임시 데이터의 평균 별점 계산 (4.0)
-    const averageRating = 4.0;
-    const filledStarsCount = Math.round(averageRating);
+    // // 임시 데이터의 평균 별점 계산 (4.0)
+    // const averageRating = 4.0;
+    // const filledStarsCount = Math.round(averageRating);
+
+    const [ text, setText ] = useState("");
+
+    const token = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("role");
+    const name = localStorage.getItem("memberName");
+    const memberId = localStorage.getItem("memberId");
+
+
+    console.log('memberId', memberId);
+    // console.log(memberId);
+    // console.log("userId", userId);
+    console.log("role", role);
+    console.log("name", name);
+
+    // 리뷰 작성 함수
+    const upload = () => {
+        const uploadReview = async () => {
+            try {
+                const url = "http://localhost:8001/triptype/airline/review";
+                const method = "post";
+
+                const response = await axios({
+                   url,
+                   method,
+                   data : { reviewContent : text } 
+                });
+
+                console.log("등록 완료", response);
+            }
+            catch(error) {
+                console.log(error);
+            }
+        };
+        uploadReview();
+    };
+
+    const onChange = (value) => {
+        setText(value);
+    };
 
     return (
         <div className="review-container">
@@ -75,8 +118,9 @@ const ReviewComponent = () => {
                         placeholder="이 항공편에 대한 자유 댓글을 달아주세요..."
                         rows="4"
                         className="review-textarea"
+                        onChange={(e) => onChange(e.target.value)}
                     ></textarea>
-                    <button className="register-button">등록하기</button>
+                    <button className="register-button" onClick={() => upload()}>등록하기</button>
                 </div>
             </div>
 
@@ -101,7 +145,7 @@ const ReviewComponent = () => {
                             {review.canEdit && (
                                 <div className="review-actions">
                                     {/* 작성 아이콘 */}
-                                    <FaPen className="action-icon edit-icon" />
+                                    <FaPen className="action-icon edit-icon"/>
 
                                     {/* 삭제 아이콘 */}
                                     <FaTrashAlt className="action-icon delete-icon" />
