@@ -7,15 +7,20 @@ function UserNoticeList() {
   const navigate = useNavigate();
   const [notices, setNotices] = useState([]);
 
+  const [pageInfo, setPageInfo] = useState(null);
+  const [page, setPage] = useState(1);
+
   useEffect(() => {
-    // Spring Boot 백엔드에서 데이터 가져오기
-    axios.get("http://localhost:8001/triptype/notice", { withCredentials: true })
-      .then(res => {
-        setNotices(res.data); // 백엔드에서 받은 JSON을 상태로 저장
-        console.log(res.data)
-      })
-      .catch(err => console.error(err));
-  }, []);
+    axios.get("http://localhost:8001/triptype/notice", {
+      params: { page },
+      withCredentials: true
+    })
+    .then(res => {
+      setNotices(res.data.list);
+      setPageInfo(res.data.pageInfo);
+    })
+    .catch(console.error);
+  }, [page]);
 
   return (
     <div className="notice-page">
@@ -36,6 +41,39 @@ function UserNoticeList() {
           </div>
         ))}
       </div>
+
+      {pageInfo && (
+        <div className="pagination">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
+            이전
+          </button>
+
+          {Array.from(
+            { length: pageInfo.endPage - pageInfo.startPage + 1 },
+            (_, i) => pageInfo.startPage + i
+          ).map(p => (
+            <button
+              key={p}
+              className={p === page ? "active" : ""}
+              onClick={() => setPage(p)}
+            >
+              {p}
+            </button>
+          ))}
+
+          <button
+            disabled={page === pageInfo.maxPage}
+            onClick={() => setPage(page + 1)}
+          >
+            다음
+          </button>
+        </div>
+      )}
+
+
     </div>
   );
 }

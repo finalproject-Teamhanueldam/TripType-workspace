@@ -5,29 +5,75 @@
 
 <mapper namespace="com.kh.triptype.notice.comment.dao.NoticeCommentDao">
 
-    <!-- ========================= -->
     <!-- ResultMap -->
-    <!-- ========================= -->
-    <resultMap id="noticeCommentResultMap"
-               type="com.kh.triptype.notice.comment.model.vo.NoticeComment">
-
-        <id     property="noticeCommentId"         column="NOTICE_COMMENT_ID"/>
-        <result property="noticeCommentContent"   column="NOTICE_COMMENT_CONTENT"/>
+    <resultMap id="noticeCommentResultMap" type="com.kh.triptype.notice.comment.model.vo.NoticeComment">
+        <id     property="noticeCommentId" column="NOTICE_COMMENT_ID"/>
+        <result property="noticeCommentContent" column="NOTICE_COMMENT_CONTENT"/>
         <result property="noticeCommentCreatedAt" column="NOTICE_COMMENT_CREATED_AT"/>
         <result property="noticeCommentUpdatedAt" column="NOTICE_COMMENT_UPDATED_AT"/>
-        <result property="noticeCommentIsDel"      column="NOTICE_COMMENT_IS_DEL"/>
-        <result property="noticeId"                column="NOTICE_ID"/>
-        <result property="memberNo"                column="MEMBER_NO"/>
+        <result property="noticeCommentIsDel" column="NOTICE_COMMENT_IS_DEL"/>
+        <result property="noticeId" column="NOTICE_ID"/>
+        <result property="memberNo" column="MEMBER_NO"/>
     </resultMap>
 
-    <!-- ========================= -->
-    <!-- 사용자 : 댓글 목록 조회 -->
-    <!-- ========================= -->
-    <select id="selectCommentList"
-            parameterType="map"
-            resultMap="noticeCommentResultMap">
+    <!-- 사용자 댓글 목록 조회 (페이징) -->
+    <select id="selectCommentList" parameterType="map" resultMap="noticeCommentResultMap">
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS rnum, A.*
+            FROM (
+                SELECT *
+                FROM TB_NOTICE_COMMENT
+                WHERE NOTICE_ID = #{noticeId}
+                  AND NOTICE_COMMENT_IS_DEL = 'N'
+                ORDER BY NOTICE_COMMENT_CREATED_AT DESC
+            ) A
+        )
+        WHERE rnum BETWEEN #{startRow} AND #{endRow}
+    </select>
 
-        SELECT
+    <!-- 관리자 댓글 목록 조회 (페이징 + 삭제여부 토글) -->
+    <select id="selectCommentListAdmin" parameterType="map" resultMap="noticeCommentResultMap">
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS rnum, A.*
+            FROM (
+                SELECT *
+                FROM TB_NOTICE_COMMENT
+                <where>
+                    <if test='showDeleted != null and showDeleted == "N"'>
+                        NOTICE_COMMENT_IS_DEL = 'N'
+                    </if>
+                    AND NOTICE_ID = #{noticeId}
+                </where>
+                ORDER BY NOTICE_COMMENT_CREATED_AT DESC
+            ) A
+        )
+        WHERE rnum BETWEEN #{startRow} AND #{endRow}
+    </select>
+
+    <!-- 댓글 전체 수 조회 -->
+    <select id="selectCommentCount" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM TB_NOTICE_COMMENT
+        WHERE NOTICE_ID = #{noticeId}
+          AND NOTICE_COMMENT_IS_DEL = 'N'
+    </select>
+
+    <select id="selectCommentCountAdmin" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM TB_NOTICE_COMMENT
+        <where>
+            <if test='showDeleted != null and showDeleted == "N"'>
+                NOTICE_COMMENT_IS_DEL = 'N'
+            </if>
+            AND NOTICE_ID = #{noticeId}
+        </where>
+    </select>
+
+    <!-- 댓글 등록 -->
+    <insert id="insertComment" parameterType="com.kh.triptype.notice.comment.model.vo.NoticeComment">
+        INSERT INTO TB_NOTICE_COMMENT (
             NOTICE_COMMENT_ID,
             NOTICE_COMMENT_CONTENT,
             NOTICE_COMMENT_CREATED_AT,
@@ -35,52 +81,27 @@
             NOTICE_COMMENT_IS_DEL,
             NOTICE_ID,
             MEMBER_NO
-        FROM TB_NOTICE_COMMENT
-        WHERE NOTICE_ID = #{noticeId}
-          AND NOTICE_COMMENT_IS_DEL = 'N'
-        ORDER BY NOTICE_COMMENT_CREATED_AT ASC
-    </select>
+        )
+        VALUES (
+            <choose>
+                <when test="noticeCommentId != null">
+                    #{noticeCommentId}
+                </when>
+                <otherwise>
+                    TB_NOTICE_COMMENT_SEQ.NEXTVAL
+                </otherwise>
+            </choose>,
+            #{noticeCommentContent},
+            SYSDATE,
+            SYSDATE,
+            'N',
+            #{noticeId},
+            #{memberNo}
+        )
+    </insert>
 
-    <!-- ========================= -->
-    <!-- 사용자 : 댓글 등록 -->
-    <!-- ========================= -->
-    <!-- 댓글 등록 -->
-	<insert id="insertComment" parameterType="com.kh.triptype.notice.comment.model.vo.NoticeComment">
-    INSERT INTO TB_NOTICE_COMMENT (
-        NOTICE_COMMENT_ID,
-        NOTICE_COMMENT_CONTENT,
-        NOTICE_COMMENT_CREATED_AT,
-        NOTICE_COMMENT_UPDATED_AT,
-        NOTICE_COMMENT_IS_DEL,
-        NOTICE_ID,
-        MEMBER_NO
-    )
-    VALUES (
-        <choose>
-            <when test="noticeCommentId != null">
-                #{noticeCommentId}
-            </when>
-            <otherwise>
-                TB_NOTICE_COMMENT_SEQ.NEXTVAL
-            </otherwise>
-        </choose>,
-        #{noticeCommentContent},
-        SYSDATE,
-        SYSDATE,
-        'N',
-        #{noticeId},
-        #{memberNo}
-    )
-	</insert>
-
-
-
-    <!-- ========================= -->
-    <!-- 사용자 : 댓글 수정 -->
-    <!-- ========================= -->
-    <update id="updateComment"
-            parameterType="com.kh.triptype.notice.comment.model.vo.NoticeComment">
-
+    <!-- 댓글 수정 -->
+    <update id="updateComment" parameterType="com.kh.triptype.notice.comment.model.vo.NoticeComment">
         UPDATE TB_NOTICE_COMMENT
         SET
             NOTICE_COMMENT_CONTENT = #{noticeCommentContent},
@@ -89,16 +110,32 @@
           AND NOTICE_COMMENT_IS_DEL = 'N'
     </update>
 
-    <!-- ========================= -->
-    <!-- 사용자/관리자 : 댓글 삭제 -->
-    <!-- ========================= -->
-    <update id="deleteComment" parameterType="map">
-	    UPDATE TB_NOTICE_COMMENT
-	    SET NOTICE_COMMENT_IS_DEL = 'Y'
-	    WHERE NOTICE_COMMENT_ID = #{noticeCommentId}
-	      AND MEMBER_NO = #{memberNo}  <!-- 본인 체크 -->
-	      AND NOTICE_COMMENT_IS_DEL = 'N'
-	</update>
+    <!-- 사용자 댓글 삭제 -->
+    <update id="deleteCommentByUser">
+        UPDATE TB_NOTICE_COMMENT
+        SET NOTICE_COMMENT_IS_DEL = 'Y'
+        WHERE NOTICE_COMMENT_ID = #{noticeCommentId}
+          AND MEMBER_NO = #{memberNo}
+          AND NOTICE_COMMENT_IS_DEL = 'N'
+    </update>
+
+    <!-- 관리자 댓글 삭제 -->
+    <update id="deleteCommentByAdmin">
+        UPDATE TB_NOTICE_COMMENT
+        SET NOTICE_COMMENT_IS_DEL = 'Y'
+        WHERE NOTICE_COMMENT_ID = #{noticeCommentId}
+          AND NOTICE_COMMENT_IS_DEL = 'N'
+    </update>
+    
+    <!-- 사용자별 권한 -->
+    <select id="selectCommentById"
+	        parameterType="long"
+	        resultMap="noticeCommentResultMap">
+	    SELECT *
+	    FROM TB_NOTICE_COMMENT
+	    WHERE NOTICE_COMMENT_ID = #{_parameter}
+	</select>
+
 
 
 </mapper>

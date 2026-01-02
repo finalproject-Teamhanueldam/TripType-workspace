@@ -19,13 +19,26 @@ function AdminNoticeList() {
   const [keyword, setKeyword] = useState("");
   const [sortType, setSortType] = useState("latest");
 
+  const [showDeleted, setShowDeleted] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const [pageInfo, setPageInfo] = useState(null);
+
   /* ===== 공지 목록 조회 ===== */
   useEffect(() => {
     axios
-      .get("http://localhost:8001/triptype/admin/notice")
-      .then((res) => setNotices(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+      .get("http://localhost:8001/triptype/admin/notice", {
+        params: { 
+          page,
+          showDeleted: showDeleted ? "Y" : "N"
+         }
+      })
+      .then(res => {
+        setNotices(res.data.list);
+        setPageInfo(res.data.pageInfo);
+      })
+      .catch(console.error);
+  }, [page, showDeleted]);
 
   /* ===== 검색 + 정렬 ===== */
   const filteredNotices = useMemo(() => {
@@ -53,7 +66,7 @@ function AdminNoticeList() {
         new Date(a.noticeCreatedAt)
       );
     });
-  }, [keyword, sortType, notices]);
+  }, [keyword, sortType, notices, showDeleted]);
 
   /* ===== 체크 토글 ===== */
   const toggleOne = (id) => {
@@ -100,6 +113,12 @@ function AdminNoticeList() {
     }
   };
 
+  // 페이징
+  const movePage = (page) => {
+    setPage(page);
+  };
+
+
   return (
     <div className="admin-page">
       <h2 className="page-title">공지사항 관리</h2>
@@ -108,7 +127,7 @@ function AdminNoticeList() {
       <div className="admin-controls">
         <div className="left">
           <span className="total-count">
-            총 {filteredNotices.length}건
+            총 {pageInfo?.listCount ?? 0}건
           </span>
 
           <div className="search-box">
@@ -136,6 +155,21 @@ function AdminNoticeList() {
             </button>
           </div>
         </div>
+
+        {/* 삭제여부 필터링 */}
+        <button
+          className={`filter-toggle ${showDeleted ? "active" : ""}`}
+          onClick={() => {
+            setShowDeleted(!showDeleted);
+            setPage(1); // 🔥 매우 중요
+          }}
+          type="button"
+        >
+          삭제된 공지 표시
+        </button>
+
+
+
 
         <div className="right">
           <button
@@ -184,19 +218,20 @@ function AdminNoticeList() {
         )}
 
         {filteredNotices.map((n) => (
-          <div
-            key={n.noticeId}
-            className={`notice-row ${
-              deleteMode ? "delete-mode" : ""
-            }`}
-            onClick={() => {
-              if (deleteMode) {
-                toggleOne(n.noticeId);
-              } else {
-                navigate(`/admin/notice/${n.noticeId}`);
-              }
-            }}
-          >
+            <div
+              key={n.noticeId}
+              className={`notice-row
+                ${n.noticeIsDel === "Y" ? "deleted" : ""}
+                ${deleteMode ? "delete-mode" : ""}
+              `}
+              onClick={() => {
+                if (deleteMode) {
+                  toggleOne(n.noticeId);
+                } else {
+                  navigate(`/admin/notice/${n.noticeId}`);
+                }
+              }}
+            >
             <span>{n.noticeId}</span>
 
             <span>
@@ -242,6 +277,39 @@ function AdminNoticeList() {
         ))}
       </div>
 
+      {/* 페이징 */}
+      {pageInfo && (
+        <div className="pagination">
+          {pageInfo.currentPage > 1 && (
+            <button onClick={() => movePage(pageInfo.currentPage - 1)}>
+              이전
+            </button>
+          )}
+
+          {Array.from(
+            { length: pageInfo.endPage - pageInfo.startPage + 1 },
+            (_, i) => pageInfo.startPage + i
+          ).map((p) => (
+            <button
+              key={p}
+              className={p === pageInfo.currentPage ? "active" : ""}
+              onClick={() => movePage(p)}
+            >
+              {p}
+            </button>
+          ))}
+
+          {pageInfo.currentPage < pageInfo.maxPage && (
+            <button onClick={() => movePage(pageInfo.currentPage + 1)}>
+              다음
+            </button>
+          )}
+        </div>
+      )}
+
+
+
+
       {/* ===== 삭제 액션 바 ===== */}
       {deleteMode && (
         <div className="delete-floating-bar">
@@ -273,7 +341,7 @@ function AdminNoticeList() {
           </div>
         </div>
       )}
-    </div>
+    </div>      
   );
 }
 
