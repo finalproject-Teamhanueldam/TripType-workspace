@@ -73,7 +73,7 @@ public class AuthService {
 
         // 5️ JWT 발급
         String token = jwtProvider.createToken(
-                (long) member.getMemberNo(),
+                member.getMemberNo(),
                 member.getMemberRole()
         );
 
