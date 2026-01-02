@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.Review;
 import com.kh.triptype.airline.model.vo.WeeklyPrice;
 
 
@@ -20,5 +21,8 @@ public interface AirlineListService {
 	
 	// 주간 가격정보 불러오기
 	public ArrayList<WeeklyPrice> selectWeeklyPrice(AirlineFilter airlineFilter);
+	
+	// 리뷰 작성
+	public int writeReview(Review review);
 
 }

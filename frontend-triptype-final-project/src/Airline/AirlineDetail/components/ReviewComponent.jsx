@@ -48,24 +48,17 @@ const dummyReviews = [
 ];
 
 
-const ReviewComponent = () => {
+const ReviewComponent = ({ outbound, inbound }) => {
     // // 임시 데이터의 평균 별점 계산 (4.0)
     // const averageRating = 4.0;
     // const filledStarsCount = Math.round(averageRating);
 
     const [ text, setText ] = useState("");
 
-    const token = localStorage.getItem("accessToken");
-    const role = localStorage.getItem("role");
-    const name = localStorage.getItem("memberName");
     const memberId = localStorage.getItem("memberId");
 
+    console.log(outbound, inbound);
 
-    console.log('memberId', memberId);
-    // console.log(memberId);
-    // console.log("userId", userId);
-    console.log("role", role);
-    console.log("name", name);
 
     // 리뷰 작성 함수
     const upload = () => {
@@ -77,7 +70,7 @@ const ReviewComponent = () => {
                 const response = await axios({
                    url,
                    method,
-                   data : { reviewContent : text } 
+                   data : { reviewContent : text,  memberId : memberId, flightOfferId : outbound.flightOfferId } 
                 });
 
                 console.log("등록 완료", response);

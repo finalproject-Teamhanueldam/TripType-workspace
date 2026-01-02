@@ -73,7 +73,7 @@ const AirlineDetailComponent = () => {
           )}
 
           <div className="review-wrapper">
-            <ReviewComponent />
+            <ReviewComponent outbound={outbound} inbound={inbound}/>
           </div>
         </div>
 

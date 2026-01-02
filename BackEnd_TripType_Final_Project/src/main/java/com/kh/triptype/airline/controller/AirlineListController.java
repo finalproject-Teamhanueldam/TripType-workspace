@@ -107,6 +107,7 @@ public class AirlineListController {
 	@PostMapping("review")
 	public String writeReview(@RequestBody Review review) {
 		System.out.println(review);
+		int result = airlineListService.writeReview(review);
 		return "";
 	}
 	

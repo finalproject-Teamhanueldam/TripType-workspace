@@ -17,14 +17,13 @@ import lombok.ToString;
 @Setter
 @ToString
 public class Review {
-	
-	// 날짜
-	private Date reviewCreateDate;
-	
-	// 이름
-	private String memberName;
-	
-	// 댓글 내용
-	private String reviewContent;
 
+    private int reviewNo;
+    private String reviewContent;
+    private Date reviewCreateDate;
+    private Date reviewModifyDate;
+    private String reviewStatus;
+
+    private int memberNo;
+    private int flightOfferId;
 }

@@ -234,4 +234,9 @@
 	                                     AND TO_DATE(#{departDate}, 'YYYY-MM-DD') +4
 	  GROUP BY FLIGHT_OFFER_DEPART_DATE
 	</select>
+	
+	<!-- 리뷰 작성 -->
+	<insert id="writeReview" parameterType="Review">
+	</insert>
+	
   </mapper>

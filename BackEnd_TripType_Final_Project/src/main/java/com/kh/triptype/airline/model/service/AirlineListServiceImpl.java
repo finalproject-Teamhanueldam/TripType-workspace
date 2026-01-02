@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.kh.triptype.airline.model.dao.AirlineListDao;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.Review;
 import com.kh.triptype.airline.model.vo.WeeklyPrice;
 
 @Service
@@ -38,9 +39,15 @@ public class AirlineListServiceImpl implements AirlineListService {
 		return airlineListDao.selectAirlineListLate(sqlSession, airlineFilter);
 	}
 
+	// 주간 가격
 	@Override
 	public ArrayList<WeeklyPrice> selectWeeklyPrice(AirlineFilter airlineFilter) {
 		return airlineListDao.selectWeeklyPrice(sqlSession, airlineFilter);
+	}
+
+	@Override
+	public int writeReview(Review review) {
+		return airlineListDao.writeReview(sqlSession, review);
 	}
 
 }
