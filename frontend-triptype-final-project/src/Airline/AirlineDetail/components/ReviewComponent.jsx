@@ -9,6 +9,10 @@ const ReviewComponent = ({ outbound }) => {
   const [reviews, setReviews] = useState([]);
   const [loginMemberNo, setLoginMemberNo] = useState(null);
 
+  reviews.map((item) => {
+    console.log(item);
+  });
+
   // 로그인된 회원 정보 가져오기
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -17,7 +21,7 @@ const ReviewComponent = ({ outbound }) => {
         const { jwtDecode } = await import("jwt-decode");
         const payload = jwtDecode(token);
         console.log("JWT payload:", payload);
-        setLoginMemberNo(payload.memberNo || payload.id);
+        setLoginMemberNo(payload.sub);
       })();
     }
   }, []);
@@ -113,7 +117,7 @@ const ReviewComponent = ({ outbound }) => {
               </div>
 
               {/* 로그인 회원 && 본인 댓글일 경우 수정/삭제 버튼 */}
-              {loginMemberNo && loginMemberNo === review.memberNo && (
+              {loginMemberNo && loginMemberNo == review.memberNo && (
                 <div className="review-actions">
                   <FaPen className="action-icon edit-icon" />
                   <FaTrashAlt
