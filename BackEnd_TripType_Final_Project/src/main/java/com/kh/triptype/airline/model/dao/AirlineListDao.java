@@ -34,8 +34,8 @@ public class AirlineListDao {
 	}
 
 	// 리뷰 작성
-	public int writeReview(SqlSessionTemplate sqlSession, Review review) {
-		return sqlSession.insert("airlineList.writeReview", review);
-	}
+//	public int writeReview(SqlSessionTemplate sqlSession, Review review) {
+//		return sqlSession.insert("airlineList.writeReview", review);
+//	}
 	
 }

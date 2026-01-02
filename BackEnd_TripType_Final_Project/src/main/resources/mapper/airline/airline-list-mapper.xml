@@ -236,7 +236,6 @@
 	</select>
 	
 	<!-- 리뷰 작성 -->
-	<insert id="writeReview" parameterType="Review">
-	</insert>
+
 	
   </mapper>

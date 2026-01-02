@@ -3,6 +3,9 @@ package com.kh.triptype.airline.controller;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -16,6 +19,7 @@ import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
 import com.kh.triptype.airline.model.vo.Review;
 import com.kh.triptype.airline.model.vo.WeeklyPrice;
+import com.kh.triptype.auth.model.vo.AuthUser;
 
 @RequestMapping("airline")
 @RestController
@@ -100,15 +104,21 @@ public class AirlineListController {
 		}
 	
 		return list;
-	};
+	}
 	
-	
-	// 댓글 등록
+	// 댓글 작성
 	@PostMapping("review")
-	public String writeReview(@RequestBody Review review) {
-		System.out.println(review);
-		int result = airlineListService.writeReview(review);
-		return "";
+	public ResponseEntity<?> writeReview(
+	        @RequestBody Review review,
+	        @AuthenticationPrincipal AuthUser authUser) {
+	    if (authUser == null) {
+	        return ResponseEntity
+	                .status(HttpStatus.UNAUTHORIZED)
+	                .body("로그인이 필요합니다.");
+	    }
+	    review.setMemberNo(authUser.getMemberNo());
+	    airlineListService.writeReview(review);
+	    return ResponseEntity.ok().build();
 	}
 	
 	
