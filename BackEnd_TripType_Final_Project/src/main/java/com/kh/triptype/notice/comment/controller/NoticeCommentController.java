@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kh.triptype.auth.model.vo.AuthUser;
 import com.kh.triptype.notice.comment.model.vo.NoticeComment;
 import com.kh.triptype.notice.comment.service.NoticeCommentService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -57,10 +59,11 @@ public class NoticeCommentController {
     @PostMapping
     public ResponseEntity<?> createComment(
             @PathVariable Long noticeId,
-            @RequestBody NoticeComment comment,
-            jakarta.servlet.http.HttpServletRequest request
+            @RequestBody NoticeComment comment
     ) {
-        Long memberNo = (Long) request.getAttribute("memberNo");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AuthUser authUser = (AuthUser) auth.getPrincipal();
+        Long memberNo = (long) authUser.getMemberNo();
 
         comment.setNoticeId(noticeId);
         commentService.createComment(comment, memberNo);
@@ -73,10 +76,11 @@ public class NoticeCommentController {
     public ResponseEntity<?> updateComment(
             @PathVariable Long noticeId,
             @PathVariable Long commentId,
-            @RequestBody NoticeComment comment,
-            jakarta.servlet.http.HttpServletRequest request
+            @RequestBody NoticeComment comment
     ) {
-        Long memberNo = (Long) request.getAttribute("memberNo");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AuthUser authUser = (AuthUser) auth.getPrincipal();
+        Long memberNo = (long) authUser.getMemberNo();
 
         comment.setNoticeId(noticeId);
         comment.setNoticeCommentId(commentId);
@@ -88,13 +92,16 @@ public class NoticeCommentController {
     // 댓글 삭제
     @DeleteMapping("/{commentId}")
     public ResponseEntity<?> deleteComment(
-        @PathVariable Long commentId,
-        HttpServletRequest request
+        @PathVariable Long commentId
     ) {
-        Long memberNo = (Long) request.getAttribute("memberNo");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AuthUser authUser = (AuthUser) auth.getPrincipal();
+        Long memberNo = (long) authUser.getMemberNo();
+
         commentService.deleteCommentByUser(commentId, memberNo);
         return ResponseEntity.ok().build();
     }
+
 }
 
 

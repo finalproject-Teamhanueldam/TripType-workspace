@@ -84,43 +84,63 @@ function UserNoticeDetail() {
   const renderAttachments = () => {
     if (!Array.isArray(notice.attachmentList)) return null;
 
+    const downloadFile = async (file) => {
+      const storedFileName = encodeURIComponent(
+        file.noticeAttachmentUrl.split("/").pop()
+      );
+
+      try {
+        const res = await axios.get(
+          `http://localhost:8001/triptype/notice/download/${storedFileName}`,
+          {
+            responseType: 'blob', // 파일 다운로드용
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // JWT 토큰
+            },
+          }
+        );
+
+        // 브라우저에서 다운로드 처리
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', file.noticeAttachmentName); // 원본 파일명
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } catch (err) {
+        console.error("파일 다운로드 실패", err);
+        alert("파일 다운로드에 실패했습니다.");
+      }
+    };
+
     return (
       <ul className="notice-attachments">
         {notice.attachmentList
-          .filter(file => file?.noticeAttachmentUrl) // ✅ 핵심
-          .map(file => {
-            const storedFileName = encodeURIComponent(
-              file.noticeAttachmentUrl.split("/").pop()
-            );
+          .filter(file => file?.noticeAttachmentUrl)
+          .map(file => (
+            <li key={file.noticeAttachmentId} className="notice-attachment-item">
+              <span className="file-name">{file.noticeAttachmentName}</span>
 
-            return (
-              <li
-                key={file.noticeAttachmentId}
-                className="notice-attachment-item"
+              <button
+                className="preview-btn"
+                onClick={() => openPreview(file)}
               >
-                <span className="file-name">
-                  {file.noticeAttachmentName}
-                </span>
+                <FaEye />
+              </button>
 
-                <button
-                  className="preview-btn"
-                  onClick={() => openPreview(file)}
-                >
-                  <FaEye />
-                </button>
-
-                <a
-                  className="download-btn"
-                  href={`http://localhost:8001/triptype/notice/download/${storedFileName}`}
-                >
-                  <FaDownload />
-                </a>
-              </li>
-            );
-          })}
+              <button
+                className="download-btn"
+                onClick={() => downloadFile(file)}
+              >
+                <FaDownload />
+              </button>
+            </li>
+          ))}
       </ul>
     );
   };
+
 
 
   /* =========================

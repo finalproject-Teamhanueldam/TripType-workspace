@@ -8,6 +8,11 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.kh.triptype.auth.model.vo.AuthUser;
+
+
 import com.kh.triptype.notice.comment.dao.NoticeCommentDao;
 import com.kh.triptype.notice.comment.model.vo.NoticeComment;
 
@@ -29,12 +34,18 @@ public class NoticeCommentServiceImpl implements NoticeCommentService {
         param.put("startRow", startRow);
         param.put("endRow", endRow);
         
-        Long loginMemberNo = (Long) request.getAttribute("memberNo");
-
         List<NoticeComment> list =
                 noticeCommentDao.selectCommentList(sqlSession, param);
 
         // ⭐⭐⭐ isMine 세팅
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long loginMemberNo = null;
+
+        if (auth != null && auth.getPrincipal() instanceof AuthUser) {
+            AuthUser authUser = (AuthUser) auth.getPrincipal();
+            loginMemberNo = (long) authUser.getMemberNo();
+        }
+
         for (NoticeComment c : list) {
             if (loginMemberNo == null) {
                 c.setMine(false);
@@ -42,6 +53,7 @@ public class NoticeCommentServiceImpl implements NoticeCommentService {
                 c.setMine(c.getMemberNo().equals(loginMemberNo));
             }
         }
+
 
         return list;
     }

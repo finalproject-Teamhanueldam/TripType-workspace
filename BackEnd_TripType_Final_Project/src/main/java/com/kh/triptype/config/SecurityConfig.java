@@ -56,14 +56,9 @@ public class SecurityConfig {
             )
             
             .authorizeHttpRequests(auth -> auth
+                // ✅ 회원가입 + 이메일 인증은 로그인 없이 허용
 
-                // 회원가입 + 이메일 인증은 로그인 없이 허용
-            	// 첨부파일 "/upload/**", "/triptype/upload/**", 추가 26.1.1
                 .requestMatchers(
-                	"/triptype/notice/download/**",
-                	"/notice/download/**",
-                	"/triptype/upload/notice/**",
-                	"/upload/notice/**",
                     "/mail/auth/**",
                     "/member/join",
                     "/auth/**"
@@ -80,9 +75,25 @@ public class SecurityConfig {
                     "/triptype/js/**"
                 ).permitAll()
 
+
                 // JWT 보호 API
                 .requestMatchers("/triptype/airline/review", "/airline/review").authenticated()
                 .requestMatchers("/triptype/api/mypage/**", "/api/mypage/**").authenticated()
+
+                
+                // ✨ 첨부파일 다운로드는 로그인된 사용자만 (김동윤)
+                .requestMatchers(
+                    "/triptype/notice/download/**",
+                    "/notice/download/**",
+                    "/triptype/upload/notice/**",
+                    "/upload/notice/**"
+                ).authenticated()  // 인증 필요
+                
+                // 관리자 페이지 → ADMIN 권한 필요 (김동윤)
+                .requestMatchers("/triptype/admin/**").hasRole("ADMIN")
+                
+                .requestMatchers("/triptype/airline/review").authenticated() 
+
                 
                 .anyRequest().permitAll()
             )

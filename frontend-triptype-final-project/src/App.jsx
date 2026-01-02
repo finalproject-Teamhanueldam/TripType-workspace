@@ -13,6 +13,9 @@ import Footer from "./common/component/Footer";
 import HeroSection from "./main/component/HeroSection";
 import Home from "./main/component/Home";
 
+// 관리자 가드 (사용자/관리자 분기처리)
+import AdminRoute from "./admin/common/component/AdminRoute";
+
 // 관리자 페이지 공통 레이아웃(헤더, 사이드바)
 import AdminLayout from "./admin/common/component/AdminLayout";
 
@@ -122,8 +125,10 @@ function App() {
         {/* 여행 경보 페이지 */}
         <Route path="/airline/travelAlert" element={<TravelAlertComponent/>}></Route>
 
+        {/* 권한 분기 (1-2 김동윤) */}
         {/* 관리자 페이지 공통 Route (12-16 선종범)*/}
-        <Route path="/admin" element={< AdminLayout />}>
+        <Route path="/admin" element={ <AdminRoute>< AdminLayout /></AdminRoute>}>
+        {/* <Route path="/admin" element={< AdminLayout />}> */}
           <Route path="statistics" element={<AuthStatisticsComponent />} />
           <Route path="flight" element={< FlightComponent />} />  
           <Route path="airlinereview" element={< AdminAirlineReviewListComponent />} />

@@ -68,12 +68,28 @@ const Header = () => {
                         </>
                     ) : (
                         <>
-                            <span className="login-btn" style={{ cursor: "pointer" }} onClick={() => navigate("/mypage")}>
+                            {/* 김동윤 관리자권한분기 추가 */}
+                            {/* <span className="login-btn" style={{ cursor: "pointer" }} onClick={() => navigate("/mypage")}>
                                 {memberName ? `${memberName}님` : "로그인됨"}
+                            </span> */}
+                            <span
+                            className="login-btn"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => {
+                                const role = localStorage.getItem("role");
+                                if (role === "ADMIN") {
+                                navigate("/admin/statistics");
+                                } else {
+                                navigate("/mypage");
+                                }
+                            }}
+                            >
+                            {memberName ? `${memberName}님` : "로그인됨"}
                             </span>
                             <span className="login-btn" onClick={handleLogout} style={{ cursor: "pointer" }}>
                                 로그아웃
                             </span>
+                            
                         </>
                     )}
                 </div>
