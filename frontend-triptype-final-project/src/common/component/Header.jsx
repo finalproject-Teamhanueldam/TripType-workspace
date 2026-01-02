@@ -22,10 +22,12 @@ const Header = () => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("memberName");
         localStorage.removeItem("role");
+        localStorage.removeItem("memberId");
 
         setIsLogin(false);
         setMemberName("");
 
+        window.dispatchEvent(new Event("loginChanged"));
         navigate("/"); // 메인페이지로 이동
     };
 
