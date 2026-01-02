@@ -14,24 +14,46 @@ import com.kh.triptype.auth.jwt.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+	// 🔹 JwtProvider 주입 (필터에 넘기기 위함) (김동윤)
+//    private final JwtProvider jwtProvider;
+//
+//    public SecurityConfig(JwtProvider jwtProvider) {
+//        this.jwtProvider = jwtProvider;
+//    }
 	
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     	
-        http
+        http 
             .csrf(csrf -> csrf.disable())
             .cors(cors -> {}) // ⭐ 아래 Bean과 연결됨
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
 
+            // JWT 인증 필터 등록 (갬둉온)
+            // UsernamePasswordAuthenticationFilter 전에 실행됨
+//            .addFilterBefore(
+//                new JwtAuthFilter(jwtProvider),
+//                UsernamePasswordAuthenticationFilter.class
+//            )
+            
             .authorizeHttpRequests(auth -> auth
-                // 회원가입 + 이메일 인증은 로그인 없이 허용
+
+                // ✅ 회원가입 + 이메일 인증은 로그인 없이 허용
+            	// 첨부파일 "/upload/**", "/triptype/upload/**", 추가 26.1.1
                 .requestMatchers(
+                	"/triptype/notice/download/**",
+                	"/notice/download/**",
+                	"/triptype/upload/notice/**",
+                	"/upload/notice/**",
                     "/mail/auth/**",
                     "/member/join",
                     "/auth/**"

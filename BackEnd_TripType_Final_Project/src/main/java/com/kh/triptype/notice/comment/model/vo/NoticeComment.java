@@ -20,4 +20,7 @@ public class NoticeComment {
     private String noticeCommentIsDel;         // IS_DEL
     private Long noticeId;                     // NOTICE_ID
     private Long memberNo;                     // MEMBER_NO
+    
+    // 사용자별 댓글 ( 본인 )
+    private boolean mine;
 }
