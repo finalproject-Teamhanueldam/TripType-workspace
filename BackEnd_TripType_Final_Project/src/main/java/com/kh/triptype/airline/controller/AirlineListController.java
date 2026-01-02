@@ -3,7 +3,6 @@ package com.kh.triptype.airline.controller;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,8 +11,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kh.triptype.airline.model.dto.ReviewRequestDto;
 import com.kh.triptype.airline.model.service.AirlineListService;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
@@ -109,18 +110,25 @@ public class AirlineListController {
 	// 댓글 작성
 	@PostMapping("review")
 	public ResponseEntity<?> writeReview(
-	        @RequestBody Review review,
-	        @AuthenticationPrincipal AuthUser authUser) {
-	    if (authUser == null) {
-	        return ResponseEntity
-	                .status(HttpStatus.UNAUTHORIZED)
-	                .body("로그인이 필요합니다.");
-	    }
-	    review.setMemberNo(authUser.getMemberNo());
-	    System.out.println(review);
-	    airlineListService.writeReview(review);
+	        @AuthenticationPrincipal AuthUser authUser,
+	        @RequestBody ReviewRequestDto dto) {
+	    airlineListService.writeReview(authUser.getMemberNo(), dto);
 	    return ResponseEntity.ok().build();
 	}
+	
+	@GetMapping("review/select")
+	public ArrayList<Review> selectReview(@RequestParam int flightOfferId) {
+	    ArrayList<Review> reviews = airlineListService.selectReview(flightOfferId);
+
+	    if (reviews.isEmpty()) {
+	        System.out.println("empty");
+	    } else {
+	        reviews.forEach(System.out::println);
+	    }
+
+	    return reviews;
+	}
+
 	
 	
 }

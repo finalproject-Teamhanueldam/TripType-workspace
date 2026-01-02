@@ -26,4 +26,6 @@ public class Review {
 
     private int memberNo;
     private int flightOfferId;
+    
+    private String memberName;
 }

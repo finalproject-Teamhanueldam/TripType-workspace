@@ -27,6 +27,18 @@
 		<id column="DEPART_DATE" property="offerDepartDay"/>
 		<result column="TOTAL_PRICE" property="offerPriceTotal"/>
 	</resultMap>
+	
+	<resultMap id="ReviewResultMap" type="Review">
+		<id column="REVIEW_NO" property="reviewNo"/>
+		<result column="REVIEW_CONTENT" property="reviewContent"/>
+		<result column="REVIEW_CREATE_DATE" property="reviewCreateDate"/>
+		<result column="REVIEW_MODIFY_DATE" property="reviewModifyDate"/>
+		<result column="REVIEW_STATUS" property="reviewStatus"/>
+		<result column="MEMBER_NO" property="memberNo"/>
+		<result column="FLIGHT_OFFER_ID" property="flightOfferId"/>
+		<result column="MEMBER_NAME" property="memberName"/>
+	</resultMap>
+
   	
 	<select id="selectAirlineListPrice" parameterType="AirlineFilter" resultMap="AirlineListResultMap">
 	    /* 1. 가는 편 */
@@ -236,6 +248,44 @@
 	</select>
 	
 	<!-- 리뷰 작성 -->
+	<insert id="writeReview" parameterType="Review">
+	    INSERT INTO TB_REVIEW (
+	        REVIEW_NO,
+	        REVIEW_CONTENT,
+	        REVIEW_CREATE_DATE,
+	        REVIEW_MODIFY_DATE,
+	        REVIEW_STATUS,
+	        MEMBER_NO,
+	        AIRLINE_ID
+	    ) VALUES (
+	        TB_REVIEW_SEQ.NEXTVAL,
+	        #{reviewContent},
+	        SYSDATE,
+	        SYSDATE,
+	        'N',
+	        #{memberNo},
+	        #{flightOfferId}
+	    )
+	</insert>
+	
+	<!-- 리뷰 조회 -->
+	<select id="selectReview" parameterType="_int" resultMap="ReviewResultMap">
+	    SELECT
+	        R.REVIEW_NO,
+	        R.REVIEW_CONTENT,
+	        R.REVIEW_CREATE_DATE,
+	        R.REVIEW_STATUS,
+	        R.MEMBER_NO,
+	        M.MEMBER_NAME,
+	        offer.FLIGHT_OFFER_ID
+	    FROM TB_REVIEW R
+	    JOIN TB_MEMBER M ON R.MEMBER_NO = M.MEMBER_NO
+	    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = R.AIRLINE_ID
+	    WHERE R.AIRLINE_ID = #{flightOfferId}  
+    </select>
+
+
+
 
 	
   </mapper>

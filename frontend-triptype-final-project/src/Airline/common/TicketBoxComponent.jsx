@@ -6,7 +6,6 @@ import plus from "./images/plus.svg";
 const TicketBoxComponent = ({ segment, returnSegment, tripType, setOpen, onClick, showPlus = false }) => {
 
 
-    console.log('segment', segment);
     console.log('returnSegment', returnSegment);
     console.log('tripType', tripType);
 

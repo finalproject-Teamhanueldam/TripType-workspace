@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.kh.triptype.airline.model.dao.AirlineListDao;
+import com.kh.triptype.airline.model.dto.ReviewRequestDto;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
 import com.kh.triptype.airline.model.vo.Review;
@@ -45,9 +46,28 @@ public class AirlineListServiceImpl implements AirlineListService {
 		return airlineListDao.selectWeeklyPrice(sqlSession, airlineFilter);
 	}
 
+	// 댓글 작성
 	@Override
-	public int writeReview(Review review) {
-		return airlineListDao.writeReview(sqlSession, review);
+	public int writeReview(int memberNo, ReviewRequestDto dto) {
+
+	    Review review = new Review();
+
+	    review.setReviewContent(dto.getReviewContent());
+	    review.setFlightOfferId(dto.getFlightOfferId());
+	    review.setMemberNo(memberNo);
+	    review.setReviewStatus("N"); // 기본값
+	    
+	    System.out.println(review);
+
+	    return airlineListDao.writeReview(sqlSession, review);
 	}
+
+	@Override
+	public ArrayList<Review> selectReview(int flightOfferId) {
+		return airlineListDao.selectReview(sqlSession, flightOfferId);
+	}
+
+
+
 
 }

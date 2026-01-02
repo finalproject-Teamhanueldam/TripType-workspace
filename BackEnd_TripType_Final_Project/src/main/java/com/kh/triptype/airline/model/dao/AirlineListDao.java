@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.kh.triptype.airline.model.dto.ReviewRequestDto;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
 import com.kh.triptype.airline.model.vo.Review;
@@ -32,10 +33,19 @@ public class AirlineListDao {
 	public ArrayList<WeeklyPrice> selectWeeklyPrice(SqlSessionTemplate sqlSession, AirlineFilter airlineFilter) {
 		return (ArrayList) sqlSession.selectList("airlineList.selectWeeklyPrice", airlineFilter);
 	}
-
+	
 	// 리뷰 작성
-//	public int writeReview(SqlSessionTemplate sqlSession, Review review) {
-//		return sqlSession.insert("airlineList.writeReview", review);
-//	}
+	public int writeReview(SqlSessionTemplate sqlSession, Review review) {
+	    return sqlSession.insert("airlineList.writeReview", review);
+	}
+
+	// 리뷰 조회
+	public ArrayList<Review> selectReview(SqlSessionTemplate sqlSession, int flightOfferId) {
+		return (ArrayList) sqlSession.selectList("airlineList.selectReview", flightOfferId);
+	}
+
+
+
+
 	
 }

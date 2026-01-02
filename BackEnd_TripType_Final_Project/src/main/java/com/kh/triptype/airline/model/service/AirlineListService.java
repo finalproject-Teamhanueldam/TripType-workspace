@@ -2,6 +2,7 @@ package com.kh.triptype.airline.model.service;
 
 import java.util.ArrayList;
 
+import com.kh.triptype.airline.model.dto.ReviewRequestDto;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
 import com.kh.triptype.airline.model.vo.Review;
@@ -23,6 +24,9 @@ public interface AirlineListService {
 	public ArrayList<WeeklyPrice> selectWeeklyPrice(AirlineFilter airlineFilter);
 	
 	// 리뷰 작성
-	public int writeReview(Review review);
+	public int writeReview(int userNo, ReviewRequestDto dto);
+	
+	// 리뷰 조회
+	public ArrayList<Review> selectReview(int flightOfferId);
 
 }
