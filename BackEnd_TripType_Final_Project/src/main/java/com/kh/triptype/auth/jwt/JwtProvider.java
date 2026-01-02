@@ -23,7 +23,7 @@ public class JwtProvider {
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
 
     // 토큰 생성: memberNo + role 저장
-    public String createToken(Long memberNo, String role) {
+    public String createToken(int memberNo, String role) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + EXPIRATION_TIME);
 
@@ -56,5 +56,15 @@ public class JwtProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+    
+    // memberNo 추출 (subject)
+    public int getMemberNo(String token) {
+        return Integer.parseInt(getClaims(token).getSubject());
+    }
+
+    // role 추출
+    public String getRole(String token) {
+        return getClaims(token).get("role", String.class);
     }
 }

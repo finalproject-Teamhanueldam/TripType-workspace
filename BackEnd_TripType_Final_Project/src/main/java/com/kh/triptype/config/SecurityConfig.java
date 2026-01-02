@@ -10,9 +10,16 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.kh.triptype.auth.jwt.JwtAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
+
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     	
@@ -23,7 +30,7 @@ public class SecurityConfig {
             .httpBasic(basic -> basic.disable())
 
             .authorizeHttpRequests(auth -> auth
-                // ✅ 회원가입 + 이메일 인증은 로그인 없이 허용
+                // 회원가입 + 이메일 인증은 로그인 없이 허용
                 .requestMatchers(
                     "/mail/auth/**",
                     "/member/join",
@@ -43,7 +50,13 @@ public class SecurityConfig {
 
                 .anyRequest().permitAll()
             )
-
+            
+            // ⭐⭐⭐ 여기 추가
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+            )
+            
             // 네이버 OAuth
             .oauth2Login(oauth -> oauth
                 .defaultSuccessUrl("/triptype/login/success", true)
