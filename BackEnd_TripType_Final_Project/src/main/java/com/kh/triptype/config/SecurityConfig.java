@@ -48,6 +48,8 @@ public class SecurityConfig {
                     "/triptype/js/**"
                 ).permitAll()
 
+                .requestMatchers("/triptype/airline/review").authenticated() 
+                
                 .anyRequest().permitAll()
             )
             
