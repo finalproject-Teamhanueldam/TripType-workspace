@@ -234,17 +234,51 @@ const TripFilterContainer = ({ tripType, setTripType, passengers }) => {
   /* ===============================
      🔍 검색 실행
      =============================== */
-  const handleSearch = (searchParams) => {
-    navigate("/airline/list", {
-      state: { searchParams },
-    });
+  // const handleSearch = (searchParams) => {
+  //   navigate("/airline/list", {
+  //     state: { searchParams },
+  //   });
 
-    axios
-      .post("http://localhost:8001/triptype/api/flights/search", searchParams)
-      .catch((err) => {
-        console.error("검색 DB 저장 실패:", err);
+  //   axios
+  //     .post("http://localhost:8001/triptype/api/flights/search", searchParams)
+  //     .catch((err) => {
+  //       console.error("검색 DB 저장 실패:", err);
+  //   });
+  // };
+
+  const handleSearch = async (searchParams) => {
+    try {
+      // ✅ JWT 토큰 꺼내기 (저장 위치/키는 너희 프로젝트에 맞게)
+      // 예: localStorage, sessionStorage, zustand, recoil 등
+      const token = localStorage.getItem("accessToken"); // <-- 키 이름 맞추기
+
+      const { data } = await axios.post(
+        "http://localhost:8001/triptype/api/flights/search",
+        searchParams,
+        {
+          // ✅ 로그인 상태면 Authorization 헤더 전송
+          // ✅ 비로그인이면 token이 null이므로 헤더 없이 요청
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        }
+      );
+
+      // ✅ data는 { searchId }
+      const { searchId } = data;
+
+      navigate("/airline/list", {
+        state: {
+          searchParams,
+          searchId,
+        },
       });
+
+    } catch (err) {
+      console.error("검색 실패:", err);
+    }
   };
+
+
+
 
   /* ===============================
      ✅ MULTI payload 정규화
