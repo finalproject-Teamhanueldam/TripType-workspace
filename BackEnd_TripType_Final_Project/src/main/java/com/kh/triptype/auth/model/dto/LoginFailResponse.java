@@ -9,4 +9,5 @@ public class LoginFailResponse {
     private String message;
     private int loginFailCount;
     private boolean locked;
+    private boolean withdrawn;
 }

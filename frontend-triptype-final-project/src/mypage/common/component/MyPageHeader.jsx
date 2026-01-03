@@ -8,6 +8,7 @@ const MyPageHeader = ({ onMenuClick, memberName = "회원" }) => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("memberName");
     localStorage.removeItem("role");
+    localStorage.removeItem("memberId");
     window.location.href = "/"; // 홈으로
   };
 

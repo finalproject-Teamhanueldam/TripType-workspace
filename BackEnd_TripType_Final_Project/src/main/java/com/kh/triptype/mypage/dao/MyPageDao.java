@@ -50,4 +50,8 @@ public class MyPageDao {
             }}
         );
     }
+    
+    public int withdrawMember(int memberNo) {
+        return sqlSession.update("mypageMapper.withdrawMember", memberNo);
+    }
 }

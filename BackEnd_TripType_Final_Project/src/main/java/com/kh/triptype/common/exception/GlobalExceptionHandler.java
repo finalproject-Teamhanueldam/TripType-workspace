@@ -17,7 +17,8 @@ public class GlobalExceptionHandler {
         LoginFailResponse response = new LoginFailResponse(
                 e.getMessage(),
                 e.getLoginFailCount(),
-                e.isLocked()
+                e.isLocked(),
+                e.isWithdrawn()
         );
 
         return ResponseEntity

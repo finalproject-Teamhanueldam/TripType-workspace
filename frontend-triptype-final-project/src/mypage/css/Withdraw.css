@@ -1,0 +1,16 @@
+.withdraw-card {
+  border: 1px solid #ffd6d6;
+}
+
+.danger-title {
+  color: #d1242f;
+}
+
+.danger-btn {
+  background: #d1242f;
+  color: #fff;
+}
+
+.danger-btn:hover {
+  background: #b91c1c;
+}

@@ -14,9 +14,9 @@
 		    MEMBER_PHONE AS memberPhone,
 		    MEMBER_CREATE_AT AS memberCreateAt,
 		    MEMBER_LAST_LOGIN_AT AS memberLastLoginAt
-		  FROM TB_MEMBER
-		  WHERE MEMBER_NO = #{memberNo}
-		    AND MEMBER_IS_ACTIVE = 'Y'
+		    FROM TB_MEMBER
+		   WHERE MEMBER_NO = #{memberNo}
+		     AND MEMBER_IS_ACTIVE = 'Y'
 	</select>
 	
 	<update id="updateMyProfile">
@@ -26,19 +26,31 @@
 	    MEMBER_BIRTH_DATE = #{req.memberBirthDate},
 	    MEMBER_GENDER = #{req.memberGender},
 	    MEMBER_PHONE = #{req.memberPhone}
-	  WHERE MEMBER_NO = #{memberNo}
-	    AND MEMBER_IS_ACTIVE = 'Y'
+	     WHERE MEMBER_NO = #{memberNo}
+	       AND MEMBER_IS_ACTIVE = 'Y'
 	</update>
 	
 	<select id="selectPassword" parameterType="int" resultType="String">
 	  SELECT MEMBER_PASSWORD
-	  FROM TB_MEMBER
-	  WHERE MEMBER_NO = #{memberNo}
+	    FROM TB_MEMBER
+	   WHERE MEMBER_NO = #{memberNo}
+	     AND MEMBER_IS_ACTIVE = 'Y'
 	</select>
 	
 	<update id="updatePassword">
 	  UPDATE TB_MEMBER
-	  SET MEMBER_PASSWORD = #{password}
-	  WHERE MEMBER_NO = #{memberNo}
+	     SET MEMBER_PASSWORD = #{password}
+	   WHERE MEMBER_NO = #{memberNo}
 	</update>
+	
+	<update id="withdrawMember">
+	  UPDATE TB_MEMBER
+	  SET
+	    MEMBER_IS_ACTIVE = 'N',
+	    MEMBER_WITHDRAWN_AT = SYSDATE
+	  WHERE MEMBER_NO = #{memberNo}
+	    AND MEMBER_IS_ACTIVE = 'Y'
+	</update>
+	
+	
 </mapper>
