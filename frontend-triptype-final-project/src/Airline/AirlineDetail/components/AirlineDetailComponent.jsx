@@ -6,7 +6,8 @@ import TicketBoxComponent from "../../common/TicketBoxComponent";
 import ReviewComponent from "./ReviewComponent";
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const AirlineDetailComponent = () => {
   const navigate = useNavigate();
@@ -28,6 +29,52 @@ const AirlineDetailComponent = () => {
 
   // 데이터 없을 경우 처리
   if (!outbound) return <div>데이터를 찾을 수 없습니다.</div>;
+
+
+    useEffect(() => {
+    const fetchWishStatus = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) return;
+
+        const response = await axios.get(
+          "http://localhost:8001/triptype/airline/wish/check",
+          {
+            params: { flightOfferId: outbound.flightOfferId },
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        setIsWished(response.data);
+
+      } catch (error) {
+        console.error("찜 상태 조회 실패", error);
+      }
+    };
+
+    fetchWishStatus();
+  }, [outbound]);
+
+
+  const toggleWish = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+
+    const response = await axios.post(
+      "http://localhost:8001/triptype/airline/wish/toggle",
+      { flightOfferId: outbound.flightOfferId },
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    // 서버에서 true / false 반환
+    setIsWished(response.data);
+
+    } catch (error) {
+      console.error("찜 처리 실패", error);
+    }
+  };
 
   return (
     <div className="airline-detail-container">
@@ -52,9 +99,13 @@ const AirlineDetailComponent = () => {
           </div>
         </div>
 
-        <button className={`ticekt-header-wish-btn ${isWished ? "active" : ""}`} onClick={changeIsWished}>
+        <button
+          className={`ticekt-header-wish-btn ${isWished ? "active" : ""}`}
+          onClick={toggleWish}
+        >
           {isWished ? "❤️" : "♡"}
         </button>
+
       </div>
 
       <div className="airline-detail-layout">

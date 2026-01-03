@@ -5,13 +5,39 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const ReviewComponent = ({ outbound }) => {
+
+  // textArea text
   const [text, setText] = useState("");
+
+  // 리뷰 묶음
   const [reviews, setReviews] = useState([]);
+
+  // 회원 번호
   const [loginMemberNo, setLoginMemberNo] = useState(null);
+
+  // reviewNo
+  const [editingReviewNo, setEditingReviewNo] = useState(null);
+  
+  // edit-reviewContent
+  const [editingText, setEditingText] = useState("");
 
   reviews.map((item) => {
     console.log(item);
   });
+
+// 리뷰 수정 시작
+const startEditing = (review) => {
+  setEditingReviewNo(review.reviewNo);
+  setEditingText(review.reviewContent);
+};
+
+
+
+// 수정 취소
+const cancelEdit = () => {
+  setEditingReviewNo(null);
+  setEditingText("");
+};
 
   // 로그인된 회원 정보 가져오기
   useEffect(() => {
@@ -45,12 +71,18 @@ const ReviewComponent = ({ outbound }) => {
 
   // 리뷰 작성
   const uploadReview = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    if(token == null){
+       toast.info("먼저 로그인을 진행해주세요.");
+       return;
+    }
+
     if (!text.trim()) {
       toast.info("리뷰 내용을 입력해주세요");
       return;
     }
     try {
-      const token = localStorage.getItem("accessToken");
       await axios.post(
         "http://localhost:8001/triptype/airline/review",
         { reviewContent: text, flightOfferId: outbound.flightOfferId },
@@ -63,15 +95,51 @@ const ReviewComponent = ({ outbound }) => {
     }
   };
 
+  // 리뷰 수정
+  const confirmEdit = async (reviewNo) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await axios({
+        url: "http://localhost:8001/triptype/airline/review/update",
+        method: "post",
+        headers: { Authorization: `Bearer ${token}` },
+        data: { 
+          reviewNo: reviewNo, 
+          reviewContent: editingText,
+          flightOfferId: outbound.flightOfferId
+        }
+      });
+
+      toast.info(response.data);
+      setEditingReviewNo(null);
+      setEditingText("");
+      fetchReviews();
+    } catch (error) {
+      console.error(error);
+      toast.error("수정 중 오류가 발생했습니다.");
+    }
+  };
+
   // 리뷰 삭제
   const deleteReview = async (reviewNo) => {
     try {
       const token = localStorage.getItem("accessToken");
-      await axios.delete(
-        `http://localhost:8001/triptype/airline/review/${reviewNo}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const url ="http://localhost:8001/triptype/airline/review/delete";
+      const method="post";
+
+      const response = await axios({
+        url,
+        method,
+        headers : { Authorization: `Bearer ${token}` },
+        data: { 
+          reviewNo: reviewNo, 
+          flightOfferId: outbound.flightOfferId
+        }
+      })
+
+      toast.info(response.data);
       fetchReviews();
+
     } catch (error) {
       console.error(error);
     }
@@ -82,11 +150,13 @@ const ReviewComponent = ({ outbound }) => {
 
   return (
     <div className="review-container">
+      {/* 헤더 */}
       <div className="review-header">
         <span className="review-header-title">자유 댓글</span>
         <span className="review-header-count">{reviews.length}</span>
       </div>
 
+      {/* 리뷰 작성 섹션 */}
       <div className="write-review-section">
         <div className="write-input-area">
           <textarea
@@ -102,6 +172,7 @@ const ReviewComponent = ({ outbound }) => {
         </div>
       </div>
 
+      {/* 리뷰 목록 */}
       <div className="review-list">
         {reviews.map((review) => (
           <div key={review.reviewNo} className="review-item">
@@ -119,15 +190,44 @@ const ReviewComponent = ({ outbound }) => {
               {/* 로그인 회원 && 본인 댓글일 경우 수정/삭제 버튼 */}
               {loginMemberNo && loginMemberNo == review.memberNo && (
                 <div className="review-actions">
-                  <FaPen className="action-icon edit-icon" />
-                  <FaTrashAlt
-                    className="action-icon delete-icon"
-                    onClick={() => deleteReview(review.reviewNo)}
-                  />
+                  {editingReviewNo === review.reviewNo ? (
+                    <>
+                      <button
+                        className="edit-confirm-button"
+                        onClick={() => confirmEdit(review.reviewNo)}
+                      >
+                        완료
+                      </button>
+                      <button className="edit-cancel-button" onClick={cancelEdit}>
+                        취소
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <FaPen
+                        className="action-icon edit-icon"
+                        onClick={() => startEditing(review)}
+                      />
+                      <FaTrashAlt
+                        className="action-icon delete-icon"
+                        onClick={() => deleteReview(review.reviewNo)}
+                      />
+                    </>
+                  )}
                 </div>
               )}
             </div>
-            <p className="review-text">{review.reviewContent}</p>
+
+            {/* 리뷰 내용 또는 편집 textarea */}
+            {editingReviewNo === review.reviewNo ? (
+              <textarea
+                className="review-textarea edit-textarea"
+                value={editingText}
+                onChange={(e) => setEditingText(e.target.value)}
+              />
+            ) : (
+              <p className="review-text">{review.reviewContent}</p>
+            )}
           </div>
         ))}
       </div>

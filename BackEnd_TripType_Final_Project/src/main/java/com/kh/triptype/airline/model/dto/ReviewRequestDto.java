@@ -14,6 +14,8 @@ import lombok.ToString;
 public class ReviewRequestDto {
 
     // 클라이언트가 보내는 것만
+    private int reviewNo;
     private String reviewContent;
+    private int memberNo;
     private int flightOfferId;
 }

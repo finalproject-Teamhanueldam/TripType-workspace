@@ -28,5 +28,17 @@ public interface AirlineListService {
 	
 	// 리뷰 조회
 	public ArrayList<Review> selectReview(int flightOfferId);
+	
+	// 리뷰 수정
+	public int updateReview(int userNo, ReviewRequestDto dto);
+	
+	// 리뷰 삭제
+	public int deleteReview(int userNo, ReviewRequestDto dto);
+		
+	// 찜 토글
+    boolean toggleWish(int memberNo, long flightOfferId);
 
+    // 찜 여부 확인
+    boolean checkWish(int memberNo, long flightOfferId);
+    
 }

@@ -274,18 +274,62 @@
 	        R.REVIEW_NO,
 	        R.REVIEW_CONTENT,
 	        R.REVIEW_CREATE_DATE,
-	        R.REVIEW_STATUS,
 	        R.MEMBER_NO,
 	        M.MEMBER_NAME,
 	        offer.FLIGHT_OFFER_ID
 	    FROM TB_REVIEW R
 	    JOIN TB_MEMBER M ON R.MEMBER_NO = M.MEMBER_NO
 	    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = R.AIRLINE_ID
-	    WHERE R.AIRLINE_ID = #{flightOfferId}  
+	    WHERE R.AIRLINE_ID = #{flightOfferId}
+	      AND offer.FLIGHT_OFFER_IS_DEL = 'N'
+	      AND R.REVIEW_STATUS = 'N'
     </select>
 
+	<!-- 리뷰 수정 -->
+	<update id="updateReview" parameterType="Review">
+		UPDATE TB_REVIEW
+		   SET REVIEW_CONTENT = #{reviewContent}
+		     , REVIEW_MODIFY_DATE = SYSDATE
+		 WHERE MEMBER_NO = #{memberNo}
+		   AND REVIEW_NO = #{reviewNo}
+		   AND AIRLINE_ID = #{flightOfferId}
+		   AND REVIEW_STATUS = 'N'
+	</update>
+	
+	<!-- 리뷰 삭제 -->
+	<update id="deleteReview" parameterType="Review">
+		UPDATE TB_REVIEW
+		   SET REVIEW_STATUS = 'Y'
+		 WHERE MEMBER_NO = #{memberNo}
+		   AND REVIEW_NO = #{reviewNo}
+		   AND AIRLINE_ID = #{flightOfferId}
+	</update>
 
-
-
+	<!-- 찜 여부 확인 -->
+	<select id="checkWish" parameterType="com.kh.triptype.airline.model.vo.WishList" resultType="int">
+	    SELECT COUNT(*)
+	      FROM TB_WISHLIST
+	     WHERE MEMBER_NO = #{memberNo}
+	       AND FLIGHT_OFFER_ID = #{flightOfferId}
+	</select>
+	
+	<!-- 찜 추가 -->
+	<insert id="insertWish" parameterType="com.kh.triptype.airline.model.vo.WishList">
+	    INSERT INTO TB_WISHLIST (
+	        MEMBER_NO,
+	        FLIGHT_OFFER_ID
+	    ) VALUES (
+	        #{memberNo},
+	        #{flightOfferId}
+	    )
+	</insert>
+	
+	<!-- 찜 삭제 -->
+	<delete id="deleteWish" parameterType="com.kh.triptype.airline.model.vo.WishList">
+	    DELETE
+	      FROM TB_WISHLIST
+	     WHERE MEMBER_NO = #{memberNo}
+	       AND FLIGHT_OFFER_ID = #{flightOfferId}
+	</delete>
 	
   </mapper>
