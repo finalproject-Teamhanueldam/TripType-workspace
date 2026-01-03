@@ -1,0 +1,51 @@
+.detail-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.detail-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 6px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 30px;
+}
+
+.detail-grid div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #374151;
+}
+
+.detail-grid span {
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.inline-message {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #2563eb;
+}
+
+.inline-message.error {
+  color: #dc2626;   /* 빨간색 */
+  font-weight: 600;
+}

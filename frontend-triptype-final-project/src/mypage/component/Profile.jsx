@@ -1,10 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
-import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale";
-
+import { formatPhone, unformatPhone } from "../../common/utils/phoneFormatter";
 import "../css/Profile.css";
+import api from "../../common/api/axiosInstance";
 
 function Profile() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -54,22 +54,22 @@ function Profile() {
   ====================== */
   const fetchProfile = async () => {
     try {
-        const res = await axios.get(
-            `${API_BASE_URL}/api/mypage/profile`,
-            {
-                headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-                }
-            }
-        );
+        const res = await api.get("/api/mypage/profile");
 
         const socialConnections = [
             { provider: "NAVER", email: "rread1089@naver.com" },
             { provider: "KAKAO", email: null }
         ];
 
-        setProfile({ ...res.data, socialConnections });
-        setForm(res.data);
+        setProfile({
+                ...res.data,
+                memberPhone: formatPhone(res.data.memberPhone),
+                socialConnections
+        });
+        setForm({
+                ...res.data,
+                memberPhone: formatPhone(res.data.memberPhone)
+        });
 
         } catch (error) {
             console.error("🔥 프로필 조회 실패", error);
@@ -134,18 +134,13 @@ function Profile() {
     }
 
     try {
-      await axios.put(
-        `${API_BASE_URL}/api/mypage/profile`,
+      await api.put(
+        "/api/mypage/profile",
         {
           memberName: form.memberName,
           memberBirthDate: form.memberBirthDate,
           memberGender: form.memberGender,
-          memberPhone: form.memberPhone
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-          }
+          memberPhone: unformatPhone(form.memberPhone)
         }
       );
 
