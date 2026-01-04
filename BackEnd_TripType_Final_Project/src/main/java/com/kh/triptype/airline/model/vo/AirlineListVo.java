@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Alias("AirlineList")
+@Alias("AirlineListVo")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -71,5 +71,8 @@ public class AirlineListVo {
     
     // 가격
     private Double totalPrice;
+    
+    // 경유 횟수
+    private int flightSegmentNo;
 }
 

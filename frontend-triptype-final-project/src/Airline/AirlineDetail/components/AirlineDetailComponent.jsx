@@ -8,17 +8,19 @@ import ReviewComponent from "./ReviewComponent";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const AirlineDetailComponent = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
   // 1. 데이터 가져오기
-  const { inbound, outbound } = location.state || {};
+  const { inbound, outbound, tripType } = location.state || {};
+  const displayTripType = tripType; // ⭐ 그대로 사용
 
-  // 2. tripType 변환 로직 (변수에 담아서 관리)
-  // 부모에서 "N" 혹은 "Y"로 넘어오는 값을 화면용 문자열로 변환합니다.
-  const displayTripType = outbound?.tripType === "N" ? "ROUND" : "ONEWAY";
+
+  console.log('outbound : 상세',outbound);
+
 
   // 찜 State
   const [isWished, setIsWished] = useState(false);
@@ -59,6 +61,11 @@ const AirlineDetailComponent = () => {
   const toggleWish = async () => {
   try {
     const token = localStorage.getItem("accessToken");
+
+    if(token == null) {
+      toast.info("로그인을 먼저 진행해주세요.");
+      return;
+    }
 
     const response = await axios.post(
       "http://localhost:8001/triptype/airline/wish/toggle",

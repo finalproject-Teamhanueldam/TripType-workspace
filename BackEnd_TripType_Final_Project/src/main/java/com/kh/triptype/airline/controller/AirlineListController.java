@@ -67,7 +67,7 @@ public class AirlineListController {
 			for(AirlineListVo item : list) {
 				System.out.println("목록 조회 리스트 : " + item);
 				double money = item.getTotalPrice();
-				double won = (money * 1692);			
+				double won = (money * 1690);			
 				item.setTotalPrice(won);
 			}
 		}
@@ -96,7 +96,7 @@ public class AirlineListController {
 		if(!list.isEmpty()) {
 			for(WeeklyPrice item : list) {
 				double money = item.getOfferPriceTotal();
-				double won = (money * 1692);
+				double won = (money * 1690);
 				item.setOfferPriceTotal(won);
 			}
 		} else {

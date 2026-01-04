@@ -6,6 +6,31 @@ import plus from "./images/plus.svg";
 const TicketBoxComponent = ({ segment, returnSegment, tripType, setOpen, onClick, showPlus = false }) => {
 
 
+    // 항공사명 → 로고 파일명 매핑
+    const AIRLINE_LOGO_MAP = {
+        "대한항공": "대한항공.png",
+        "아시아나항공": "아시아나.png",
+        "제주항공": "제주항공.png",
+        "진에어": "진에어.jpg",
+        "티웨이항공": "티웨이.png",
+        "에어부산": "에어부산.png",
+        "에어서울": "에어서울.png",
+        "전일본공수": "전일본공수.png",
+        "일본항공": "일본항공.png",
+        "캐세이퍼시픽": "캐세이퍼시픽.png",
+        "싱가포르항공": "싱가포르항공.png",
+        "타이항공": "타이항공.png",
+        "베트남항공": "베트남항공.png",
+        "유나이티드항공": "유나이티드항공.png",
+        "델타항공": "델타항공.png",
+        "아메리칸항공": "아메리칸항공.jpg",
+        "루프트한자": "루프트항공.png",
+        "에어프랑스": "에어프랑스.png",
+        "KLM 네덜란드항공": "klm항공.png",
+        "에미레이트항공": "에미레이트항공.png",
+    };
+
+
     console.log('returnSegment', returnSegment);
     console.log('tripType', tripType);
 
@@ -40,13 +65,19 @@ const TicketBoxComponent = ({ segment, returnSegment, tripType, setOpen, onClick
 
     const { hours, minutes } = parseDuration(segment.flightDuration);
 
+    // 항공사 로고
+    const getArilineLogo = (airlineName) => {
+        const fileName = AIRLINE_LOGO_MAP[airlineName];
+        return fileName ? `/images/${fileName}` : "";
+    };
+
     return (
         // 2. 최상위 div에 onClick={onClick}을 연결합니다.
         <div className="ticket-box" onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
 
             {/* 항공사 */}
             <div className="ticket-airline">
-                <img src="/logos/OZ.png" className="airline-logo" alt="항공사 로고" />
+                <img src={`${getArilineLogo(segment.airlineName)}`} className="airline-logo" alt="항공사 로고" />
                 <div className="airline-name">{segment.airlineName}</div>
                 <div className="flight-number">
                     <FaPlane className="icon-tiny" />
@@ -106,15 +137,15 @@ const TicketBoxComponent = ({ segment, returnSegment, tripType, setOpen, onClick
                             {segment.extraSeat}
                         </span>
                     </div>
-                    <div className="terminal-info">
+                    {/* <div className="terminal-info">
                         <FaMapMarkerAlt className="icon-tiny" />
                         터미널 정보
-                    </div>
+                    </div> */}
                 </div>
                 <div className="price-wrapper">
                     <span className="price">
-                        { tripType != "ROUND" ? Math.floor(segment.totalPrice).toLocaleString() + '원' : 
-                                                Math.floor(segment.totalPrice + (returnSegment?.totalPrice || 0)).toLocaleString()+'원'}
+                        { tripType != "ROUND" ? Math.floor((segment.totalPrice * 1690)).toLocaleString() + '원' : 
+                                                Math.floor((segment.totalPrice  * 1690) + (returnSegment?.totalPrice || 0)).toLocaleString()+'원'}
                     </span>
                 </div>
             </div>

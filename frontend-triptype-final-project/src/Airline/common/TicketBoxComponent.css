@@ -22,11 +22,25 @@
 }
 
 .airline-logo {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 1px solid #eee;
+  width: 48px;
+  height: 48px;
+
+  /* 비율 유지 + 영역 안에 맞추기 */
+  object-fit: contain;
+
+  /* 중앙 정렬 */
+  display: block;
+
+  /* 흰 배경 로고 대비 */
+  background-color: #fff;
+
+  /* 살짝 여백 */
+  padding: 4px;
+
+  /* 동그랗게 (선택) */
+  border-radius: 8px;
 }
+
 
 .airline-name {
     font-size: 15px;

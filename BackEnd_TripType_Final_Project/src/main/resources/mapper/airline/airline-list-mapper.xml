@@ -2,10 +2,9 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
   <mapper namespace="airlineList">
-	<resultMap id="AirlineListResultMap" type="AirlineList">
+	<resultMap id="AirlineListResultMap" type="AirlineListVo">
 	    <id property="flightNumber" column="FLIGHT_NUMBER"/>
 	    <result property="airlineName" column="AIRLINE_AIRLINE_NAME"/>
-	    <result property="flightNumber" column="FLIGHT_NUMBER"/>
 	
 	    <result property="departDate" column="FLIGHT_DEPART_DATE"/>
 	    <result property="departCity" column="DEPART_CITY"/>
@@ -21,6 +20,7 @@
 	    <result property="extraSeat" column="SEAT"/>
 	    <result property="flightOfferId" column="FLIGHT_OFFER_ID"/>
 	    <result property="totalPrice" column="FLIGHT_OFFER_PRICE_TOTAL"/>
+	    <result property="flightSegmentNo" column="FLIGHT_SEGMENT_NO"/>
 	</resultMap>
 	
 	<resultMap id="WeeklyPriceResultMap" type="WeeklyPrice">
@@ -49,6 +49,7 @@
 	        f.FLIGHT_DURATION,
 	        f.FLIGHT_OFFER_ID,
 	        f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
+	        f.FLIGHT_SEGMENT_NO,
 	        dep.AIRPORT_CITY AS DEPART_CITY,
 	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	        arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -81,6 +82,7 @@
 	        f.FLIGHT_DURATION,
 	        f.FLIGHT_OFFER_ID,
 	        f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
+	        f.FLIGHT_SEGMENT_NO,
 	        dep.AIRPORT_CITY AS DEPART_CITY,
 	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	        arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -114,6 +116,7 @@
 	            f.FLIGHT_ARRIVE_DATE,
 	            f.FLIGHT_DURATION,
 	            f.FLIGHT_OFFER_ID,
+	            f.FLIGHT_SEGMENT_NO,
 	            dep.AIRPORT_CITY AS DEPART_CITY,
 	            dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	            arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -142,6 +145,7 @@
 	            f.FLIGHT_ARRIVE_DATE,
 	            f.FLIGHT_DURATION,
 	            f.FLIGHT_OFFER_ID,
+	            f.FLIGHT_SEGMENT_NO,
 	            dep.AIRPORT_CITY AS DEPART_CITY,
 	            dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	            arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -176,6 +180,7 @@
 	        f.FLIGHT_ARRIVE_DATE,
 	        f.FLIGHT_DURATION,
 	        f.FLIGHT_OFFER_ID,
+	        f.FLIGHT_SEGMENT_NO,
 	        dep.AIRPORT_CITY AS DEPART_CITY,
 	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	        arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -207,6 +212,7 @@
 	        f.FLIGHT_ARRIVE_DATE,
 	        f.FLIGHT_DURATION,
 	        f.FLIGHT_OFFER_ID,
+	        f.FLIGHT_SEGMENT_NO,
 	        dep.AIRPORT_CITY AS DEPART_CITY,
 	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	        arr.AIRPORT_CITY AS ARRIVE_CITY,

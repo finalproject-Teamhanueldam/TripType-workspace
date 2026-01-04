@@ -54,16 +54,11 @@ const AirlineListComponent = () => {
     }
 
     // 1. 항공사 목록 추출 (과거 코드 방식 + 방어 로직)
-    const uniqueAirlines = Array.from(
-      new Set(
-        allFlights
-          .map((f) => f.airlineName || f.airlineNm || f.carrierName)
-          .filter(Boolean)
-      )
+    // 항공사 목록 업데이트
+    const airlines = Array.from(
+      new Set(allFlights.map((f) => f.airlineName).filter(Boolean))
     );
-    console.log("✈️ 추출된 항공사 목록:", uniqueAirlines);
-    console.log('all', allFlights);
-    setAirline(uniqueAirlines);
+    setAirline(airlines);
 
     // 2. 왕복 데이터를 위한 그룹화
     const pairedMap = new Map();
@@ -129,6 +124,7 @@ const AirlineListComponent = () => {
         }
 
         applyFlights(response.data);
+        console.log("alllll", response.data);
         isPollingRef.current = false;
         if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
       } catch (error) {
@@ -216,6 +212,8 @@ const AirlineListComponent = () => {
 
   const filteredData = getFilteredList();
 
+  console.log("트립 타입", searchParams.tripType);
+
   return (
     <div className="airline-list-wrapper">
       <section className="price-table-wrapper">
@@ -283,21 +281,36 @@ const AirlineListComponent = () => {
             <span className="price-check" onClick={() => navigate("/airline/list/price")}> 가격변동 조회</span>
           </p>
 
-          {filteredData.length > 0 ? (
-            filteredData.map((pair, index) => (
-              <TicketBoxComponent
-                key={index}
-                segment={pair.outbound}
-                returnSegment={pair.inbound}
-                tripType={searchParams?.tripType}
-                setOpen={() => handleOpenModal(pair)}
-                showPlus={pair.outbound?.tripType !== "Y"}
-                onClick={() => goDetail(pair)}
-              />
-            ))
-          ) : (
-            <div className="no-result">검색 결과가 없습니다.</div>
-          )}
+          {
+            searchParams?.tripType === "ROUND" ? (
+              roundList.map((pair, index) => (
+                <TicketBoxComponent
+                  key={index}
+                  segment={pair.outbound}          // 가는 편
+                  returnSegment={pair.inbound}     // 오는 편
+                  tripType={searchParams.tripType} // ⭐ 검색 기준으로 고정
+                  setOpen={() => handleOpenModal(pair)}
+                  showPlus={true}                  // 왕복이면 항상 +
+                  onClick={() => goDetail(pair)}   // pair 그대로 전달
+                />
+              ))
+            ) : searchParams?.tripType === "ONEWAY" ? (
+              outboundList
+                .filter(pair => pair.outbound)    // 방어
+                .map((pair, index) => (
+                  <TicketBoxComponent
+                    key={index}
+                    segment={pair.outbound}
+                    returnSegment={null}           // ⭐ 편도는 inbound 없음
+                    tripType={searchParams.tripType}
+                    setOpen={() => handleOpenModal(pair)}
+                    showPlus={false}
+                    onClick={() => goDetail(pair)}
+                  />
+                ))
+            ) : null
+          }
+
         </main>
 
         <aside className="side-2">
