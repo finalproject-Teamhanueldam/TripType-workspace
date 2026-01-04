@@ -1,0 +1,32 @@
+/* 회원 상태 색상 */
+.member-status-active {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.member-status-inactive {
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.member-status-locked {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+/* 하단 관리 바 */
+.manage-floating-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 400px);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+  z-index: 200;
+}

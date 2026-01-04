@@ -90,7 +90,8 @@ public class SecurityConfig {
                 ).authenticated()  // 인증 필요
                 
                 // 관리자 페이지 → ADMIN 권한 필요 (김동윤)
-                .requestMatchers("/triptype/admin/**").hasRole("ADMIN")
+                // 수정 hasRole -> hasAuthority (JWT 있는 값 그대로 사용) (최경환)
+                .requestMatchers("/triptype/admin/**").hasAuthority("ADMIN")
                 
                 .requestMatchers("/triptype/airline/review").authenticated() 
 

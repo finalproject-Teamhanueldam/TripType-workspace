@@ -24,6 +24,10 @@ import AuthStatisticsComponent from "./admin/statistics/component/AuthStatistics
 import FlightComponent from "./admin/flight/componnent/FlightComponent";
 import AdminAirlineReviewListComponent from "./admin/adminreview/component/AdminReviewListComponent";
 
+// 관리자 회원 관리 페이지
+import AdminMemberList from "./admin/member/component/AdminMemberList";
+import AdminMemberDetail from "./admin/member/component/AdminMemberDetail";
+
 // 여행 목록, 상세, 경보 페이지
 import AirlineListComponent from "./Airline/ArlineList/components/AirlineListComponent";
 import PriceComponent from "./Airline/Price/components/PriceComponent";
@@ -57,6 +61,9 @@ import SurveyResult from "./mypage/component/SurveyResult";
 import Wishlist from "./mypage/component/Wishlist";
 import SearchHistory from "./mypage/component/SearchHistory";
 import Withdraw from "./mypage/component/Withdraw";
+
+// 프론트 라우터 가드 추가(최경환)
+import PrivateRoute from "./common/route/PrivateRoute";
 
 
 function App() {
@@ -138,10 +145,13 @@ function App() {
           <Route path="/admin/notice/write" element={<AdminNoticeForm />} />
           <Route path="/admin/notice/:noticeId" element={<AdminNoticeDetail />} />
           {/* <Route path="notice/comment" element={<AdminNoticeCommentList/>} /> */}
+          {/* 관리자 회원 관리(1.3 최경환) */}
+          <Route path="member" element={<AdminMemberList />} />
+          <Route path="member/:memberNo" element={<AdminMemberDetail />} />
         </Route>
         
         {/* 마이페이지 */}
-        <Route path="/mypage" element={<MyPageLayout />}>
+        <Route path="/mypage" element={<PrivateRoute><MyPageLayout /></PrivateRoute>}>
           <Route index element={<Profile />} />
           <Route path="profile" element={<Profile />} />
           <Route path="password" element={<PasswordChange />} />

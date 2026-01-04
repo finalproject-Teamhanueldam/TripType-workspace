@@ -11,4 +11,6 @@ public interface MyPageService {
     int updateMyProfile(int memberNo, MyProfileUpdateReq req);
     
     void changePassword(int memberNo, MyPasswordChangeReq req);
+    
+    void withdraw(int memberNo, String password);
 }

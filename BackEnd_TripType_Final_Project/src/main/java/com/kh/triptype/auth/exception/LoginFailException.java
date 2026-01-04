@@ -9,10 +9,13 @@ public class LoginFailException extends RuntimeException {
 
     private final int loginFailCount;
     private final boolean locked;
+    private final boolean withdrawn;
 
-    public LoginFailException(String message, int loginFailCount, boolean locked) {
+    public LoginFailException(String message, int loginFailCount,
+    						  boolean locked, boolean withdrawn) {
         super(message);
         this.loginFailCount = loginFailCount;
         this.locked = locked;
+        this.withdrawn = withdrawn;
     }
 }

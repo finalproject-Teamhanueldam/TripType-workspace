@@ -1,5 +1,7 @@
 package com.kh.triptype.mypage.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -62,6 +64,18 @@ public class MyPageController {
     ) {
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
         myPageService.changePassword(authUser.getMemberNo(), req);
+        return ResponseEntity.ok().build();
+    }
+    
+    @PutMapping("/withdraw")
+    public ResponseEntity<Void> withdraw(
+            Authentication authentication,
+            @RequestBody Map<String, String> body
+    ) {
+        AuthUser authUser = (AuthUser) authentication.getPrincipal();
+        String password = body.get("password");
+
+        myPageService.withdraw(authUser.getMemberNo(), password);
         return ResponseEntity.ok().build();
     }
 }
