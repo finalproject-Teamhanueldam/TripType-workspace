@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kh.triptype.member.dao.MemberDao;
 import com.kh.triptype.member.model.dto.MemberJoinRequestDto;
+import com.kh.triptype.member.model.dto.MemberMeResponse;
 import com.kh.triptype.member.model.dto.MemberUnlockRequest;
 import com.kh.triptype.member.model.vo.Member;
 
@@ -186,11 +187,31 @@ public class MemberServiceImpl implements MemberService {
 
         // 6️ 잠금 해제
         memberDao.unlockMember(member.getMemberNo());
+        // 7 장기 미접속 기준 초기화 (핵심)
+        memberDao.updateLastLogin(member.getMemberNo());
 
-        // 7️ 로그인 실패 횟수 초기화
+        // 8 로그인 실패 횟수 초기화
         memberDao.resetLoginFailCount(member.getMemberNo());
 
         // 8️ 인증 정보 삭제
         memberDao.deleteAuth(req.getMemberId());
     }
+ 
+    @Transactional(readOnly = true)
+    @Override
+    public MemberMeResponse findMe(int memberNo) {
+        Member member = memberDao.findByMemberNo(memberNo);
+
+        if (member == null) {
+            throw new IllegalStateException("MEMBER_NOT_FOUND");
+        }
+        
+        return new MemberMeResponse(
+            member.getMemberNo(),
+            member.getMemberId(),
+            member.getMemberName(),
+            member.getMemberRole()
+        );
+    }
 }
+

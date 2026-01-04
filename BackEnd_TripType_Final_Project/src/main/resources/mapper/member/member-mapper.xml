@@ -150,10 +150,42 @@
 	</update>
 	
 	<update id="unlockMember" parameterType="int">
-    UPDATE TB_MEMBER
-       SET MEMBER_IS_LOCKED = 'N',
-           MEMBER_LOGIN_FAIL_COUNT = 0,
-           MEMBER_UNLOCK_TIME = SYSDATE
-     WHERE MEMBER_NO = #{memberNo}
+      UPDATE TB_MEMBER
+         SET MEMBER_IS_LOCKED = 'N',
+             MEMBER_LOGIN_FAIL_COUNT = 0,
+             MEMBER_UNLOCK_TIME = SYSDATE
+       WHERE MEMBER_NO = #{memberNo}
 	</update>
+	
+	<select id="findByMemberNo" parameterType="int" resultMap="memberResultMap">
+	  SELECT *
+	    FROM TB_MEMBER
+	   WHERE MEMBER_NO = #{memberNo}
+	</select>
+	
+	<insert id="insertSocialMember" parameterType="Member">
+	  INSERT INTO TB_MEMBER (
+	    MEMBER_NO,
+	    MEMBER_ID,
+	    MEMBER_NAME,
+	    MEMBER_ROLE,
+	    MEMBER_CREATE_AT,
+	    MEMBER_IS_ACTIVE,
+	    MEMBER_LOGIN_FAIL_COUNT,
+	    MEMBER_IS_LOCKED,
+	    MEMBER_UNLOCK_TIME
+	  ) VALUES (
+	    TB_MEMBER_SEQ.NEXTVAL,
+	    #{memberId},
+	    #{memberName},
+	    #{memberRole},
+	    SYSDATE,
+	    'Y',
+	    0,
+	    'N',
+	    SYSDATE
+	  )
+	</insert>
+	
+	
 </mapper>

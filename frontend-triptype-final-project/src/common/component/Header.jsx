@@ -22,6 +22,23 @@ const Header = () => {
     // 초기 동기화
     syncLoginState();
 
+    useEffect(() => {
+        const syncLogin = () => {
+            const token = localStorage.getItem("accessToken");
+            const name = localStorage.getItem("memberName");
+
+            setIsLogin(!!token);
+            setMemberName(name || "");
+        };
+
+        syncLogin(); // 최초 실행
+        window.addEventListener("loginChanged", syncLogin);
+
+        return () => {
+            window.removeEventListener("loginChanged", syncLogin);
+        };
+    }, []);
+    
     // 다른 컴포넌트에서 loginChanged를 dispatch 했을 때 헤더도 갱신
     const onLoginChanged = () => syncLoginState();
     window.addEventListener("loginChanged", onLoginChanged);

@@ -3,6 +3,7 @@ package com.kh.triptype.member.service;
 import java.util.List;
 
 import com.kh.triptype.member.model.dto.MemberJoinRequestDto;
+import com.kh.triptype.member.model.dto.MemberMeResponse;
 import com.kh.triptype.member.model.dto.MemberUnlockRequest;
 
 public interface MemberService {
@@ -25,4 +26,6 @@ public interface MemberService {
 	
 	// 계정잠금 해제
 	void unlockMember(MemberUnlockRequest req);
+	
+	MemberMeResponse findMe(int memberNo);
 }

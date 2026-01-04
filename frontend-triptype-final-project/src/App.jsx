@@ -1,6 +1,5 @@
 import "./App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { useState } from "react";
 
 // Toastify 추가
 import { ToastContainer } from "react-toastify";
@@ -74,6 +73,8 @@ import GatePage from "./survey/component/page/GatePage";
 // ✅ Question / Result 페이지(설문 라우팅에 필요)
 import QuestionPage from "./survey/component/page/QuestionPage";
 import ResultPage from "./survey/component/page/ResultPage";
+
+import OAuthRedirect from "./pages/OAuthRedirect";
 
 function App() {
   const location = useLocation();
@@ -152,8 +153,8 @@ function App() {
           <Route path="member" element={<AdminMemberList />} />
           <Route path="member/:memberNo" element={<AdminMemberDetail />} />
         </Route>
-
-        {/* 마이페이지 */}
+    
+        {/* 마이페이지(최경환) */}
         <Route path="/mypage" element={<PrivateRoute><MyPageLayout /></PrivateRoute>}>
           <Route index element={<Profile />} />
           <Route path="profile" element={<Profile />} />
@@ -184,7 +185,11 @@ function App() {
           <Route path="result" element={<ResultPage />} />
         </Route>
 
+        {/* 소셜 로그인 연결(최경환) */}
+        <Route path="/oauth/success" element={<OAuthRedirect />} />
+
       </Routes>
+
 
       {/* 헤더 - 지영재 - */}
       <Footer />

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+  
+ <mapper namespace="socialAccountMapper">
+	
+	<resultMap id="memberResultMap" type="Member">
+	    <id column="MEMBER_NO" property="memberNo"/>
+	    <result column="MEMBER_ID" property="memberId"/>
+	    <result column="MEMBER_PASSWORD" property="memberPassword"/>
+	    <result column="MEMBER_NAME" property="memberName"/>
+	    <result column="MEMBER_BIRTH_DATE" property="memberBirthDate"/>
+	    <result column="MEMBER_GENDER" property="memberGender"/>
+	    <result column="MEMBER_PHONE" property="memberPhone"/>
+	    <result column="MEMBER_ROLE" property="memberRole"/>
+	    <result column="MEMBER_CREATE_AT" property="memberCreateAt"/>
+	    <result column="MEMBER_WITHDRAWN_AT" property="memberWithdrawnAt"/>
+	    <result column="MEMBER_LAST_LOGIN_AT" property="memberLastLoginAt"/>
+	    <result column="MEMBER_IS_ACTIVE" property="memberIsActive"/>
+	    <result column="MEMBER_LOGIN_FAIL_COUNT" property="memberLoginFailCount"/>
+	    <result column="MEMBER_IS_LOCKED" property="memberIsLocked"/>
+	    <result column="MEMBER_UNLOCK_TIME" property="memberUnlockTime"/>
+	</resultMap>
+	
+    <select id="findByProviderAndUid" resultMap="memberResultMap">
+        SELECT m.*
+          FROM TB_SOCIAL_ACCOUNT s
+          JOIN TB_MEMBER m ON s.MEMBER_NO = m.MEMBER_NO
+         WHERE s.SOCIAL_PROVIDER = #{provider}
+           AND s.SOCIAL_PROVIDER_UID = #{providerUid}
+    </select>
+
+    <insert id="insertSocialAccount">
+        INSERT INTO TB_SOCIAL_ACCOUNT (
+            SOCIAL_ACCOUNT_NO,
+            MEMBER_NO,
+            SOCIAL_PROVIDER,
+            SOCIAL_PROVIDER_UID,
+            SOCIAL_EMAIL,
+            SOCIAL_CONNECTED_AT
+        ) VALUES (
+            TB_SOCIAL_ACCOUNT_SEQ.NEXTVAL,
+            #{memberNo},
+            #{provider},
+            #{providerUid},
+            #{email},
+            SYSDATE
+        )
+    </insert>
+
+</mapper>
+ 

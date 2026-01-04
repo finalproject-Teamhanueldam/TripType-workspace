@@ -78,14 +78,15 @@ function LoginTab() {
       setLoginError({
         message,
         loginFailCount: data?.loginFailCount ?? 0,
-        locked: data?.message === "LOCKED_ACCOUNT",
+        locked:
+          data?.message === "LOCKED_ACCOUNT" ||
+          data?.message === "LOCKED_ACCOUNT_INACTIVE",
         withdrawn: data?.message === "WITHDRAWN_ACCOUNT"
       });
     }
   };
 
   const handleSocial = (provider) => {
-    // TODO: 백엔드 소셜 로그인 엔드포인트로 이동 (예: /oauth2/authorization/naver)
     window.location.href =
     `${API_BASE_URL}/oauth2/authorization/${provider}`;
   };
@@ -183,8 +184,8 @@ function LoginTab() {
       <div className="divider"><span>또는</span></div>
 
       <div className="social-login">
-        <button className="social-btn naver" type="button" onClick={() => handleSocial("naver")}>
-          네이버로 시작하기
+        <button className="social-btn naver" type="button" onClick={() => handleSocial("naver")} disabled>
+          네이버 로그인(검수 준비중)
         </button>
         <button className="social-btn kakao" type="button" onClick={() => handleSocial("kakao")}>
           카카오로 시작하기

@@ -12,6 +12,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.kh.triptype.auth.jwt.JwtAuthenticationFilter;
+import com.kh.triptype.auth.oauth.CustomOAuth2UserService;
+import com.kh.triptype.auth.oauth.OAuth2SuccessHandler;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,8 @@ public class SecurityConfig {
 
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 	
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -84,7 +88,7 @@ public class SecurityConfig {
                 // JWT 보호 API
                 .requestMatchers("/triptype/airline/review", "/airline/review").authenticated()
                 .requestMatchers("/triptype/api/mypage/**", "/api/mypage/**").authenticated()
-
+                .requestMatchers("/api/member/me", "/triptype/api/member/me").authenticated()
                 
                 // ✨ 첨부파일 다운로드는 로그인된 사용자만 (김동윤)
                 .requestMatchers(
@@ -95,8 +99,7 @@ public class SecurityConfig {
                 ).authenticated()  // 인증 필요
                 
                 // 관리자 페이지 → ADMIN 권한 필요 (김동윤)
-                // 수정 hasRole -> hasAuthority (JWT 있는 값 그대로 사용) (최경환)
-                .requestMatchers("/triptype/admin/**").hasAuthority("ADMIN")
+                .requestMatchers("/triptype/admin/**").hasRole("ADMIN")
                 
                 .requestMatchers("/triptype/airline/review").authenticated() 
 
@@ -107,8 +110,11 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             // 네이버 OAuth
             .oauth2Login(oauth -> oauth
-                .defaultSuccessUrl("/triptype/login/success", true)
-            );
+            	    .userInfoEndpoint(userInfo ->
+            	        userInfo.userService(customOAuth2UserService)
+            	    )
+            	    .successHandler(oAuth2SuccessHandler)
+            	);
 
         return http.build();
     }
