@@ -19,7 +19,7 @@ const AirlineListComponent = () => {
   const [open, setOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState(0); 
   const [activeTransit, setActiveTransit] = useState([]);
-  const [departureTime, setDepartureTime] = useState(0);
+  const [departureTime, setDepartureTime] = useState(1440);
   const [airlineStatus, setAirlineStatus] = useState(null); // 선택된 항공사 명
   const [outboundList, setOutboundList] = useState([]);
   const [roundList, setRoundList] = useState([]);
@@ -40,6 +40,34 @@ const AirlineListComponent = () => {
     setSelectedPair(pair);
     setOpen(true);
   };
+
+
+
+  const matchTransit = (segment) => {
+    if (!segment || segment.flightSegmentNo === undefined) return false;
+
+    // 아무 것도 선택 안 했으면 전체 허용
+    if (activeTransit.length === 0) return true;
+
+    const count = segment.flightSegmentNo;
+
+    return (
+      (activeTransit.includes("직항") && count === 0) ||
+      (activeTransit.includes("1회 경유") && count === 1) ||
+      (activeTransit.includes("2회 이상") && count >= 2)
+    );
+  };
+
+
+  const getDepartMinutes = (dateString) => {
+    if (!dateString) return 0;
+    const date = new Date(dateString);
+    return date.getHours() * 60 + date.getMinutes();
+  };
+
+
+
+
 
   /* =========================================================
       ✅ 데이터 가공 및 상태 업데이트
@@ -197,18 +225,31 @@ const AirlineListComponent = () => {
     });
   };
 
-  // UI에서 사용될 필터링된 리스트
-  const getFilteredList = () => {
-    const baseList = searchParams?.tripType === "ROUND" ? roundList : outboundList;
-    return baseList.filter(pair => {
-      if (!pair.outbound) return false;
-      // 항공사 필터 적용
-      if (airlineStatus && pair.outbound.airlineName !== airlineStatus) return false;
-      // 출발 시간대 필터 (예시: 00:00 ~ 설정시간까지)
-      // (로직 추가 필요 시 여기에 작성)
-      return true;
-    });
-  };
+
+const getFilteredList = () => {
+  const baseList =
+    searchParams?.tripType === "ROUND" ? roundList : outboundList;
+
+  return baseList.filter(pair => {
+    const outbound = pair.outbound;
+    if (!outbound) return false;
+
+    // 항공사 필터
+    if (airlineStatus && outbound.airlineName !== airlineStatus) return false;
+
+    // 경유 필터
+    if (!matchTransit(outbound)) return false;
+
+    // 출발 시간대 필터
+    const departMinutes = getDepartMinutes(outbound.departDate);
+    if (departMinutes > departureTime) return false;
+
+    return true;
+  });
+};
+
+
+
 
   const filteredData = getFilteredList();
 
@@ -241,6 +282,12 @@ const AirlineListComponent = () => {
             <div className="filter-section">
               <strong>항공사</strong>
               <div className="airline-btns">
+                <button
+                  onClick={() => setAirlineStatus(null)}
+                  className={airlineStatus === null ? "active" : ""}
+                >
+                  모두
+                </button>
                 {airline.length > 0 ? (
                   airline.map((item, index) => (
                     <button
@@ -280,8 +327,24 @@ const AirlineListComponent = () => {
             {filteredData.length}개의 검색 결과 · 
             <span className="price-check" onClick={() => navigate("/airline/list/price")}> 가격변동 조회</span>
           </p>
-
           {
+            filteredData.map((pair, index) => (
+              <TicketBoxComponent
+                key={index}
+                segment={pair.outbound}
+                returnSegment={
+                  searchParams?.tripType === "ROUND" ? pair.inbound : null
+                }
+                tripType={searchParams?.tripType}
+                setOpen={() => handleOpenModal(pair)}
+                showPlus={searchParams?.tripType === "ROUND"}
+                onClick={() => goDetail(pair)}
+              />
+            ))
+          }
+
+
+          {/* {
             searchParams?.tripType === "ROUND" ? (
               roundList.map((pair, index) => (
                 <TicketBoxComponent
@@ -309,7 +372,7 @@ const AirlineListComponent = () => {
                   />
                 ))
             ) : null
-          }
+          } */}
 
         </main>
 

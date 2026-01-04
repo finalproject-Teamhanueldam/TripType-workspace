@@ -68,7 +68,7 @@ const TicketBoxComponent = ({ segment, returnSegment, tripType, setOpen, onClick
     // 항공사 로고
     const getArilineLogo = (airlineName) => {
         const fileName = AIRLINE_LOGO_MAP[airlineName];
-        return fileName ? `/images/${fileName}` : "";
+        return fileName ? `/images/${fileName}` : null;
     };
 
     return (
