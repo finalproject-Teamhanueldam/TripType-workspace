@@ -374,7 +374,9 @@ function JoinTab() {
           dateFormat="yyyy-MM-dd"
           maxDate={new Date()}
           showYearDropdown
+          showMonthDropdown
           dropdownMode="select"
+          yearDropdownItemNumber={100}
           placeholderText="날짜 선택"
           shouldCloseOnSelect
           customInput={<AuthDateInput />} // className 도 여기 들어있다.

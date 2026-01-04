@@ -20,6 +20,19 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final BCryptPasswordEncoder passwordEncoder;
 
+// GlobalExceptionHandler + LoginFailResponse
+//    switch (data?.message) {
+//	    case "WITHDRAWN_ACCOUNT":
+//	      message = "탈퇴 처리된 계정입니다.";
+//	      break;
+//	    case "LOCKED_ACCOUNT":
+//	      message = "계정이 잠겨 로그인할 수 없습니다.";
+//	      break;
+//	    case "INVALID_CREDENTIALS":
+//	      message = "이메일 또는 비밀번호가 올바르지 않습니다.";
+//	      break;
+//	  }
+    
     public LoginResponse login(LoginRequest req) {
 
         // 1️ 회원 조회
@@ -27,51 +40,65 @@ public class AuthService {
 
         if (member == null) {
             throw new LoginFailException(
-                "존재하지 않는 회원입니다.",
+                "INVALID_CREDENTIALS",
                 0,
+                false,
                 false
             );
         }
 
-        // 2️ 계정 잠김 체크
-        if ("Y".equals(member.getMemberIsLocked())) {
+        // 2️ 탈퇴 계정 체크
+        if ("N".equals(member.getMemberIsActive())) {
             throw new LoginFailException(
-                "계정이 잠겨 있습니다.",
-                member.getMemberLoginFailCount(),
+                "WITHDRAWN_ACCOUNT",
+                0,
+                false,
                 true
             );
         }
 
-        // 3️ 비밀번호 검증
+        // 3️ 계정 잠김 체크
+        if ("Y".equals(member.getMemberIsLocked())) {
+            throw new LoginFailException(
+                "LOCKED_ACCOUNT",
+                member.getMemberLoginFailCount(),
+                true,
+                false
+            );
+        }
+
+        // 4️ 비밀번호 검증
         if (!passwordEncoder.matches(
                 req.getMemberPassword(),
                 member.getMemberPassword())) {
 
             memberDao.increaseLoginFailCount(member.getMemberNo());
-
             int failCount = member.getMemberLoginFailCount() + 1;
-            
+
             if (failCount >= 5) {
-                memberDao.lockMember(member.getMemberNo()); // MEMBER_IS_LOCKED = 'Y'
+                memberDao.lockMember(member.getMemberNo());
+
                 throw new LoginFailException(
-                    "로그인 실패 횟수 초과로 계정이 잠겼습니다.",
+                    "LOCKED_ACCOUNT",
                     failCount,
-                    true
+                    true,
+                    false
                 );
             }
-            
+
             throw new LoginFailException(
-                "비밀번호가 일치하지 않습니다.",
+                "INVALID_CREDENTIALS",
                 failCount,
+                false,
                 false
             );
         }
 
-        // 4️ 로그인 성공 처리
+        // 5️ 로그인 성공 처리
         memberDao.resetLoginFailCount(member.getMemberNo());
         memberDao.updateLastLogin(member.getMemberNo());
 
-        // 5️ JWT 발급
+        // 6️ JWT 발급
         String token = jwtProvider.createToken(
                 member.getMemberNo(),
                 member.getMemberRole()

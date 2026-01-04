@@ -58,29 +58,37 @@ public class MemberServiceImpl implements MemberService {
             String memberId,
             String newPassword
     ) {
-        // 1️ 이름 + 이메일 존재 확인
-    	int count = memberDao.countByNameAndMemberId(memberName, memberId);
-
-        if (count == 0) {
-            throw new IllegalArgumentException("이름 또는 이메일이 일치하지 않습니다.");
+    	// 0️ 회원 조회
+        Member member = memberDao.findByMemberId(memberId);
+        if (member == null) {
+            throw new IllegalArgumentException("INVALID_ACCOUNT");
         }
 
-        // 2️ 이메일 인증 완료 여부 확인
+        // 1️ 탈퇴 계정 차단
+        if ("N".equals(member.getMemberIsActive())) {
+            throw new IllegalStateException("WITHDRAWN_ACCOUNT");
+        }
+
+        // 2️ 이름 검증
+        if (!member.getMemberName().equals(memberName)) {
+            throw new IllegalArgumentException("INVALID_ACCOUNT");
+        }
+
+        // 3️ 이메일 인증 완료 여부
         int verified = memberDao.countVerifiedAuth(memberId);
         if (verified == 0) {
-            throw new IllegalStateException("이메일 인증을 완료해주세요.");
+            throw new IllegalStateException("EMAIL_NOT_VERIFIED");
         }
 
-        // 3️ 비밀번호 암호화
+        // 4️ 비밀번호 변경
         String encodedPw = passwordEncoder.encode(newPassword);
-
-        // 4️ 비밀번호 업데이트
         int result = memberDao.updatePasswordByMemberId(memberId, encodedPw);
+
         if (result != 1) {
-            throw new RuntimeException("비밀번호 재설정에 실패했습니다.");
+            throw new RuntimeException("PASSWORD_RESET_FAILED");
         }
 
-        // 5️ 인증 정보 삭제 (선택이지만 강력 추천)
+        // 5️ 인증 정보 삭제
         memberDao.deleteAuth(memberId);
     }
     
@@ -119,53 +127,44 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void unlockMember(MemberUnlockRequest req) {
 
-        // 1️ 이름 + 이메일 존재 확인
-        int count = memberDao.countByNameAndMemberId(
-            req.getMemberName(),
-            req.getMemberId()
-        );
-
-        if (count == 0) {
-            throw new IllegalArgumentException("이름 또는 이메일이 일치하지 않습니다.");
-        }
-
-        // 2️ 이메일 인증 여부 확인
-        int verified = memberDao.countVerifiedAuth(req.getMemberId());
-        if (verified == 0) {
-            throw new IllegalStateException("이메일 인증을 완료해주세요.");
-        }
-
-        // 3️ 비밀번호 변경
-        String encodedPw = passwordEncoder.encode(req.getNewPassword());
-        int pwResult = memberDao.updatePasswordByMemberId(
-            req.getMemberId(),
-            encodedPw
-        );
-
-        if (pwResult != 1) {
-            throw new RuntimeException("비밀번호 변경에 실패했습니다.");
-        }
-
-        // 4️ 회원 번호 조회
+        // 0️ 회원 조회
         Member member = memberDao.findByMemberId(req.getMemberId());
         if (member == null) {
-            throw new IllegalStateException("회원 정보를 찾을 수 없습니다.");
+            throw new IllegalArgumentException("INVALID_ACCOUNT");
         }
-        
-        // 이미 정상 계정인데 unlock API를 호출한 경우 비밀번호만 바꿔버리는 사고 방지
+
+        // 1️ 탈퇴 계정 차단
+        if ("N".equals(member.getMemberIsActive())) {
+            throw new IllegalStateException("WITHDRAWN_ACCOUNT");
+        }
+
+        // 2️ 잠긴 계정인지 확인
         if (!"Y".equals(member.getMemberIsLocked())) {
-            throw new IllegalStateException("잠긴 계정이 아닙니다.");
+            throw new IllegalStateException("NOT_LOCKED_ACCOUNT");
         }
-        
-        int memberNo = member.getMemberNo();
 
-        // 5️ 잠금 해제
-        memberDao.unlockMember(memberNo);
+        // 3️ 이름 + 이메일 검증
+        if (!member.getMemberName().equals(req.getMemberName())) {
+            throw new IllegalArgumentException("INVALID_ACCOUNT");
+        }
 
-        // 6️ 로그인 실패 횟수 초기화
-        memberDao.resetLoginFailCount(memberNo);
+        // 4️ 이메일 인증 여부 확인
+        int verified = memberDao.countVerifiedAuth(req.getMemberId());
+        if (verified == 0) {
+            throw new IllegalStateException("EMAIL_NOT_VERIFIED");
+        }
 
-        // 7️ 인증 정보 삭제
+        // 5️ 비밀번호 변경
+        String encodedPw = passwordEncoder.encode(req.getNewPassword());
+        memberDao.updatePasswordByMemberId(req.getMemberId(), encodedPw);
+
+        // 6️ 잠금 해제
+        memberDao.unlockMember(member.getMemberNo());
+
+        // 7️ 로그인 실패 횟수 초기화
+        memberDao.resetLoginFailCount(member.getMemberNo());
+
+        // 8️ 인증 정보 삭제
         memberDao.deleteAuth(req.getMemberId());
     }
 }

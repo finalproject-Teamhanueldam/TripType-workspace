@@ -122,3 +122,17 @@
   cursor: pointer;
   color: #023059;
 }
+
+.save-msg {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.save-msg.ok {
+  color: #0284c7; /* 성공 (파랑) */
+}
+
+.save-msg.err {
+  color: #ef4444; /* 실패 (빨강) */
+}

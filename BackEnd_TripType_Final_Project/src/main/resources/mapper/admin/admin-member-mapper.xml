@@ -4,4 +4,108 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="adminMemberMapper">
+
+  <!-- =========================
+       관리자 회원 목록
+  ========================= -->
+  <select id="selectMemberList"
+          resultType="AdminMember">
+
+    SELECT
+      MEMBER_NO            AS memberNo,
+      MEMBER_ID            AS memberId,
+      MEMBER_NAME          AS memberName,
+      MEMBER_BIRTH_DATE    AS memberBirthDate,
+      MEMBER_PHONE         AS memberPhone,
+      MEMBER_ROLE          AS memberRole,
+      MEMBER_IS_ACTIVE     AS memberIsActive,
+      MEMBER_IS_LOCKED     AS memberIsLocked,
+      MEMBER_CREATE_AT    AS memberCreateAt,
+      MEMBER_LAST_LOGIN_AT AS memberLastLoginAt
+    FROM TB_MEMBER
+    WHERE 1=1
+
+    <if test="keyword != null and keyword != ''">
+      AND (
+        MEMBER_ID LIKE '%' || #{keyword} || '%'
+        OR MEMBER_NAME LIKE '%' || #{keyword} || '%'
+      )
+    </if>
+
+    <if test="showInactive == false">
+	  AND MEMBER_IS_ACTIVE = 'Y'
+	</if>
+
+    ORDER BY MEMBER_CREATE_AT DESC
+  </select>
+
+  <!-- =========================
+       관리자 회원 상세
+  ========================= -->
+  <select id="selectMemberDetail"
+          parameterType="int"
+          resultType="AdminMember">
+
+    SELECT
+      MEMBER_NO            AS memberNo,
+      MEMBER_ID            AS memberId,
+      MEMBER_NAME          AS memberName,
+      MEMBER_BIRTH_DATE    AS memberBirthDate,
+      MEMBER_PHONE         AS memberPhone,
+      MEMBER_ROLE          AS memberRole,
+      MEMBER_IS_ACTIVE     AS memberIsActive,
+      MEMBER_IS_LOCKED     AS memberIsLocked,
+      MEMBER_CREATE_AT    AS memberCreateAt,
+      MEMBER_LAST_LOGIN_AT AS memberLastLoginAt
+    FROM TB_MEMBER
+    WHERE MEMBER_NO = #{memberNo}
+  </select>
+
+  <!-- =========================
+       잠금 해제
+  ========================= -->
+  <update id="unlockMembers">
+    UPDATE TB_MEMBER
+       SET MEMBER_IS_LOCKED = 'N',
+           MEMBER_LOGIN_FAIL_COUNT = 0
+     WHERE MEMBER_NO IN
+    <foreach collection="list"
+             item="no"
+             open="("
+             close=")"
+             separator=",">
+      #{no}
+    </foreach>
+  </update>
+
+  <!-- =========================
+       비활성화 (탈퇴, 자진 탈퇴는 아님)
+  ========================= -->
+  <update id="deactivateMembers">
+    UPDATE TB_MEMBER
+       SET MEMBER_IS_ACTIVE = 'N'
+     WHERE MEMBER_NO IN
+    <foreach collection="list"
+             item="no"
+             open="("
+             close=")"
+             separator=",">
+      #{no}
+    </foreach>
+  </update>
+
+  <select id="selectAdminMemberNos" resultType="int">
+    SELECT MEMBER_NO
+    FROM TB_MEMBER
+    WHERE MEMBER_NO IN
+    <foreach collection="list"
+             item="no"
+             open="("
+             close=")"
+             separator=",">
+        #{no}
+    </foreach>
+    AND MEMBER_ROLE = 'ADMIN'
+  </select>
+
 </mapper>

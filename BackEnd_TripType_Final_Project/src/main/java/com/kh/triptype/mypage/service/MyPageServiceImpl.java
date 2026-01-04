@@ -40,8 +40,37 @@ public class MyPageServiceImpl implements MyPageService {
                 "INVALID_PASSWORD"
             );
         }
+        
+        if (passwordEncoder.matches(req.getNewPassword(), originPw)) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "SAME_PASSWORD"
+            );
+        }
+            
         String encoded = passwordEncoder.encode(req.getNewPassword());
         myPageDao.updatePassword(memberNo, encoded);
     }
     
+    @Override
+    public void withdraw(int memberNo, String password) {
+
+        String originPw = myPageDao.selectPassword(memberNo);
+
+        if (originPw == null) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "ALREADY_WITHDRAWN"
+            );
+        }
+
+        if (!passwordEncoder.matches(password, originPw)) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "INVALID_PASSWORD"
+            );
+        }
+
+        myPageDao.withdrawMember(memberNo);
+    }
 }

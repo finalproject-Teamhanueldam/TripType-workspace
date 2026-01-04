@@ -89,19 +89,32 @@ function PasswordChange() {
 
       setSubmitMsg({
         type: "ok",
-        text: "비밀번호가 변경되었습니다."
+        text: "비밀번호가 변경되었습니다. 다시 로그인해주세요."
       });
 
-      setForm({
-        currentPassword: "",
-        newPassword: "",
-        passwordConfirm: ""
-      });
+       // ⏱️ 메시지 잠깐 보여준 뒤 로그아웃
+      setTimeout(() => {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("memberName");
+        localStorage.removeItem("memberId");
+        localStorage.removeItem("role");
+
+        window.location.href = "/member?tab=login";
+      }, 1500);
+
     } catch (e) {
-      setSubmitMsg({
-        type: "error",
-        text: "현재 비밀번호가 올바르지 않습니다."
-      });
+        const code = e.response?.data?.message;
+
+        let text = "현재 비밀번호가 올바르지 않습니다.";
+
+        if (code === "SAME_PASSWORD") {
+          text = "기존 비밀번호와 다른 비밀번호를 입력해주세요.";
+        }
+
+        setSubmitMsg({
+          type: "error",
+          text
+        });
     }
   };
 

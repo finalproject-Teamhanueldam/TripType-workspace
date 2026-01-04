@@ -1,0 +1,70 @@
+.member-table {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
+.member-row {
+
+  display: grid;
+  grid-template-columns:
+    60px
+    260px
+    140px
+    90px
+    80px
+    80px;
+
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+
+  min-width: 720px;
+}
+
+.member-row.header {
+  background: #eef2ff;
+  font-weight: 700;
+  color: #4338ca;
+}
+
+.member-row:not(.header):hover {
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.member-row span {
+  white-space: nowrap;      /* 줄바꿈 금지 */
+  overflow: hidden;
+  text-overflow: ellipsis;  /* 길면 … */
+}
+
+.member-status-active,
+.member-status-inactive,
+.member-status-locked {
+   text-align: left;      /* ← 변경 */
+   justify-self: start;   /* ← 핵심 */
+   font-weight: 600;
+}
+
+.check-col {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.admin-controls .search-input {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #111827;
+  width: 240px;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
