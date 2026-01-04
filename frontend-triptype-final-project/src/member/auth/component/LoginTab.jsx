@@ -62,6 +62,11 @@ function LoginTab() {
               "재가입을 원하시면 메인 페이지의\n" +
               "오픈카카오톡 1:1 상담을 이용해주세요.";
           break;
+        case "LOCKED_ACCOUNT_INACTIVE":
+          message =
+              "장기 미접속으로 계정이 잠금 처리되었습니다.\n" +
+              "본인 인증 후 잠금 해제가 가능합니다.";
+          break;
         case "LOCKED_ACCOUNT":
           message = "계정이 잠겨 로그인할 수 없습니다.";
           break;

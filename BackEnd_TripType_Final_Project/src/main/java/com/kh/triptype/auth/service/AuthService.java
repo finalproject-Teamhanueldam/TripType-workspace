@@ -1,5 +1,8 @@
 package com.kh.triptype.auth.service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +22,8 @@ public class AuthService {
     private final MemberDao memberDao;
     private final JwtProvider jwtProvider;
     private final BCryptPasswordEncoder passwordEncoder;
-
+    private static final long INACTIVITY_HOURS = 12; // 발표용
+    
 // GlobalExceptionHandler + LoginFailResponse
 //    switch (data?.message) {
 //	    case "WITHDRAWN_ACCOUNT":
@@ -57,7 +61,27 @@ public class AuthService {
             );
         }
 
-        // 3️ 계정 잠김 체크
+        // 3️ 장기 미접속(12시간) 체크
+        if (member.getMemberLastLoginAt() != null) {
+
+            LocalDateTime lastLogin = member.getMemberLastLoginAt();
+            LocalDateTime now = LocalDateTime.now();
+
+            long hours = Duration.between(lastLogin, now).toHours();
+
+            if (hours >= INACTIVITY_HOURS) {
+                memberDao.lockMember(member.getMemberNo());
+
+                throw new LoginFailException(
+                    "LOCKED_ACCOUNT_INACTIVE",
+                    member.getMemberLoginFailCount(),
+                    true,
+                    false
+                );
+            }
+        }
+        
+        // 4 계정 잠김 체크
         if ("Y".equals(member.getMemberIsLocked())) {
             throw new LoginFailException(
                 "LOCKED_ACCOUNT",
@@ -67,7 +91,7 @@ public class AuthService {
             );
         }
 
-        // 4️ 비밀번호 검증
+        // 5️ 비밀번호 검증
         if (!passwordEncoder.matches(
                 req.getMemberPassword(),
                 member.getMemberPassword())) {
@@ -94,11 +118,11 @@ public class AuthService {
             );
         }
 
-        // 5️ 로그인 성공 처리
+        // 6 로그인 성공 처리
         memberDao.resetLoginFailCount(member.getMemberNo());
         memberDao.updateLastLogin(member.getMemberNo());
 
-        // 6️ JWT 발급
+        // 7 JWT 발급
         String token = jwtProvider.createToken(
                 member.getMemberNo(),
                 member.getMemberRole()
