@@ -1,0 +1,88 @@
+/* SurveyResult.css */
+
+.surveyCardV2 {
+  padding: 26px 26px;
+}
+
+.surveyHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.typePill {
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  background: rgba(2, 48, 89, 0.08);
+  color: #023059;
+  border: 1px solid rgba(2, 48, 89, 0.12);
+}
+
+.surveySummary {
+  margin: 10px 0 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(110, 191, 228, 0.12);
+  border: 1px solid rgba(110, 191, 228, 0.22);
+  color: rgba(0, 0, 0, 0.75);
+  font-weight: 600;
+}
+
+.axisGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.axisRow {
+  display: grid;
+  grid-template-columns: 140px 1fr 70px;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: #fff;
+}
+
+.axisLabel {
+  font-weight: 800;
+  color: rgba(0,0,0,0.72);
+}
+
+.axisBar {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+.axisFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6EBFE4, #023059);
+}
+
+.axisValue {
+  text-align: right;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.8);
+}
+
+.axisMax {
+  margin-left: 4px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.45);
+}
+
+@media (max-width: 900px) {
+  .axisRow {
+    grid-template-columns: 110px 1fr 60px;
+  }
+}

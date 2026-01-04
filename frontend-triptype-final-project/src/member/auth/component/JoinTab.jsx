@@ -6,6 +6,9 @@ import AuthDateInput from "../../../common/component/AuthDateInput";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+// ✅ [추가] 설문 모달 컴포넌트 import (경로는 너 폴더 구조에 맞게 조정)
+import SurveyPopupModal from "./survey/SurveyPopupModal";
+
 function JoinTab() {
   const navigate = useNavigate();
 
@@ -21,7 +24,9 @@ function JoinTab() {
     memberGender: "",
     memberPhone: "",
     authCode: "",
-    surveyComplete: false
+    surveyComplete: false,
+    // ✅ [추가] 설문 결과(문항 선택값 포함)를 JoinTab이 들고 있게 저장
+    surveyData: null
   });
 
   const [isEmailSent, setIsEmailSent] = useState(false);
@@ -38,15 +43,16 @@ function JoinTab() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 타이머 (초 단위)
-  const [authTimer, setAuthTimer] = useState(0);      // 5분
+  const [authTimer, setAuthTimer] = useState(0); // 5분
   const [resendCooldown, setResendCooldown] = useState(0); // 30초
 
-   // 인증번호 5분 타이머
+  // 인증번호 5분 타이머
   useEffect(() => {
     if (authTimer <= 0) return; // 타이머 끝나면 자동 정지
 
-    const interval = setInterval(() => { // setInterval 1초마다 실행
-      setAuthTimer(prev => prev - 1); // 이전 값에서 1초 줄임
+    const interval = setInterval(() => {
+      // setInterval 1초마다 실행
+      setAuthTimer((prev) => prev - 1); // 이전 값에서 1초 줄임
     }, 1000); // 1000은 1초(1000밀리초를 의미), 1초마다 authTimer를 1 줄여라
 
     return () => clearInterval(interval);
@@ -54,22 +60,14 @@ function JoinTab() {
     // 그때마다 interval을 새로 만들면
     // 시계가 여러 개 동시에 돌아감
     // 그래서 이전 interval 제거, 항상 하나의 타이머만 유지
-
   }, [authTimer]); // authTimer 값이 바뀔 때마다 이 useEffect를 다시 실행
-  // authTimer = 300
-  // useEffect 실행
-  // 1초 후 authTimer = 299
-  // authTimer 바뀜
-  // useEffect 다시 실행
-  // 이전 interval 제거
-  // 새 interval 생성
 
   // 재발송 30초 쿨타임
   useEffect(() => {
     if (resendCooldown <= 0) return;
 
     const interval = setInterval(() => {
-      setResendCooldown(prev => prev - 1);
+      setResendCooldown((prev) => prev - 1);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -79,7 +77,7 @@ function JoinTab() {
     if (authTimer === 0 && isEmailSent && !isEmailVerified) {
       setEmailStatus({
         type: "err",
-        text: "인증 시간이 만료되었습니다. 다시 인증번호를 발송해주세요."
+        text: "인증 시간이 만료되었습니다. 다시 인증번호를 발송해주세요.",
       });
     }
   }, [authTimer]);
@@ -89,14 +87,16 @@ function JoinTab() {
   ======================= */
   const msg = useMemo(() => {
     const emailFormatOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.memberId);
-    const pwOk = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[^\s]{8,16}$/.test(form.memberPassword);
-    const pwMatch = form.memberPassword && form.memberPassword === form.passwordConfirm;
+    const pwOk =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[^\s]{8,16}$/.test(
+        form.memberPassword
+      );
+    const pwMatch =
+      form.memberPassword && form.memberPassword === form.passwordConfirm;
     const nameOk =
       /^[가-힣]{2,20}$/.test(form.memberName) ||
       /^[a-zA-Z\s]{2,20}$/.test(form.memberName);
-    const phoneOk =
-      !form.memberPhone ||
-      /^010-\d{4}-\d{4}$/.test(form.memberPhone);
+    const phoneOk = !form.memberPhone || /^010-\d{4}-\d{4}$/.test(form.memberPhone);
 
     return {
       email:
@@ -122,12 +122,11 @@ function JoinTab() {
         form.memberPhone && !phoneOk
           ? { type: "err", text: "010-XXXX-XXXX 형식" }
           : null,
-      auth:
-        isAuthChecked
-          ? isEmailVerified
-            ? { type: "ok", text: "인증되었습니다." }
-            : { type: "err", text: "인증번호를 확인해주세요." }
-          : null
+      auth: isAuthChecked
+        ? isEmailVerified
+          ? { type: "ok", text: "인증되었습니다." }
+          : { type: "err", text: "인증번호를 확인해주세요." }
+        : null,
     };
   }, [form, emailStatus, isAuthChecked, isEmailVerified]);
 
@@ -184,19 +183,16 @@ function JoinTab() {
 
       setEmailStatus({
         type: "ok",
-        text: "사용 가능한 이메일입니다. 인증번호를 확인해주세요."
+        text: "사용 가능한 이메일입니다. 인증번호를 확인해주세요.",
       });
       setIsEmailSent(true);
 
-      setAuthTimer(300);       // 5분 타이머 시작
-      setResendCooldown(30);   // 재발송 쿨타임 30초
-
+      setAuthTimer(300); // 5분 타이머 시작
+      setResendCooldown(30); // 재발송 쿨타임 30초
     } catch (err) {
       setEmailStatus({
         type: "err",
-        text:
-          err?.response?.data?.message ||
-          "이미 가입된 이메일입니다."
+        text: err?.response?.data?.message || "이미 가입된 이메일입니다.",
       });
     } finally {
       setIsSending(false);
@@ -207,17 +203,13 @@ function JoinTab() {
     setIsAuthChecked(true);
 
     try {
-      await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/mail/auth/verify`,
-        {
-          email: form.memberId,
-          authCode: form.authCode
-        }
-      );
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/mail/auth/verify`, {
+        email: form.memberId,
+        authCode: form.authCode,
+      });
 
       setIsEmailVerified(true);
       setEmailStatus({ type: "ok", text: "이메일 인증이 완료되었습니다." });
-
     } catch {
       setIsEmailVerified(false);
     }
@@ -245,23 +237,33 @@ function JoinTab() {
       ).padStart(2, "0")}-${String(birth.getDate()).padStart(2, "0")}`,
       memberGender: form.memberGender,
       memberPhone: form.memberPhone.replaceAll("-", ""),
-      authCode: form.authCode
+      authCode: form.authCode,
+
+      // ✅ [추가] join에서 설문도 같이 보낼 수 있도록 함께 실어둠
+      // (백엔드 DTO에 survey 필드 추가하면 그대로 받음)
+      survey: form.surveyData
+        ? {
+            typeCode: form.surveyData?.type?.typeCode,
+            relaxScore: form.surveyData?.scores?.RELAX ?? 0,
+            cityScore: form.surveyData?.scores?.CITY ?? 0,
+            natureScore: form.surveyData?.scores?.NATURE ?? 0,
+            activityScore: form.surveyData?.scores?.ACTIVITY ?? 0,
+            // ✅ 문항 선택값 전체도 필요하면 같이 보관/전송 가능
+            answers: form.surveyData?.answers ?? null,
+          }
+        : null,
     };
 
     try {
       setIsSubmitting(true);
-      await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/member/join`,
-        payload
-      );
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/member/join`, payload);
 
       setServerMsg({ type: "ok", text: "회원가입이 완료되었습니다." });
       setTimeout(() => navigate("/member?tab=login"), 1500);
-
     } catch (err) {
       setServerMsg({
         type: "err",
-        text: err?.response?.data?.message || "회원가입 실패"
+        text: err?.response?.data?.message || "회원가입 실패",
       });
     } finally {
       setIsSubmitting(false);
@@ -293,17 +295,15 @@ function JoinTab() {
             {isEmailVerified
               ? "인증 완료"
               : isSending
-                ? "발송 중..."
-                : isEmailSent
-                  ? `재발송 (${resendCooldown}초)`
-                  : "인증번호 발송"}
+              ? "발송 중..."
+              : isEmailSent
+              ? `재발송 (${resendCooldown}초)`
+              : "인증번호 발송"}
           </button>
         </div>
-        
+
         {msg.email && (
-          <div className={`inline-msg ${msg.email.type}`}>
-            {msg.email.text}
-          </div>
+          <div className={`inline-msg ${msg.email.type}`}>{msg.email.text}</div>
         )}
       </div>
 
@@ -324,7 +324,8 @@ function JoinTab() {
               {/* input 내부로 타이머 이동 */}
               {isEmailSent && !isEmailVerified && authTimer > 0 && (
                 <span className="auth-timer-inline">
-                  {Math.floor(authTimer / 60)}:{String(authTimer % 60).padStart(2, "0")}
+                  {Math.floor(authTimer / 60)}:
+                  {String(authTimer % 60).padStart(2, "0")}
                 </span>
               )}
             </div>
@@ -335,33 +336,44 @@ function JoinTab() {
           </div>
 
           {msg.auth && (
-            <div className={`inline-msg ${msg.auth.type}`}>
-              {msg.auth.text}
-            </div>
+            <div className={`inline-msg ${msg.auth.type}`}>{msg.auth.text}</div>
           )}
         </div>
       )}
 
       <div className="field">
         <label>비밀번호</label>
-        <input type="password"
-               name="memberPassword"
-               value={form.memberPassword}
-               onChange={onChange}
-               placeholder="영문, 숫자, 특수문자 포함 8-16자"
+        <input
+          type="password"
+          name="memberPassword"
+          value={form.memberPassword}
+          onChange={onChange}
+          placeholder="영문, 숫자, 특수문자 포함 8-16자"
         />
         {msg.pw && <div className={`inline-msg ${msg.pw.type}`}>{msg.pw.text}</div>}
       </div>
 
       <div className="field">
         <label>비밀번호 확인</label>
-        <input type="password" name="passwordConfirm" value={form.passwordConfirm} onChange={onChange} placeholder="비밀번호 재입력" />
+        <input
+          type="password"
+          name="passwordConfirm"
+          value={form.passwordConfirm}
+          onChange={onChange}
+          placeholder="비밀번호 재입력"
+        />
         {msg.pw2 && <div className={`inline-msg ${msg.pw2.type}`}>{msg.pw2.text}</div>}
       </div>
 
       <div className="field">
         <label>이름</label>
-        <input type="text" name="memberName" value={form.memberName} onChange={onChange} placeholder="실명 입력 (한글/영문)" />
+        <input
+          type="text"
+          name="memberName"
+          value={form.memberName}
+          onChange={onChange}
+          placeholder="실명 입력 (한글/영문)"
+        />
         {msg.name && <div className={`inline-msg ${msg.name.type}`}>{msg.name.text}</div>}
       </div>
 
@@ -369,7 +381,7 @@ function JoinTab() {
         <label>생년월일</label>
         <DatePicker
           selected={form.memberBirthDate}
-          onChange={(date) => setForm(prev => ({ ...prev, memberBirthDate: date }))}
+          onChange={(date) => setForm((prev) => ({ ...prev, memberBirthDate: date }))}
           locale={ko}
           dateFormat="yyyy-MM-dd"
           maxDate={new Date()}
@@ -382,33 +394,50 @@ function JoinTab() {
           customInput={<AuthDateInput />} // className 도 여기 들어있다.
         />
       </div>
-      
+
       <div className="field">
         <label>성별</label>
         <div className="gender-selection">
-          <label><input type="radio" name="memberGender" value="M" onChange={onChange} /> 남성</label>
-          <label><input type="radio" name="memberGender" value="F" onChange={onChange} /> 여성</label>
+          <label>
+            <input type="radio" name="memberGender" value="M" onChange={onChange} /> 남성
+          </label>
+          <label>
+            <input type="radio" name="memberGender" value="F" onChange={onChange} /> 여성
+          </label>
         </div>
       </div>
 
       <div className="field">
         <label>휴대폰 번호 (선택)</label>
-        <input type="text" name="memberPhone" value={form.memberPhone} onChange={handlePhoneChange} placeholder="010-0000-0000" />
+        <input
+          type="text"
+          name="memberPhone"
+          value={form.memberPhone}
+          onChange={handlePhoneChange}
+          placeholder="010-0000-0000"
+        />
         {msg.phone ? (
-          <div className={`inline-msg ${msg.phone.type}`}>
-            {msg.phone.text}
-          </div>
+          <div className={`inline-msg ${msg.phone.type}`}>{msg.phone.text}</div>
         ) : null}
       </div>
 
-      <div className="field" style={{marginTop: '20px'}}>
+      <div className="field" style={{ marginTop: "20px" }}>
         <label>나의 여행 스타일 (선택)</label>
-        <div className={`survey-trigger-box ${form.surveyComplete ? 'completed' : ''}`} onClick={() => setIsModalOpen(true)}>
+        <div
+          className={`survey-trigger-box ${form.surveyComplete ? "completed" : ""}`}
+          onClick={() => setIsModalOpen(true)}
+        >
           <div className="survey-status">
-            <span className="icon">{form.surveyComplete ? '✅' : '🔍'}</span>
+            <span className="icon">{form.surveyComplete ? "✅" : "🔍"}</span>
             <div>
-              <p className="main-text">{form.surveyComplete ? "설문 완료!" : "내 여행 취향 분석하기"}</p>
-              <p className="sub-text">{form.surveyComplete ? "취향에 맞는 여행지를 골라드릴게요." : "1분이면 끝나요! (클릭하여 시작)"}</p>
+              <p className="main-text">
+                {form.surveyComplete ? "설문 완료!" : "내 여행 취향 분석하기"}
+              </p>
+              <p className="sub-text">
+                {form.surveyComplete
+                  ? "취향에 맞는 여행지를 골라드릴게요."
+                  : "1분이면 끝나요! (클릭하여 시작)"}
+              </p>
             </div>
           </div>
         </div>
@@ -417,30 +446,27 @@ function JoinTab() {
       <button type="submit" className="primary-btn" disabled={isSubmitting}>
         {isSubmitting ? "처리 중..." : "트립타임 시작하기"}
       </button>
-      
+
       {/* 서버 메시지 인라인 표시 (원하는 위치로 옮겨도 됨) */}
       {serverMsg && (
         <div className={`inline-msg ${serverMsg.type}`} style={{ marginBottom: "12px" }}>
           {serverMsg.text}
         </div>
       )}
-      
-      {isModalOpen && (
-        <div className="fullscreen-overlay">
-          <div className="overlay-content">
-            <button className="close-overlay" onClick={() => setIsModalOpen(false)}>✕</button>
-            {/* 추후 overlay-body 부분 영재님 컴포넌트로 대체 */}
-            <div className="overlay-body">
-              <h2>여행 스타일 분석</h2>
-              <p>어떤 여행을 선호하시나요?</p>
-              <div className="survey-options">
-                <button type="button" onClick={() => { setForm({...form, surveyComplete: true}); setIsModalOpen(false); }}>🏔️ 휴양지</button>
-                <button type="button" onClick={() => { setForm({...form, surveyComplete: true}); setIsModalOpen(false); }}>🏙️ 도심관광</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
+      {/* ✅ [변경] 설문 결과를 JoinTab이 들고 있게 저장 */}
+      <SurveyPopupModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onComplete={(result) => {
+          setForm((prev) => ({
+            ...prev,
+            surveyComplete: true,
+            surveyData: result, // ✅ scores/type/answers 통째로 저장
+          }));
+          setIsModalOpen(false);
+        }}
+      />
     </form>
   );
 }

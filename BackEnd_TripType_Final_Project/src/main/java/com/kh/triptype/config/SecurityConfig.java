@@ -75,7 +75,12 @@ public class SecurityConfig {
                     "/triptype/js/**"
                 ).permitAll()
 
-
+                // ✅✅ [추가] 취향 설문 API는 로그인 필수
+                .requestMatchers(
+                    "/triptype/api/survey/**",
+                    "/api/survey/**"
+                ).authenticated()
+                
                 // JWT 보호 API
                 .requestMatchers("/triptype/airline/review", "/airline/review").authenticated()
                 .requestMatchers("/triptype/api/mypage/**", "/api/mypage/**").authenticated()

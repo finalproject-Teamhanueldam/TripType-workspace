@@ -65,13 +65,22 @@ import Withdraw from "./mypage/component/Withdraw";
 // 프론트 라우터 가드 추가(최경환)
 import PrivateRoute from "./common/route/PrivateRoute";
 
+// 취향 설문 페이지 추가(지영재)
+import SurveyShell from "./survey/component/common/SurveyShell";
+
+// ✅ GatePage
+import GatePage from "./survey/component/page/GatePage";
+
+// ✅ Question / Result 페이지(설문 라우팅에 필요)
+import QuestionPage from "./survey/component/page/QuestionPage";
+import ResultPage from "./survey/component/page/ResultPage";
 
 function App() {
   const location = useLocation();
   const isMainPage = location.pathname === "/";
   console.log("현재 경로:", location.pathname);
 
-    // 로그인 페이지, 추가: Header 숨길 경로 (최경환)
+  // 로그인 페이지, 추가: Header 숨길 경로 (최경환)
   const hideHeaderPaths = [
     "/member",
     "/admin",
@@ -82,9 +91,8 @@ function App() {
     location.pathname.startsWith(path)
   );
 
-
   return (
-    <div> 
+    <div>
 
       {/* 🔥 Toastify는 App 최상단에 단 1번 */}
       <ToastContainer
@@ -98,7 +106,7 @@ function App() {
         pauseOnHover={false}
         draggable={false}
       />
-    
+
       {/* 수정 : admin and member 관련 페이지 헤더 예외 처리 (최경환)*/}
       {!hideHeader && <Header />}
 
@@ -123,33 +131,28 @@ function App() {
         <Route path="/faq" element={<UserFaqPage />} />
 
         {/* 항공권 목록 페이지 */}
-        <Route path="/airline/list" element={<AirlineListComponent/>}/>
-        <Route path="/airline/list/price" element={<PriceComponent/>}/>
+        <Route path="/airline/list" element={<AirlineListComponent />} />
+        <Route path="/airline/list/price" element={<PriceComponent />} />
 
         {/* 항공권 상세 페이지 */}
-        <Route path="/airline/detail/:airlineNo" element={<AirlineDetailComponent/>}></Route>
+        <Route path="/airline/detail/:airlineNo" element={<AirlineDetailComponent />}></Route>
 
         {/* 여행 경보 페이지 */}
-        <Route path="/airline/travelAlert" element={<TravelAlertComponent/>}></Route>
+        <Route path="/airline/travelAlert" element={<TravelAlertComponent />}></Route>
 
         {/* 권한 분기 (1-2 김동윤) */}
         {/* 관리자 페이지 공통 Route (12-16 선종범)*/}
-        <Route path="/admin" element={ <AdminRoute>< AdminLayout /></AdminRoute>}>
-        {/* <Route path="/admin" element={< AdminLayout />}> */}
+        <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route path="statistics" element={<AuthStatisticsComponent />} />
-          <Route path="flight" element={< FlightComponent />} />  
-          <Route path="airlinereview" element={< AdminAirlineReviewListComponent />} />
-          {/* 관리자 공지 (12.16 김동윤)*/}
-          {/* 관리자 공지댓글 수정 (12.17 김동윤) */}
+          <Route path="flight" element={<FlightComponent />} />
+          <Route path="airlinereview" element={<AdminAirlineReviewListComponent />} />
           <Route path="/admin/notice" element={<AdminNoticeList />} />
           <Route path="/admin/notice/write" element={<AdminNoticeForm />} />
           <Route path="/admin/notice/:noticeId" element={<AdminNoticeDetail />} />
-          {/* <Route path="notice/comment" element={<AdminNoticeCommentList/>} /> */}
-          {/* 관리자 회원 관리(1.3 최경환) */}
           <Route path="member" element={<AdminMemberList />} />
           <Route path="member/:memberNo" element={<AdminMemberDetail />} />
         </Route>
-        
+
         {/* 마이페이지 */}
         <Route path="/mypage" element={<PrivateRoute><MyPageLayout /></PrivateRoute>}>
           <Route index element={<Profile />} />
@@ -161,6 +164,26 @@ function App() {
           <Route path="withdraw" element={<Withdraw />} />
         </Route>
 
+        {/* ✅ 취향 설문(게이트/문항/결과) - 로그인 필수 */}
+        <Route
+          path="/survey"
+          element={
+            <PrivateRoute>
+              <SurveyShell mode="page" />
+            </PrivateRoute>
+          }
+        >
+          {/* /survey */}
+          <Route index element={<GatePage />} />
+
+          {/* /survey/question */}
+          <Route path="question" element={<QuestionPage />} />
+          {/* <Route path="question" element={<div style={{ padding: 40 }}>QUESTION ROUTE OK</div>} /> */}
+
+          {/* /survey/result */}
+          <Route path="result" element={<ResultPage />} />
+        </Route>
+
       </Routes>
 
       {/* 헤더 - 지영재 - */}
@@ -170,8 +193,6 @@ function App() {
       {isMainPage && <KakaoChatButton />}
 
     </div>
-      
-
   );
 }
 

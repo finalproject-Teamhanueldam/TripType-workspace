@@ -56,7 +56,7 @@ public class FlightSearchServiceImpl implements FlightSearchService {
     private final FlightOfferDao flightOfferDao;
     private final FlightDao flightDao;
     private final AirlineDao airlineDao;
-    
+
     /* =========================================================
     ✅✅ [추가] 캐시 HIT 시 AirlineListVo를 DB에서 조회해서 반환하기 위해 주입
     - 기존 AirlineListController가 사용하던 서비스 재사용
@@ -108,11 +108,6 @@ public class FlightSearchServiceImpl implements FlightSearchService {
 
         validateRequest(request);
 
-        // ✅✅ [수정 1] memberNo 비로그인 허용
-        // - 로그인된 사용자는 request.memberNo가 넘어오고
-        // - 비로그인 사용자는 null일 수 있음 -> 서비스에서 null 안전 처리
-        // - (여기서는 유효성 검증만 수행, 저장은 아래 로직에서 처리)
-
         // searchId 생성
         String searchId = UUID.randomUUID().toString();
         SearchJob job = new SearchJob();
@@ -140,14 +135,21 @@ public class FlightSearchServiceImpl implements FlightSearchService {
     /**
      * ✅ 신규: searchId로 결과 조회
      * - 아직 준비 안 됐으면 null 반환 (컨트롤러에서 202로 처리)
-     * - 에러면 IllegalStateException 던짐 (전역예외처리/500 또는 4xx로 처리)
+     * - 에러면 IllegalStateException 던짐
+     *
+     * ✅✅ [수정 핵심]
+     * - jobStore에 searchId가 없을 때(서버 재시작/만료/유실 등)
+     *   IllegalArgumentException을 던지면 프론트 폴링이 "에러"로 끊김
+     * - 여기서는 "PENDING(null)"로 처리해서 컨트롤러가 202를 내려주게 함
      */
     @Override
     public List<AirlineListVo> getSearchResult(String searchId) {
 
         SearchJob job = jobStore.get(searchId);
+
+        // ✅✅ [수정] invalid라도 예외 던지지 말고 PENDING 취급
         if (job == null) {
-            throw new IllegalArgumentException("Invalid searchId: " + searchId);
+            return null; // 컨트롤러가 202(PENDING)로 응답하게 됨
         }
 
         if (job.status == JobStatus.PENDING) {
@@ -167,20 +169,15 @@ public class FlightSearchServiceImpl implements FlightSearchService {
     }
 
     /* =========================================================
-       ✅✅ [수정 2] memberNo 안전 처리 유틸
-       - 로그인: request.memberNo 사용
-       - 비로그인: null 반환 (DB 컬럼이 NOT NULL이면 0L/1L 같은 guest 값을 정책으로 정해야 함)
+       ✅✅ memberNo 안전 처리 유틸
        ========================================================= */
     private Long resolveMemberNo(FlightSearchRequestDto request) {
         if (request == null) return null;
-        return request.getMemberNo(); // 로그인 시 값 존재, 비로그인 시 null
+        return request.getMemberNo();
     }
 
     /* =========================================================
-       ✅✅ [수정 3] (핵심) 대표 airlineId 결정
-       - "판매사(sellingAirline) 우선" 규칙 적용
-       - 없으면 operAirlineId
-       - 그래도 없으면 1 (기존 fallback)
+       ✅✅ 대표 airlineId 결정
        ========================================================= */
     private int resolveRepresentativeAirlineId(List<FlightVo> flights) {
         if (flights == null || flights.isEmpty()) return 1;
@@ -198,10 +195,6 @@ public class FlightSearchServiceImpl implements FlightSearchService {
         return 1;
     }
 
-    /* =========================================================
-       ✅ 기존 메서드 유지(다른 코드 영향 최소)
-       - 기존 호출처가 있으면 그대로 동작
-       ========================================================= */
     @Override
     public FlightSearchResponseDto searchFlights(FlightSearchRequestDto request) {
 
@@ -210,9 +203,6 @@ public class FlightSearchServiceImpl implements FlightSearchService {
 
         validateRequest(request);
 
-        // ✅✅ [수정 4] memberNo 하드코딩 제거 (비로그인 고려)
-        // - 로그인된 사용자: request.memberNo가 들어오면 그 값 저장
-        // - 비로그인: null 저장 (DB가 NOT NULL이면 정책에 맞게 변경 필요)
         Long memberNo = resolveMemberNo(request);
 
         flightSearchHistoryDao.insertSearchHistory(
@@ -234,7 +224,7 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                         )
                         .departIataCode(request.getDepart())
                         .arriveIataCode(request.getArrive())
-                        .memberNo(memberNo) // ✅ 하드코딩 제거
+                        .memberNo(memberNo)
                         .build()
         );
 
@@ -266,7 +256,6 @@ public class FlightSearchServiceImpl implements FlightSearchService {
             ParsedOfferDto parsed = parseOfferToFlights(offer);
             if (parsed.getFlights().isEmpty()) continue;
 
-            // ✅✅ [수정 5] 대표 airlineId 계산 (sellingAirline 우선)
             int repAirlineId = resolveRepresentativeAirlineId(parsed.getFlights());
 
             try {
@@ -282,7 +271,6 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                                 offerId =
                                         flightOfferDao.insertFlightOfferAndReturnId(
                                                 sqlSession,
-                                                // ✅✅ [수정 6] airlineId 주입 (하드코딩 제거)
                                                 buildOfferInsertParam(request, repAirlineId)
                                         );
 
@@ -298,7 +286,6 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                             }
 
                             FlightSearchCacheVo cacheRow =
-                                    // ✅✅ [수정 7] cache/history에도 airlineId 주입 (하드코딩 제거)
                                     buildHistoryRowFromParsed(parsed, request, offerId, repAirlineId);
 
                             flightPriceHistoryDao.insertSearchCache(
@@ -323,189 +310,155 @@ public class FlightSearchServiceImpl implements FlightSearchService {
         return FlightSearchResponseDto.fromCache(result);
     }
 
-    /* =========================================================
-       ✅ 기존 유지: 목록 즉시 렌더용 (컨트롤러가 호출)
-       - 이 메서드는 "기존 구조 그대로" 둠 (다른 코드 영향 최소)
-       - 진짜 UX 개선은 startSearchAsync/getSearchResult를 컨트롤러가 사용해야 함
-       ========================================================= */
- // ✅✅ FlightSearchServiceImpl 내부 (필드 추가 필요)
- // -------------------------------------------------
- // ※ 캐시 HIT 시 DB에서 항공편 목록(AirlineListVo)을 다시 조회하려면
-//     기존 airline 모듈의 조회 서비스(또는 DAO)를 여기서 호출해야 함.
-//     아래처럼 주입 1줄 추가(RequiredArgsConstructor라 생성자 자동):
- //
- // private final com.kh.triptype.airline.model.service.AirlineListService airlineListService;
- //
- // -------------------------------------------------
+    @Override
+    public List<AirlineListVo> searchFlightsForList(FlightSearchRequestDto request) {
 
- @Override
- public List<AirlineListVo> searchFlightsForList(FlightSearchRequestDto request) {
+        System.out.println("========== [SEARCH_FOR_LIST START] ==========");
+        System.out.println("[REQ] " + request);
 
-     System.out.println("========== [SEARCH_FOR_LIST START] ==========");
-     System.out.println("[REQ] " + request);
+        validateRequest(request);
 
-     validateRequest(request);
+        Long memberNo = resolveMemberNo(request);
 
-     // ✅✅ memberNo 하드코딩 제거(비로그인 null 허용)
-     Long memberNo = resolveMemberNo(request);
+        flightSearchHistoryDao.insertSearchHistory(
+                sqlSession,
+                FlightSearchHistoryVo.builder()
+                        .searchLogOneWay("ONEWAY".equals(request.getTripType()) ? "Y" : "N")
+                        .searchLogPassengerCount(
+                                safeInt(request.getAdultCount()) + safeInt(request.getMinorCount())
+                        )
+                        .searchLogDepartDate(
+                                request.getDepartDate() != null
+                                        ? Date.valueOf(request.getDepartDate())
+                                        : null
+                        )
+                        .searchLogReturnDate(
+                                request.getReturnDate() != null
+                                        ? Date.valueOf(request.getReturnDate())
+                                        : null
+                        )
+                        .departIataCode(request.getDepart())
+                        .arriveIataCode(request.getArrive())
+                        .memberNo(memberNo)
+                        .build()
+        );
 
-     // 0) 검색 로그는 기존과 동일하게 남김
-     flightSearchHistoryDao.insertSearchHistory(
-             sqlSession,
-             FlightSearchHistoryVo.builder()
-                     .searchLogOneWay("ONEWAY".equals(request.getTripType()) ? "Y" : "N")
-                     .searchLogPassengerCount(
-                             safeInt(request.getAdultCount()) + safeInt(request.getMinorCount())
-                     )
-                     .searchLogDepartDate(
-                             request.getDepartDate() != null
-                                     ? Date.valueOf(request.getDepartDate())
-                                     : null
-                     )
-                     .searchLogReturnDate(
-                             request.getReturnDate() != null
-                                     ? Date.valueOf(request.getReturnDate())
-                                     : null
-                     )
-                     .departIataCode(request.getDepart())
-                     .arriveIataCode(request.getArrive())
-                     .memberNo(memberNo)
-                     .build()
-     );
+        if ("MULTI".equals(request.getTripType())) {
+            System.out.println("⚠️ MULTI 요청: 현재 searchFlightsForList는 단일/왕복 렌더 기준");
+            try {
+                searchFlights(request);
+            } catch (Exception e) {
+                System.out.println("❌ MULTI fallback(searchFlights) 실패: " + e.getMessage());
+            }
+            return new ArrayList<>();
+        }
 
-     // MULTI는 기존 정책 유지
-     if ("MULTI".equals(request.getTripType())) {
-         System.out.println("⚠️ MULTI 요청: 현재 searchFlightsForList는 단일/왕복 렌더 기준");
-         try {
-             searchFlights(request);
-         } catch (Exception e) {
-             System.out.println("❌ MULTI fallback(searchFlights) 실패: " + e.getMessage());
-         }
-         return new ArrayList<>();
-     }
+        List<FlightSearchCacheVo> cached =
+                flightPriceHistoryDao.selectRecentSearchCache(sqlSession, request);
 
-     List<FlightSearchCacheVo> cached =
-             flightPriceHistoryDao.selectRecentSearchCache(sqlSession, request);
+        if (cached != null && !cached.isEmpty()) {
 
-     /* =========================================================
-        ✅✅ [핵심 수정] 캐시 HIT이면 "빈 리스트" 반환하면 안 됨
-        - 기존: return new ArrayList<>();
-        - 변경: airline/list 화면이 쓰는 "DB조회 로직"으로 실제 목록을 반환
-        - 이유:
-          cached는 '검색 캐시(가격 히스토리)'라서 화면 렌더에 필요한
-          Flight segment(join) 정보가 부족할 수 있음.
-          -> 그래서 기존에 있던 airline 모듈의 DB 조회를 그대로 호출하는게 안전
-        ========================================================= */
-     if (cached != null && !cached.isEmpty()) {
+            System.out.println("✅ 1시간 캐시 HIT: count=" + cached.size() + " -> DB에서 목록 재조회 후 반환");
 
-         System.out.println("✅ 1시간 캐시 HIT: count=" + cached.size() + " -> DB에서 목록 재조회 후 반환");
+            com.kh.triptype.airline.model.vo.AirlineFilter filter =
+                    new com.kh.triptype.airline.model.vo.AirlineFilter();
 
-         // ✅ airline 모듈이 쓰는 AirlineFilter로 변환해서 그대로 조회
-         com.kh.triptype.airline.model.vo.AirlineFilter filter =
-                 new com.kh.triptype.airline.model.vo.AirlineFilter();
+            filter.setDepart(request.getDepart());
+            filter.setArrive(request.getArrive());
+            filter.setDepartDate(request.getDepartDate());
+            filter.setReturnDate(request.getReturnDate());
+            filter.setAdultCount(request.getAdultCount());
+            filter.setMinorCount(request.getMinorCount());
 
-         filter.setDepart(request.getDepart());
-         filter.setArrive(request.getArrive());
-         filter.setDepartDate(request.getDepartDate());
-         filter.setReturnDate(request.getReturnDate());
-         filter.setAdultCount(request.getAdultCount());
-         filter.setMinorCount(request.getMinorCount());
+            if ("ROUND".equals(request.getTripType())) {
+                filter.setTripType("N");
+            } else if ("ONEWAY".equals(request.getTripType())) {
+                filter.setTripType("Y");
+            } else {
+                filter.setTripType(request.getTripType());
+            }
 
-         // ✅ request.tripType(ROUND/ONEWAY) -> airline 모듈 tripType(N/Y) 변환
-         if ("ROUND".equals(request.getTripType())) {
-             filter.setTripType("N");
-         } else if ("ONEWAY".equals(request.getTripType())) {
-             filter.setTripType("Y");
-         } else {
-             filter.setTripType(request.getTripType()); // 혹시 모를 예외값 그대로
-         }
+            filter.setSortType("PRICE");
 
-         // ✅ sortType은 searchFlightsForList 단계에서는 기본 PRICE로 반환
-         // (프론트에서 activeFilter 바뀌면 /airline/list?sortType=... 으로 재호출해서 정렬됨)
-         filter.setSortType("PRICE");
+            ArrayList<AirlineListVo> list =
+                    airlineListService.selectAirlineListPrice(filter);
 
-         ArrayList<AirlineListVo> list =
-                 airlineListService.selectAirlineListPrice(filter);
+            if (list == null) return new ArrayList<>();
+            return list;
+        }
 
-         if (list == null) return new ArrayList<>();
-         return list;
-     }
+        String token = issueAccessToken();
+        List<AmadeusFlightOfferDto> offers = callSingleFlightApi(token, request);
 
-     // ✅ 캐시 MISS면 기존대로 API 호출 -> 즉시 렌더 리스트 구성
-     String token = issueAccessToken();
-     List<AmadeusFlightOfferDto> offers = callSingleFlightApi(token, request);
+        if (offers == null || offers.isEmpty()) {
+            System.out.println("✅ API 결과 없음");
+            return new ArrayList<>();
+        }
 
-     if (offers == null || offers.isEmpty()) {
-         System.out.println("✅ API 결과 없음");
-         return new ArrayList<>();
-     }
+        List<AirlineListVo> renderList = new ArrayList<>();
 
-     List<AirlineListVo> renderList = new ArrayList<>();
+        int offerIdx = 0;
+        for (AmadeusFlightOfferDto offer : offers) {
 
-     int offerIdx = 0;
-     for (AmadeusFlightOfferDto offer : offers) {
+            offerIdx++;
+            ParsedOfferDto parsed = parseOfferToFlights(offer);
+            if (parsed.getFlights().isEmpty()) continue;
 
-         offerIdx++;
-         ParsedOfferDto parsed = parseOfferToFlights(offer);
-         if (parsed.getFlights().isEmpty()) continue;
+            int repAirlineId = resolveRepresentativeAirlineId(parsed.getFlights());
 
-         // ✅ 대표 airlineId 계산(판매사 우선)
-         int repAirlineId = resolveRepresentativeAirlineId(parsed.getFlights());
+            try {
+                Long offerId = transactionTemplate.execute(status -> {
 
-         try {
-             Long offerId = transactionTemplate.execute(status -> {
+                    Long id =
+                            flightOfferDao.selectOfferIdBySegments(
+                                    sqlSession, parsed.getFlights()
+                            );
 
-                 Long id =
-                         flightOfferDao.selectOfferIdBySegments(
-                                 sqlSession, parsed.getFlights()
-                         );
+                    if (id == null) {
+                        id = flightOfferDao.insertFlightOfferAndReturnId(
+                                sqlSession,
+                                buildOfferInsertParam(request, repAirlineId)
+                        );
+                    }
 
-                 if (id == null) {
-                     id = flightOfferDao.insertFlightOfferAndReturnId(
-                             sqlSession,
-                             buildOfferInsertParam(request, repAirlineId)
-                     );
-                 }
+                    return id;
+                });
 
-                 return id;
-             });
+                if (offerId == null) continue;
 
-             if (offerId == null) continue;
+                for (FlightVo f : parsed.getFlights()) {
+                    f.setFlightOfferId(offerId.intValue());
+                    if (f.getDepartAirport() != null)
+                        f.setDepartAirport(f.getDepartAirport().trim().toUpperCase());
+                    if (f.getDestAirport() != null)
+                        f.setDestAirport(f.getDestAirport().trim().toUpperCase());
+                }
 
-             for (FlightVo f : parsed.getFlights()) {
-                 f.setFlightOfferId(offerId.intValue());
-                 if (f.getDepartAirport() != null)
-                     f.setDepartAirport(f.getDepartAirport().trim().toUpperCase());
-                 if (f.getDestAirport() != null)
-                     f.setDestAirport(f.getDestAirport().trim().toUpperCase());
-             }
+                renderList.addAll(toAirlineListRows(parsed.getFlights(), parsed, request));
 
-             renderList.addAll(toAirlineListRows(parsed.getFlights(), parsed, request));
+                try {
+                    transactionTemplate.execute(status -> null);
+                } catch (Exception ignore) {
+                    // no-op
+                }
 
-             try {
-                 transactionTemplate.execute(status -> null);
-             } catch (Exception ignore) {
-                 // no-op
-             }
+            } catch (Exception e) {
+                System.out.println("[SEARCH_FOR_LIST OFFER #" + offerIdx + " ERROR] " + e.getMessage());
+            }
+        }
 
-         } catch (Exception e) {
-             System.out.println("[SEARCH_FOR_LIST OFFER #" + offerIdx + " ERROR] " + e.getMessage());
-         }
-     }
+        try {
+            System.out.println("👉 DB 적재(searchFlights) 시작");
+            searchFlights(request);
+            System.out.println("👉 DB 적재(searchFlights) 완료");
+        } catch (Exception e) {
+            System.out.println("❌ DB 적재(searchFlights) 실패: " + e.getMessage());
+        }
 
-     // ✅ 기존 정책 유지: 즉시 렌더 후, 전체 DB 적재는 searchFlights로 별도 수행
-     try {
-         System.out.println("👉 DB 적재(searchFlights) 시작");
-         searchFlights(request);
-         System.out.println("👉 DB 적재(searchFlights) 완료");
-     } catch (Exception e) {
-         System.out.println("❌ DB 적재(searchFlights) 실패: " + e.getMessage());
-     }
-
-     System.out.println("========== [SEARCH_FOR_LIST END] ==========");
-     System.out.println("✅ renderList count=" + renderList.size());
-     return renderList;
- }
+        System.out.println("========== [SEARCH_FOR_LIST END] ==========");
+        System.out.println("✅ renderList count=" + renderList.size());
+        return renderList;
+    }
 
     /* ===================== MULTI ===================== */
 
@@ -534,7 +487,6 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                 ParsedOfferDto parsed = parseOfferToFlights(offer);
                 if (parsed.getFlights().isEmpty()) continue;
 
-                // ✅✅ [수정 11] MULTI도 대표 airlineId 계산
                 int repAirlineId = resolveRepresentativeAirlineId(parsed.getFlights());
 
                 try {
@@ -550,7 +502,6 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                                     offerId =
                                             flightOfferDao.insertFlightOfferAndReturnId(
                                                     sqlSession,
-                                                    // ✅✅ [수정 12] airlineId 주입
                                                     buildOfferInsertParam(legReq, repAirlineId)
                                             );
 
@@ -566,7 +517,6 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                                 }
 
                                 FlightSearchCacheVo cacheRow =
-                                        // ✅✅ [수정 13] cache/history에도 airlineId 주입
                                         buildHistoryRowFromParsed(parsed, legReq, offerId, repAirlineId);
 
                                 flightPriceHistoryDao.insertSearchCache(
@@ -701,18 +651,11 @@ public class FlightSearchServiceImpl implements FlightSearchService {
         leg.setDepartDate(seg.getDate());
         leg.setAdultCount(origin.getAdultCount());
         leg.setMinorCount(origin.getMinorCount());
-
-        // ✅✅ [수정 14] MULTI leg에도 memberNo 전달 (비로그인 null 가능)
         leg.setMemberNo(origin.getMemberNo());
 
         return leg;
     }
 
-    /* =========================================================
-       ✅✅ [수정 15] airlineId 하드코딩 제거
-       - 기존: buildOfferInsertParam(request) 내부에서 airlineId=1
-       - 변경: 호출부에서 repAirlineId 계산 후 주입
-       ========================================================= */
     private Map<String, Object> buildOfferInsertParam(
             FlightSearchRequestDto request,
             int airlineId
@@ -728,16 +671,11 @@ public class FlightSearchServiceImpl implements FlightSearchService {
         p.put("retDurTotal", null);
         p.put("extraSeat", safeInt(request.getAdultCount()) + safeInt(request.getMinorCount()));
         p.put("isDel", "N");
-
-        // ✅ airlineId는 대표값 주입(판매사 우선)
         p.put("airlineId", airlineId);
 
         return p;
     }
 
-    /* =========================================================
-       ✅✅ [수정 16] cache/history airlineId 하드코딩 제거
-       ========================================================= */
     private FlightSearchCacheVo buildHistoryRowFromParsed(
             ParsedOfferDto parsed,
             FlightSearchRequestDto request,
@@ -759,10 +697,7 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                 .flightOfferApiQueryDate(new Date(System.currentTimeMillis()))
                 .departIataCode(request.getDepart())
                 .arriveIataCode(request.getArrive())
-
-                // ✅ 하드코딩 제거
                 .airlineId(airlineId)
-
                 .build();
     }
 
@@ -776,9 +711,6 @@ public class FlightSearchServiceImpl implements FlightSearchService {
         return v == null ? 0 : v;
     }
 
-    /* =========================================================
-       ✅ 즉시 렌더용 변환 (FlightVo/ParsedOfferDto → AirlineListVo row)
-       ========================================================= */
     private List<AirlineListVo> toAirlineListRows(
             List<FlightVo> flights,
             ParsedOfferDto parsed,

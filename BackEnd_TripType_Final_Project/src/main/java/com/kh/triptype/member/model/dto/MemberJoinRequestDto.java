@@ -15,4 +15,7 @@ public class MemberJoinRequestDto {
     private String memberGender;
     private String memberPhone;
     private String authCode;
+    
+    // ✅ 추가
+    private SurveyJoinDto survey;
 }

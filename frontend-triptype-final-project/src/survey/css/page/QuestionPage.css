@@ -1,0 +1,169 @@
+/* 배경 + 중앙 정렬 */
+.surveyWrap {
+  min-height: calc(100vh - 160px);
+  padding: 40px 16px;
+  background: linear-gradient(180deg, #cedef2 0%, #f6faff 45%, #ffffff 100%);
+  display: flex;
+  justify-content: center;
+}
+
+/* 중앙 카드 */
+.surveyCard {
+  width: 100%;
+  max-width: 980px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(2, 48, 89, 0.12);
+  border-radius: 22px;
+  box-shadow: 0 12px 30px rgba(2, 48, 89, 0.08);
+  padding: 26px 26px 22px;
+  display: grid;
+  gap: 16px;
+}
+
+/* 상단 */
+.survey-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.survey-progress {
+  width: 100%;
+  display: grid;
+  gap: 6px;
+}
+
+.survey-progress-bar {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(2, 48, 89, 0.08);
+  overflow: hidden;
+}
+
+.survey-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6ebfe4, #023059);
+}
+
+.survey-progress-text {
+  font-size: 12px;
+  color: rgba(2, 48, 89, 0.65);
+}
+
+.survey-close {
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  color: rgba(2, 48, 89, 0.7);
+}
+
+/* 설문 인트로 */
+.surveyIntro {
+  display: grid;
+  gap: 6px;
+}
+
+.surveyBadge {
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(110, 191, 228, 0.18);
+  color: #023059;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.surveyDesc {
+  font-size: 13px;
+  color: rgba(2, 48, 89, 0.65);
+}
+
+/* 질문 */
+.survey-q {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #023059;
+  line-height: 1.35;
+}
+
+/* 보기 */
+.survey-options {
+  display: grid;
+  gap: 12px;
+}
+
+.survey-option {
+  position: relative;
+  padding: 18px 16px 18px 46px;
+  border-radius: 16px;
+  border: 1px solid rgba(2, 48, 89, 0.12);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(2, 48, 89, 0.9);
+}
+
+/* 라디오 느낌 */
+.survey-option::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(2, 48, 89, 0.2);
+  background: #fff;
+}
+
+.survey-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 18px rgba(2, 48, 89, 0.1);
+  border-color: rgba(110, 191, 228, 0.75);
+}
+
+.survey-option.active {
+  border: 2px solid #6ebfe4;
+  box-shadow: 0 12px 22px rgba(110, 191, 228, 0.18);
+}
+
+.survey-option.active::before {
+  border-color: #6ebfe4;
+  background: #6ebfe4;
+}
+
+/* 버튼 */
+.survey-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.survey-btn {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(2, 48, 89, 0.14);
+  background: #fff;
+  cursor: pointer;
+  min-width: 120px;
+  font-weight: 700;
+}
+
+.survey-btn.primary {
+  border: 0;
+  background: #023059;
+  color: #fff;
+}
+
+.survey-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

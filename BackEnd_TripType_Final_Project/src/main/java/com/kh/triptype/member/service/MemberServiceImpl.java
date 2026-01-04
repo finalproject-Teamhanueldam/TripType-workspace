@@ -12,6 +12,10 @@ import com.kh.triptype.member.model.dto.MemberJoinRequestDto;
 import com.kh.triptype.member.model.dto.MemberUnlockRequest;
 import com.kh.triptype.member.model.vo.Member;
 
+// ✅ [추가] 기존 설문 저장 로직 재사용
+import com.kh.triptype.survey.model.dto.SurveySaveRequestDto;
+import com.kh.triptype.survey.service.SurveyService;
+
 @Service
 public class MemberServiceImpl implements MemberService {
 
@@ -20,6 +24,10 @@ public class MemberServiceImpl implements MemberService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    // ✅ [추가] 설문 서비스 주입 (새 메소드 만들지 않고 기존 saveOrUpdateSurvey 재사용)
+    @Autowired
+    private SurveyService surveyService;
 
     @Override
     @Transactional
@@ -30,7 +38,6 @@ public class MemberServiceImpl implements MemberService {
         if (count > 0) {
             throw new IllegalStateException("이미 사용 중인 이메일입니다.");
         }
-
 
         // 2 Member VO 생성
         Member member = new Member();
@@ -47,10 +54,29 @@ public class MemberServiceImpl implements MemberService {
             throw new RuntimeException("회원가입 처리 중 오류가 발생했습니다.");
         }
 
+        // ✅ [핵심] insert 후 memberNo 확보 (MyBatis selectKey로 memberNo가 member에 세팅되어 있어야 함)
+	    // insert 후 memberNo 확보
+        int memberNo = member.getMemberNo();
+        if (memberNo <= 0) {
+            throw new RuntimeException("회원가입 처리 중 오류가 발생했습니다. (memberNo 생성 실패)");
+        }
+
+        // 설문 저장
+        if (req.getSurvey() != null) {
+            SurveySaveRequestDto surveyDto = new SurveySaveRequestDto();
+            surveyDto.setTypeCode(req.getSurvey().getTypeCode());
+            surveyDto.setRelaxScore(req.getSurvey().getRelaxScore());
+            surveyDto.setCityScore(req.getSurvey().getCityScore());
+            surveyDto.setNatureScore(req.getSurvey().getNatureScore());
+            surveyDto.setActivityScore(req.getSurvey().getActivityScore());
+
+            surveyService.saveOrUpdateSurvey((long) memberNo, surveyDto);
+        }
+
         // 4 인증 정보 삭제 (선택이지만 권장)
         memberDao.deleteAuth(req.getMemberId());
-    }
-    
+	}
+
     @Override
     @Transactional
     public void resetPassword(
@@ -58,7 +84,7 @@ public class MemberServiceImpl implements MemberService {
             String memberId,
             String newPassword
     ) {
-    	// 0️ 회원 조회
+        // 0️ 회원 조회
         Member member = memberDao.findByMemberId(memberId);
         if (member == null) {
             throw new IllegalArgumentException("INVALID_ACCOUNT");
@@ -91,7 +117,7 @@ public class MemberServiceImpl implements MemberService {
         // 5️ 인증 정보 삭제
         memberDao.deleteAuth(memberId);
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public List<String> findMemberIds(String memberName, String memberBirthDate) {
@@ -122,7 +148,7 @@ public class MemberServiceImpl implements MemberService {
              + "@"
              + domain;
     }
-    
+
     @Override
     @Transactional
     public void unlockMember(MemberUnlockRequest req) {

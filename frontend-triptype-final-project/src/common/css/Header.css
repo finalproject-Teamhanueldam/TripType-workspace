@@ -22,8 +22,8 @@ body {
 
 .header-left img {
   /* margin-top: 20px; */
-  width: 90px;
-  height: 70px;
+  width: 70px;
+  height: 50px;
 }
 
 
@@ -43,7 +43,8 @@ body {
   padding: 0;
 }
 
-.header-right ul a {
+.header-right ul a,
+.header-right ul li .header-link {
   text-decoration: none;
   color: #023059;
   font-size: 17px;

@@ -74,6 +74,12 @@
   transform: scale(1.08);
 }
 
+.dest-card img.is-fallback-logo {
+  object-fit: contain;     /* 로고는 안 잘리게 */
+  padding: 18px;           /* 여백 줘서 예쁘게 */
+  background: #fff;        /* 배경 통일 (필요시) */
+}
+
 /* ===============================
    그라데이션
 ================================ */
