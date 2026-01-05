@@ -2,25 +2,28 @@
   background: white;
   border-radius: 14px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+
+  width: 100%;           /* admin-page 기준 꽉 채움 */
   overflow-x: auto;
+  margin: 0 auto;             /* 중앙 정렬 느낌 */
 }
 
+/* header / row 공통 */
 .member-row {
-
   display: grid;
   grid-template-columns:
-    60px
-    260px
-    140px
-    90px
-    80px
-    80px;
+    60px          /* No */
+    minmax(200px, 2fr) /* 이메일 */
+    minmax(120px, 1fr)   /* 이름 */
+    90px          /* 권한 */
+    100px         /* 로그인 */
+    80px          /* 활성 */
+    80px;         /* 잠금 */
 
   align-items: center;
-  padding: 16px 20px;
+  padding: 14px 20px;
   border-bottom: 1px solid #e5e7eb;
 
-  min-width: 720px;
 }
 
 .member-row.header {
@@ -49,10 +52,7 @@
 }
 
 .check-col {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  justify-self: end;
 }
 
 .admin-controls .search-input {
@@ -68,3 +68,27 @@
 .search-input::placeholder {
   color: #9ca3af;
 }
+
+/* ===== 로그인 유형 표시 ===== */
+.login-normal {
+  color: #555;
+  font-weight: 500;
+}
+
+.login-social {
+  color: #1e88e5;          /* 소셜: 파란 계열 */
+  font-weight: 600;
+}
+
+.login-mixed {
+  color: #6a1b9a;          /* 일반+소셜: 보라 */
+  font-weight: 700;
+}
+
+/* hover 시 소셜 provider 힌트 강조 */
+.login-social:hover,
+.login-mixed:hover {
+  text-decoration: underline;
+  cursor: help;
+}
+
