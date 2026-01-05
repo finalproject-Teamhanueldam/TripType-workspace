@@ -724,19 +724,34 @@ public class FlightSearchServiceImpl implements FlightSearchService {
         for (FlightVo f : flights) {
             AirlineListVo row = new AirlineListVo();
 
-            row.setAirlineName(null);
-            row.setFlightNumber(f.getFlightNumber());
+            String flightNo = f.getFlightNumber(); // 예: "KE123"
+            if (flightNo != null && flightNo.length() >= 2) {
+                // 항공편 번호 앞 2자리(IATA 코드) 추출
+                String iata = flightNo.substring(0, 2).toUpperCase(); 
+                
+                // DAO 호출하여 DB에서 실제 이름(대한항공 등) 조회
+                // (서비스 클래스에 주입된 airlineDao와 sqlSession 사용)
+                String airlineName = airlineDao.selectAirlineNameByIataCode(sqlSession, iata);
+                
+                row.setAirlineName(airlineName); 
+            } else {
+                row.setAirlineName("기타 항공");
+            }
 
+            // 2. 나머지 정보 세팅
+            row.setFlightNumber(f.getFlightNumber());
             row.setDepartDate(f.getFlightDepartDate());
-            row.setDepartCity(null);
             row.setDepartAirportCode(f.getDepartAirport());
+            
+            // 도시명(City)은 아직 로직이 없으므로 일단 유지 (필요시 airportDao 추가 구현)
+            row.setDepartCity(null); 
 
             row.setFlightDuration(f.getFlightDuration());
             row.setTripType(request.getTripType());
 
             row.setArriveDate(f.getFlightArriveDate());
-            row.setArriveCity(null);
             row.setArriveAirportCode(f.getDestAirport());
+            row.setArriveCity(null);
 
             row.setExtraSeat(safeInt(request.getAdultCount()) + safeInt(request.getMinorCount()));
             row.setFlightOfferId(f.getFlightOfferId());

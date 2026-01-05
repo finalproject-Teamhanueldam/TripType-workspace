@@ -96,6 +96,7 @@ public class FlightSearchController {
 
         System.out.println("✅ 결과 준비 완료: count=" + result.size());
         System.out.println("========================================");
+        System.out.println("결과 : :::" + result);
         return ResponseEntity.ok(result);
     }
 

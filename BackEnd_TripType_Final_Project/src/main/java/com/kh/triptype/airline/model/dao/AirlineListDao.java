@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.kh.triptype.airline.model.dto.ReviewRequestDto;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.PriceChange;
 import com.kh.triptype.airline.model.vo.Review;
 import com.kh.triptype.airline.model.vo.WeeklyPrice;
 import com.kh.triptype.airline.model.vo.WishList;
@@ -68,6 +69,11 @@ public class AirlineListDao {
     public int deleteWish(SqlSessionTemplate sqlSession, WishList wish) {
         return sqlSession.delete("airlineList.deleteWish", wish);
     }
+
+    // 가격 조회
+	public ArrayList<PriceChange> selectPrice(SqlSessionTemplate sqlSession, PriceChange priceChange) {
+		return (ArrayList) sqlSession.selectList("airlineList.selectPrice", priceChange);
+	}
 
 
 

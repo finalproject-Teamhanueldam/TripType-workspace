@@ -17,6 +17,6 @@
             AIRLINE_ID
         FROM
             TB_AIRLINE
- 
     </select>
+    
 </mapper>

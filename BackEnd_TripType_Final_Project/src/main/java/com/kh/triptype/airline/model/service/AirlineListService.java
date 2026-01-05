@@ -2,9 +2,11 @@ package com.kh.triptype.airline.model.service;
 
 import java.util.ArrayList;
 
+import com.kh.triptype.airline.model.dto.PriceChangeDto;
 import com.kh.triptype.airline.model.dto.ReviewRequestDto;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.PriceChange;
 import com.kh.triptype.airline.model.vo.Review;
 import com.kh.triptype.airline.model.vo.WeeklyPrice;
 
@@ -40,5 +42,8 @@ public interface AirlineListService {
 
     // 찜 여부 확인
     boolean checkWish(int memberNo, long flightOfferId);
+    
+    // 가격 변동 조회
+    public ArrayList<PriceChange> selectPrice(PriceChangeDto priceChangeDto);
     
 }

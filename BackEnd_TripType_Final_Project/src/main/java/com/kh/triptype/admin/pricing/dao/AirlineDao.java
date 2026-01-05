@@ -32,4 +32,12 @@ public class AirlineDao {
                 code
         );
     }
+    
+    public String selectAirlineNameByIataCode(
+    		SqlSessionTemplate sqlSession,
+            String iataCode
+            ) 
+    {
+    	return sqlSession.selectOne("airline.selectAirlineNameByIataCode", iataCode);
+    }
 }
