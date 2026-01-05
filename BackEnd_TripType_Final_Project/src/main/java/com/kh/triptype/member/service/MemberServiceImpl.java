@@ -101,6 +101,12 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("INVALID_ACCOUNT");
         }
 
+        // 추가 (소셜회원이 일반회원으로 전환 후 필수 정보 누락일 경우)
+        if (member.getMemberBirthDate() == null ||
+            member.getMemberGender() == null) {
+            throw new IllegalStateException("NEED_PROFILE_INFO");
+        }
+        
         // 3️ 이메일 인증 완료 여부
         int verified = memberDao.countVerifiedAuth(memberId);
         if (verified == 0) {
@@ -123,14 +129,23 @@ public class MemberServiceImpl implements MemberService {
     @Transactional(readOnly = true)
     public List<String> findMemberIds(String memberName, String memberBirthDate) {
 
-        List<String> ids =
-            memberDao.findIdsByNameAndBirth(memberName, memberBirthDate);
+        List<Member> members =
+            memberDao.findMembersByNameAndBirth(memberName, memberBirthDate);
 
-        if (ids.isEmpty()) {
-            throw new IllegalArgumentException("일치하는 회원 정보가 없습니다.");
+        if (members.isEmpty()) {
+            throw new IllegalArgumentException("NOT_FOUND");
         }
 
-        return ids.stream()
+        // 🔥 핵심: 필수 정보 누락 차단
+        for (Member member : members) {
+            if (member.getMemberBirthDate() == null ||
+                member.getMemberGender() == null) {
+                throw new IllegalStateException("NEED_PROFILE_INFO");
+            }
+        }
+
+        return members.stream()
+                .map(Member::getMemberId)
                 .map(this::maskEmail)
                 .toList();
     }

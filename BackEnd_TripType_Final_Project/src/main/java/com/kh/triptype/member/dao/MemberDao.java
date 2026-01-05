@@ -147,4 +147,34 @@ public class MemberDao {
             member
         );
     }
+    
+    // 탈퇴 회원 재활성화
+    public int reactivateMember(int memberNo) {
+        return sqlSession.update(
+            NAMESPACE + "reactivateMember",
+            memberNo
+        );
+    }
+    
+    // 탈퇴 여부 상관없이 이메일로 회원 조회 (소셜 재가입 판단용)
+    public Member findByMemberIdIncludingWithdrawn(String memberId) {
+        return sqlSession.selectOne(
+            NAMESPACE + "findByMemberIdIncludingWithdrawn",
+            memberId
+        );
+    }
+    
+    // 이름 + 생년월일로 회원 전체 조회 (아이디 찾기용)
+    public List<Member> findMembersByNameAndBirth(
+            String memberName,
+            String memberBirthDate
+    ) {
+        return sqlSession.selectList(
+            NAMESPACE + "findMembersByNameAndBirth",
+            Map.of(
+                "memberName", memberName,
+                "memberBirthDate", memberBirthDate
+            )
+        );
+    }
 }

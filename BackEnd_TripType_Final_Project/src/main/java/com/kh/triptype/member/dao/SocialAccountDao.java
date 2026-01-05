@@ -1,10 +1,13 @@
 package com.kh.triptype.member.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.kh.triptype.member.model.vo.Member;
+import com.kh.triptype.mypage.model.dto.MySocialConnectionDto;
 
 @Repository
 public class SocialAccountDao {
@@ -39,6 +42,65 @@ public class SocialAccountDao {
                 "provider", provider,
                 "providerUid", providerUid,
                 "email", email
+            )
+        );
+    }
+    
+    public List<MySocialConnectionDto> findSocialConnectionsByMemberNo(int memberNo) {
+        return sqlSession.selectList(
+            NAMESPACE + "findSocialConnectionsByMemberNo",
+            java.util.Map.of("memberNo", memberNo)
+        );
+    }
+    
+    public int deleteSocialAccount(int memberNo, String provider) {
+        return sqlSession.delete(
+            NAMESPACE + "deleteSocialAccount",
+            java.util.Map.of(
+                "memberNo", memberNo,
+                "provider", provider
+            )
+        );
+    }
+    
+    public int deleteAllByMemberNo(int memberNo) {
+        return sqlSession.delete(
+            NAMESPACE + "deleteAllByMemberNo",
+            memberNo
+        );
+    }
+    
+    public boolean existsByMemberNoAndProvider(int memberNo, String provider) {
+        Integer count = sqlSession.selectOne(
+            NAMESPACE + "existsByMemberNoAndProvider",
+            java.util.Map.of(
+                "memberNo", memberNo,
+                "provider", provider
+            )
+        );
+        return count != null && count > 0;
+    }
+    
+    public boolean existsByProviderAndProviderUid(
+    	    String provider,
+    	    String providerUid
+    	) {
+    	    Integer count = sqlSession.selectOne(
+    	        NAMESPACE + "existsByProviderAndProviderUid",
+    	        java.util.Map.of(
+    	            "provider", provider,
+    	            "providerUid", providerUid
+    	        )
+    	    );
+    	    return count != null && count > 0;
+    }
+    
+    public Integer findMemberNoByProviderAndUid(String provider, String providerUid) {
+        return sqlSession.selectOne(
+            NAMESPACE + "findMemberNoByProviderAndUid",
+            java.util.Map.of(
+                "provider", provider,
+                "providerUid", providerUid
             )
         );
     }

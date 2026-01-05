@@ -6,6 +6,7 @@
 <mapper namespace="mypageMapper">
 
 	<select id="selectMyProfile" parameterType="Int" resultType="MyProfileRes">
+		
 		  SELECT
 		    MEMBER_ID AS memberId,
 		    MEMBER_NAME AS memberName,
@@ -13,7 +14,8 @@
 		    MEMBER_GENDER AS memberGender,
 		    MEMBER_PHONE AS memberPhone,
 		    MEMBER_CREATE_AT AS memberCreateAt,
-		    MEMBER_LAST_LOGIN_AT AS memberLastLoginAt
+		    MEMBER_LAST_LOGIN_AT AS memberLastLoginAt,
+		    CASE WHEN MEMBER_PASSWORD IS NULL THEN 0 ELSE 1 END AS hasPassword
 		    FROM TB_MEMBER
 		   WHERE MEMBER_NO = #{memberNo}
 		     AND MEMBER_IS_ACTIVE = 'Y'
