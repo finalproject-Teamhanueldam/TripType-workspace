@@ -10,6 +10,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const AirlineListComponent = () => {
+
   const navigate = useNavigate();
   const locationState = useLocation().state || {};
   const { searchParams, res, searchId } = locationState;
@@ -46,16 +47,17 @@ const AirlineListComponent = () => {
   const matchTransit = (segment) => {
     if (!segment || segment.flightSegmentNo === undefined) return false;
 
-    // 아무 것도 선택 안 했으면 전체 허용
+    // 아무 것도 선택 안 했으면 전체 허용 (초기 상태)
     if (activeTransit.length === 0) return true;
 
     const count = segment.flightSegmentNo;
+    const selected = activeTransit[0]; // 어차피 하나만 들어있음
 
-    return (
-      (activeTransit.includes("직항") && count === 0) ||
-      (activeTransit.includes("1회 경유") && count === 1) ||
-      (activeTransit.includes("2회 이상") && count >= 2)
-    );
+    if (selected === "직항") return count === 0;
+    if (selected === "1회 경유") return count === 1;
+    if (selected === "2회 이상") return count >= 2;
+
+    return true;
   };
 
 
@@ -151,6 +153,8 @@ const AirlineListComponent = () => {
           return;
         }
 
+        console.log("결과 ㅇㅇ : ", response.data);
+
         applyFlights(response.data);
         console.log("alllll", response.data);
         isPollingRef.current = false;
@@ -201,8 +205,9 @@ const AirlineListComponent = () => {
   const changeFilter = (index) => setActiveFilter(index);
   const changeTransit = (index) => {
     const target = transitList[index];
-    setActiveTransit(prev => prev.includes(target) ? prev.filter(i => i !== target) : [...prev, target]);
+    setActiveTransit([target]); // 기존 데이터를 지우고 새 선택값만 배열에 담음
   };
+
   const changeTime = (value) => setDepartureTime(Number(value));
   
   // 항공사 필터 선택/해제 로직 강화
@@ -268,7 +273,7 @@ const getFilteredList = () => {
               <strong>경유</strong>
               {transitList.map((item, index) => (
                 <label key={index}>
-                  <input type="checkbox" value={item} onChange={() => changeTransit(index)} />{item}
+                  <input type="radio" name="segment-option" value={item} onChange={() => changeTransit(index)} />{item}
                 </label>
               ))}
             </div>

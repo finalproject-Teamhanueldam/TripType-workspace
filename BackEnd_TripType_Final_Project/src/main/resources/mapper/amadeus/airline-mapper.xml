@@ -20,5 +20,11 @@
     FROM TB_AIRLINE
     WHERE UPPER(AIRLINE_IATA_CODE) = UPPER(#{value, jdbcType=VARCHAR})
   </select>
-
+  
+  <select id="selectAirlineNameByIataCode" resultType="string">
+        SELECT AIRLINE_AIRLINE_NAME 
+        FROM TB_AIRLINE
+        WHERE AIRLINE_IATA_CODE = #{iataCode}
+  </select>
+  
 </mapper>
