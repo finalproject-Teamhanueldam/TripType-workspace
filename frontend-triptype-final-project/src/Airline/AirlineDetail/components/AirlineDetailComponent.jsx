@@ -211,7 +211,9 @@ const AirlineDetailComponent = () => {
   // ================================
   // ✅ 헤더 표시
   // ================================
-  const headerRoute = `${firstSeg.departCity}(${firstSeg.departAirportCode}) → ${lastSeg.arriveCity}(${lastSeg.arriveAirportCode})`;
+  //const headerRoute = `${firstSeg.departCity}(${firstSeg.departAirportCode}) → ${lastSeg.arriveCity}(${lastSeg.arriveAirportCode})`;
+  const headerRoute = `${firstSeg.departAirportCode} → ${lastSeg.arriveAirportCode}`;
+
   const headerDate = (firstSeg.departDate || "").split("T")[0];
 
   const headerTripLabel =
