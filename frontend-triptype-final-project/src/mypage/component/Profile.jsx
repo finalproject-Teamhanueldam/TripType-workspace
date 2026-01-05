@@ -5,15 +5,40 @@ import { ko } from "date-fns/locale";
 import { formatPhone, unformatPhone } from "../../common/utils/phoneFormatter";
 import "../css/Profile.css";
 import api from "../../common/api/axiosInstance";
+import { useOutletContext, useLocation } from "react-router-dom";
 
 function Profile() {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const OAUTH_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const [profile, setProfile] = useState(null);
+  const { profile, setProfile } = useOutletContext();
   const [form, setForm] = useState(null);
   const [saveMsg, setSaveMsg] = useState(null);
+  const [socialMsg, setSocialMsg] = useState(null);
+
+  const location = useLocation();
+
+  const SOCIAL_AVAILABLE = {
+    KAKAO: true,
+    NAVER: false, // 승인 전
+  };
+
+  const isOnlySocial = useMemo(() => {
+    if (!profile) return false;
+    return !profile.hasPassword && profile.socialConnections?.length === 1;
+  }, [profile]);
+
+  const needProfileInfo = useMemo(() => {
+    if (!profile) return false;
+
+    return (
+      profile.hasPassword &&
+      (!profile.memberBirthDate || !profile.memberGender)
+    );
+  }, [profile]);
 
   const msg = useMemo(() => {
+    if (!form) return {};
+
     const nameOk =
       /^[가-힣]{2,20}$/.test(form?.memberName || "") ||
       /^[a-zA-Z\s]{2,20}$/.test(form?.memberName || "");
@@ -49,45 +74,7 @@ function Profile() {
     };
   }, [form]);
 
-  /* ======================
-     내 정보 조회 (JWT 기준)
-  ====================== */
-  const fetchProfile = async () => {
-    try {
-        const res = await api.get("/api/mypage/profile");
-
-        const socialConnections = [
-            { provider: "NAVER", email: "rread1089@naver.com" },
-            { provider: "KAKAO", email: null }
-        ];
-
-        setProfile({
-                ...res.data,
-                memberPhone: formatPhone(res.data.memberPhone),
-                socialConnections
-        });
-        setForm({
-                ...res.data,
-                memberPhone: formatPhone(res.data.memberPhone)
-        });
-
-        } catch (error) {
-            console.error("🔥 프로필 조회 실패", error);
-
-            // 임시 확인용 (화면 안 죽게)
-            setProfile({
-              memberId: "불러오기 실패",
-              memberCreateAt: null,
-              memberLastLoginAt: null,
-              socialConnections: []
-            });
-            setForm({});
-        }
-    };
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  
 
   /* ======================
      입력 핸들러
@@ -96,6 +83,63 @@ function Profile() {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
     setSaveMsg(null);
+  };
+
+  const handleSocialLink = async (providerUpper) => {
+    try {
+      setSocialMsg({ type: "ok", text: "소셜 연동을 시작합니다." });
+
+      // axiosInstance 사용 (Authorization 자동 포함)
+      const res = await api.get(`/api/mypage/social/link/${providerUpper.toLowerCase()}`);
+
+      // 백엔드가 내려준 카카오 authorize URL로 이동
+      window.location.href = res.data.url;
+    } catch (e) {
+      setSocialMsg({ type: "err", text: "소셜 연동 시작에 실패했습니다." });
+    }
+  };
+
+  const handleSocialUnlink = async (providerUpper) => {
+    try {
+      await api.delete(`/api/mypage/social/${providerUpper}`);
+
+      setSocialMsg({
+        type: "ok",
+        text: "소셜 연동이 해제되었습니다."
+      });
+
+      setProfile(prev => ({
+        ...prev,
+        socialConnections: prev.socialConnections.filter(
+          s => s.provider !== providerUpper
+        )
+      })); // 상태 갱신
+
+      setTimeout(() => setSocialMsg(null), 3000);
+    } catch (e) {
+      const msg = e.response?.data?.message;
+
+      if (msg === "LAST_LOGIN_METHOD") {
+        setSocialMsg({
+          type: "err",
+          text: "마지막 로그인 수단은 해제할 수 없습니다."
+        });
+        return;
+      }
+
+      if (msg === "NOT_CONNECTED") {
+        setSocialMsg({
+          type: "err",
+          text: "이미 연동 해제된 계정입니다."
+        });
+        return;
+      }
+
+      setSocialMsg({
+        type: "err",
+        text: "소셜 연동 해제에 실패했습니다."
+      });
+    }
   };
 
   const handleBirthChange = (date) => {
@@ -133,21 +177,22 @@ function Profile() {
       return;
     }
 
+    const payload = {
+      memberName: form.memberName,
+      memberBirthDate: form.memberBirthDate,
+      memberGender: form.memberGender,
+      memberPhone: unformatPhone(form.memberPhone)
+    };
+
     try {
-      await api.put(
-        "/api/mypage/profile",
-        {
-          memberName: form.memberName,
-          memberBirthDate: form.memberBirthDate,
-          memberGender: form.memberGender,
-          memberPhone: unformatPhone(form.memberPhone)
-        }
-      );
+      await api.put("/api/mypage/profile", payload);
+
+      setProfile(prev => ({
+        ...prev,
+        ...payload
+      }));
 
       setSaveMsg({ type: "ok", text: "내 정보가 수정되었습니다." });
-      setTimeout(() => {
-        fetchProfile();
-      }, 300);
 
     } catch (e) {
       setSaveMsg({
@@ -157,11 +202,59 @@ function Profile() {
     }
   };
 
+  useEffect(() => {
+    if (!profile) return;
+
+    setForm({
+      ...profile,
+      memberPhone: formatPhone(profile.memberPhone),
+    });
+  }, [profile]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const link = params.get("link");
+
+    if (!link) return;
+
+    if (link === "kakao-success") {
+      setSocialMsg({
+        type: "ok",
+        text: "카카오 계정이 성공적으로 연동되었습니다."
+      });
+    }
+
+    if (link === "kakao-already-linked") {
+      setSocialMsg({
+        type: "err",
+        text: "이미 다른 회원에 연동된 카카오 계정입니다."
+      });
+    }
+
+    if (link === "fail") {
+      setSocialMsg({
+        type: "err",
+        text: "소셜 연동에 실패했습니다."
+      });
+    }
+
+    // 주소 깔끔하게 (선택)
+    window.history.replaceState({}, "", "/mypage");
+
+  }, [location.search]);
+
   if (!profile || !form) return null;
 
   return (
     <div className="profile-wrap">
       <h2 className="profile-title">내 정보</h2>
+
+      {needProfileInfo && (
+        <div className="mypage-warning">
+          일반 로그인을 위해 생년월일과 성별을 입력해주세요.
+        </div>
+      )}
+
 
       <div className="profile-card">
 
@@ -173,23 +266,59 @@ function Profile() {
 
         {/* ===== 소셜 연동 상태 ===== */}
         <div className="social-section">
-          {profile.socialConnections?.map(sc => (
-            <div
-              key={sc.provider}
-              className={`social-box ${sc.email ? "connected" : "disconnected"}`}
-            >
-              <span className="social-provider">
-                {sc.provider === "NAVER" ? "네이버" : "카카오"}
-              </span>
+          {["KAKAO", "NAVER"].map(provider => {
+            const sc = profile.socialConnections?.find?.(s => s.provider === provider);
+            const label = provider === "KAKAO" ? "카카오" : "네이버";
+            const providerLower = provider.toLowerCase();
 
-              {sc.email ? (
-                <span className="social-email">{sc.email}</span>
-              ) : (
-                <span className="social-none">미연동</span>
-              )}
-            </div>
-          ))}
+            return (
+              <div
+                key={provider}
+                className={`social-box ${sc ? "connected" : "disconnected"}`}
+              >
+                <span className="social-provider">{label}</span>
+
+                {sc ? (
+                  <>
+                    <span className="social-email">{sc.email}</span>
+                    <button
+                      type="button"
+                      className="social-btn unlink"
+                      disabled={isOnlySocial}
+                      title={isOnlySocial ? "마지막 로그인 수단은 해제할 수 없습니다." : ""}
+                      onClick={() => handleSocialUnlink(provider)}
+                    >
+                      연동 해제
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="social-none">미연동</span>
+                    <button
+                      type="button"
+                      className="social-btn link"
+                      disabled={!SOCIAL_AVAILABLE[provider]}
+                      title={
+                        !SOCIAL_AVAILABLE[provider]
+                          ? "현재 네이버 로그인은 준비 중입니다."
+                          : ""
+                      }
+                      onClick={() => handleSocialLink(provider)}
+                    >
+                      연동하기
+                    </button>
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
+
+        {socialMsg && (
+          <p className={`save-msg ${socialMsg.type}`}>
+            {socialMsg.text}
+          </p>
+        )}
 
         {/* ===== 조회 전용 ===== */}
         <div className="profile-row">

@@ -54,6 +54,8 @@ const PriceComponent = () => {
 
   const priceInfo = price(sortedPriceData);
 
+  
+
   const data = [
     ["Week", "가격"],
     ...sortedPriceData,
@@ -97,7 +99,7 @@ const PriceComponent = () => {
           setPriceData(
             response.data.map((item) => [
               item.departDate.slice(5),
-              item.price * 1690
+              Math.floor(item.price) * 1690
             ])
           );
       } 
@@ -131,15 +133,15 @@ const PriceComponent = () => {
       <div className="price-summary">
         <div>
           <span className="label up">▲ 최저가</span>
-          <strong>{ priceInfo?.min.toLocaleString() }원</strong>
+          <strong>{ Math.floor(priceInfo?.min).toLocaleString() }원</strong>
         </div>
         <div>
           <span className="label down">▼ 최고가</span>
-          <strong>{ priceInfo?.max.toLocaleString() }원</strong>
+          <strong>{ Math.floor(priceInfo?.max).toLocaleString() }원</strong>
         </div>
         <div>
           <span className="label">평균가</span>
-          <strong>{ priceInfo?.avg.toLocaleString() }원</strong>
+          <strong>{ Math.floor(priceInfo?.avg).toLocaleString() }원</strong>
         </div>
       </div>
 

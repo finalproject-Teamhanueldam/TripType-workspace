@@ -392,8 +392,8 @@
       MIN(FLIGHT_OFFER_PRICE_TOTAL) AS FLIGHT_OFFER_PRICE_TOTAL
     FROM TB_FLIGHT_PRICE_HISTORY
     WHERE TRUNC(FLIGHT_OFFER_DEPART_DATE) BETWEEN
-          TO_DATE(#{departDate}, 'YYYY-MM-DD') - 3
-          AND TO_DATE(#{departDate}, 'YYYY-MM-DD') + 4
+          #{departDate} - 3
+          AND #{departDate} + 4
       AND DEPART_IATA_CODE = #{depart}
       AND ARRIVE_IATA_CODE = #{arrive}
       AND FLIGHT_OFFER_ONE_WAY = #{tripType}

@@ -2,14 +2,17 @@ package com.kh.triptype.mypage.model.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.apache.ibatis.type.Alias;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Alias("MyProfileRes")
 @Getter
+@Setter
 @ToString
 public class MyProfileRes {
 
@@ -22,9 +25,11 @@ public class MyProfileRes {
 
     private LocalDateTime memberCreateAt;        // 변경
     private LocalDateTime memberLastLoginAt;     // 변경
+    
+    // 추가 1) 소셜 회원이면 비번 변경 막기 위한 플래그
+    private boolean hasPassword;
 
-  // 소셜 연동 기능 성공하면 여기에 확장
-  // private String socialProvider;
-  // private String socialEmail;
-  // private String socialConnected; // Y/N
+    // 추가 2) 소셜 연동 목록
+    private List<MySocialConnectionDto> socialConnections;
+
 }

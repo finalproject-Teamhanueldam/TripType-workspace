@@ -174,8 +174,8 @@ const TicketBoxComponent = ({
             </span>
           </div>
           <div className="terminal-info">
-            <FaMapMarkerAlt className="icon-tiny" />
-            터미널 정보
+            {/* <FaMapMarkerAlt className="icon-tiny" />
+            터미널 정보 */}
           </div>
         </div>
 

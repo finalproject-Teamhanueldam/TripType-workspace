@@ -6,8 +6,9 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,14 +53,10 @@ public class MyPageController {
             @RequestBody MyProfileUpdateReq req
     ) {
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
-
-        myPageService.updateMyProfile(
-                authUser.getMemberNo(),
-                req
-        );
+        myPageService.updateMyProfile(authUser.getMemberNo(), req);
         return ResponseEntity.ok().build();
     }
-    
+
     @PutMapping("/password")
     public ResponseEntity<Void> changePassword(
             Authentication authentication,
@@ -69,30 +66,36 @@ public class MyPageController {
         myPageService.changePassword(authUser.getMemberNo(), req);
         return ResponseEntity.ok().build();
     }
-    
+
     @PutMapping("/withdraw")
     public ResponseEntity<Void> withdraw(
             Authentication authentication,
             @RequestBody Map<String, String> body
     ) {
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
-        String password = body.get("password");
-
-        myPageService.withdraw(authUser.getMemberNo(), password);
+        myPageService.withdraw(authUser.getMemberNo(), body.get("password"));
         return ResponseEntity.ok().build();
     }
-    
-    
+
+    // 🔹 검색 기록
     @GetMapping("/searchHistory")
     public ResponseEntity<List<SearchHistoryDto>> fetchSearchHistory(
             Authentication authentication
     ) {
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
-        
-        List<SearchHistoryDto> list =
-            myPageService.fetchSearchHistory((int)authUser.getMemberNo());
-       
-        System.out.println(list);
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(
+            myPageService.fetchSearchHistory(authUser.getMemberNo())
+        );
+    }
+
+    // 🔹 소셜 연동 해제
+    @DeleteMapping("/social/{provider}")
+    public ResponseEntity<Void> unlinkSocial(
+            Authentication authentication,
+            @PathVariable String provider
+    ) {
+        AuthUser authUser = (AuthUser) authentication.getPrincipal();
+        myPageService.unlinkSocial(authUser.getMemberNo(), provider.toUpperCase());
+        return ResponseEntity.noContent().build();
     }
 }

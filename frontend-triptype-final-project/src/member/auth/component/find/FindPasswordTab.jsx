@@ -163,10 +163,20 @@ function FindPasswordTab() {
       }, 1500);
 
     } catch (e) {
-      setResetMsg({
-        type: "err",
-        text: e.response?.data?.message || "비밀번호 재설정에 실패했습니다."
-      });
+        const code = e.response?.data?.message;
+
+        if (code === "NEED_PROFILE_INFO") {
+          setResetMsg({
+            type: "err",
+            text: "추가 정보 입력 후 비밀번호 찾기가 가능합니다."
+          });
+          return;
+        }
+
+        setResetMsg({
+          type: "err",
+          text: "비밀번호 재설정에 실패했습니다."
+        });
     }
   };
 

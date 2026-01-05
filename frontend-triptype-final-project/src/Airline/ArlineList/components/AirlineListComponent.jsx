@@ -14,6 +14,7 @@ const AirlineListComponent = () => {
   const locationState = useLocation().state || {};
   const { searchParams, res, searchId } = locationState;
 
+
   // State
   const [selectedPair, setSelectedPair] = useState(null);
   const [open, setOpen] = useState(false);
@@ -574,13 +575,16 @@ const AirlineListComponent = () => {
 
           <p className="result-count">
             {filteredData.length}개의 검색 결과 ·
-            <span
-              className="price-check"
-              onClick={() => navigate("/airline/list/price", { state: { searchParams } })}
-            >
+            {
+              searchParams.tripType == "MULTI" ? "" : 
+              <span
+                className="price-check"
+                onClick={() => navigate("/airline/list/price", { state: { searchParams } })}
+              >
               {" "}
               가격변동 조회
-            </span>
+              </span>
+            }
           </p>
 
           {filteredData.map((item, index) => (

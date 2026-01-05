@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -12,8 +13,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.kh.triptype.auth.jwt.JwtAuthenticationFilter;
-import com.kh.triptype.auth.oauth.CustomOAuth2UserService;
-import com.kh.triptype.auth.oauth.OAuth2SuccessHandler;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +24,6 @@ public class SecurityConfig {
 
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-	private final CustomOAuth2UserService customOAuth2UserService;
-	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 	
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -36,9 +33,6 @@ public class SecurityConfig {
             .cors(cors -> {}) // ⭐ 아래 Bean과 연결됨
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
-            
-            // 마이페이지 principal을 직접 꺼내서 오류나는 부분 수정
-            .anonymous(anonymous -> anonymous.disable())
 
             // 인증 실패 시 OAuth redirect 금지 (마이페이지 관련 문제 때문에 추가)
             .exceptionHandling(e -> e
@@ -52,31 +46,34 @@ public class SecurityConfig {
             )
             
 
-            // 세션 완전 비활성화
+            // 세션: OAuth에서만 사용
             .sessionManagement(session ->
-                session.sessionCreationPolicy(
-                    org.springframework.security.config.http.SessionCreationPolicy.STATELESS
-                )
+                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
             
             .authorizeHttpRequests(auth -> auth
+            		
+            	// ✅ 1️⃣ 소셜 연동 "시작" → 로그인 필수
+            	.requestMatchers("/api/mypage/social/link/**").authenticated()	
                 // ✅ 회원가입 + 이메일 인증은 로그인 없이 허용
-
-                .requestMatchers(
-                    "/mail/auth/**",
-                    "/member/join",
-                    "/auth/**"
-                ).permitAll()
-
-                // 기존 허용 경로
                 .requestMatchers(
                     "/",
                     "/triptype/",
-                    "/triptype/oauth2/**",
+                    "/mail/auth/**",
+                    "/member/join",
+                    "/auth/**",
+                    
+                    // ⭐⭐ 소셜 연동 시작 / 콜백 (핵심)
+                    "/api/oauth/link/**",
+
+                    // OAuth 기본 경로
                     "/triptype/login/**",
+                    "/triptype/oauth2/**",
+
+                    // 정적 리소스
                     "/triptype/images/**",
                     "/triptype/css/**",
-                    "/triptype/js/**"
+                    "/triptype/js/**"                   
                 ).permitAll()
 
                 // ✅✅ [추가] 취향 설문 API는 로그인 필수
@@ -107,14 +104,8 @@ public class SecurityConfig {
                 .anyRequest().permitAll()
             )
             
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            // 네이버 OAuth
-            .oauth2Login(oauth -> oauth
-            	    .userInfoEndpoint(userInfo ->
-            	        userInfo.userService(customOAuth2UserService)
-            	    )
-            	    .successHandler(oAuth2SuccessHandler)
-            	);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            
 
         return http.build();
     }
