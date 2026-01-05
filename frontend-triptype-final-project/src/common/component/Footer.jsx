@@ -28,17 +28,7 @@ const Footer = () => {
               <h4>서비스</h4>
               <ul>
                 <li onClick={() => {navigate("/");}}>항공권 검색</li>
-                <li>가격 추적</li>
                 <li onClick={() => {navigate("/survey");}}>취향 설문 추천</li>
-              </ul>
-            </div>
-
-            <div className="footer-col">
-              <h4>프로젝트</h4>
-              <ul>
-                <li>서비스 소개</li>
-                <li>기능 안내</li>
-                <li>개발 배경</li>
               </ul>
             </div>
 
@@ -47,7 +37,7 @@ const Footer = () => {
               <ul>
                 <li onClick={() => {navigate("/notice");}}>공지사항</li>
                 <li onClick={() => {navigate("/faq");}}>자주 묻는 질문</li>
-                <li>문의하기</li>
+              
               </ul>
             </div>
           </div>
