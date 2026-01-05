@@ -103,8 +103,8 @@ const Header = () => {
             </li>
           </ul>
 
-          <Link className="heart-icon">
-            <AiFillHeart className="heart-icon-svg" />
+          <Link className="heart-icon" to="/myPage/wishlist">
+            <AiFillHeart className="heart-icon-svg"/>
           </Link>
 
           {/* 로그인, 회원가입 버튼 링크 추가 12.16(김동윤) */}

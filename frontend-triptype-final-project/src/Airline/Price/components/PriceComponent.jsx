@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "../css/PriceComponent.css";
 import { Chart } from "react-google-charts";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -12,16 +12,51 @@ const PriceComponent = () => {
   const navigate = useNavigate();
 
   const search = state.searchParams;
-  
+
+  const [priceData, setPriceData] = useState([]);
+
+  console.log(priceData);
+
+  // 날짜별로 정렬
+  const sortedPriceData = [...priceData].sort((a, b) =>
+    a[0].localeCompare(b[0])
+  );
+
+  // 최저가, 최고가, 평균가 구하기 함수
+  const price = (sortedPriceData) => {
+    if (sortedPriceData.length === 0) return;
+    // 최저가
+    let min = sortedPriceData[0][1];
+    // 최고가
+    let max = sortedPriceData[0][1];
+    // 합
+    let sum = 0;
+
+    sortedPriceData.forEach((item) => {
+      let price = item[1];
+
+      if(price < min) min = price;
+      if(price > max) max = price;
+
+      sum += price;
+    });
+
+    // 평균가
+    let avg = sum / sortedPriceData.length;
+
+    return {
+      min, 
+      max, 
+      sum, 
+      avg
+    };
+  };
+
+  const priceInfo = price(sortedPriceData);
+
   const data = [
     ["Week", "가격"],
-    ["01-05", 1000],
-    ["01-06", 1170],
-    ["01-07", 660],
-    ["01-08", 1030],
-    ["01-09", 1030],
-    ["01-10", 1030],
-    ["01-11", 1030],
+    ...sortedPriceData,
   ];
 
   const options = {
@@ -59,7 +94,12 @@ const PriceComponent = () => {
                      arrive : search.arrive 
                    }
         });
-          console.log(response.data);
+          setPriceData(
+            response.data.map((item) => [
+              item.departDate.slice(5),
+              item.price * 1690
+            ])
+          );
       } 
       catch(error) {
 
@@ -91,15 +131,15 @@ const PriceComponent = () => {
       <div className="price-summary">
         <div>
           <span className="label up">▲ 최저가</span>
-          <strong>66,000원</strong>
+          <strong>{ priceInfo?.min.toLocaleString() }원</strong>
         </div>
         <div>
           <span className="label down">▼ 최고가</span>
-          <strong>117,000원</strong>
+          <strong>{ priceInfo?.max.toLocaleString() }원</strong>
         </div>
         <div>
           <span className="label">평균가</span>
-          <strong>96,500원</strong>
+          <strong>{ priceInfo?.avg.toLocaleString() }원</strong>
         </div>
       </div>
 
