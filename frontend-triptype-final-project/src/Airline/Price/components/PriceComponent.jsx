@@ -1,13 +1,27 @@
+import { useEffect } from "react";
 import "../css/PriceComponent.css";
 import { Chart } from "react-google-charts";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const PriceComponent = () => {
+
+  const { state } = useLocation();
+
+  const navigate = useNavigate();
+
+  const search = state.searchParams;
+  
   const data = [
-    ["Year", "가격"],
-    ["2013", 1000],
-    ["2014", 1170],
-    ["2015", 660],
-    ["2016", 1030],
+    ["Week", "가격"],
+    ["01-05", 1000],
+    ["01-06", 1170],
+    ["01-07", 660],
+    ["01-08", 1030],
+    ["01-09", 1030],
+    ["01-10", 1030],
+    ["01-11", 1030],
   ];
 
   const options = {
@@ -23,12 +37,43 @@ const PriceComponent = () => {
     },
   };
 
+  useEffect(() => {
+    if(state == null) {
+      toast.info("옳바른 항공권 가격 조회가 아닙니다.");
+      navigate("/");
+      return;
+    }
+
+    const getPrice = async () => {
+      try {
+        const url = "http://localhost:8001/triptype/airline/select/price";
+        const method = "get";
+
+        const response = await axios({
+          url,
+          method,
+          params : { 
+                     departDate : search.departDate, 
+                     tripType : search.tripType, 
+                     depart : search.depart, 
+                     arrive : search.arrive 
+                   }
+        });
+          console.log(response.data);
+      } 
+      catch(error) {
+
+      }
+    };
+    getPrice();
+  }, [search]);
+
   return (
     <div className="price-card">
       {/* 헤더 */}
       <div className="price-card-header">
         <h3>가격 변동 추이</h3>
-        <span className="sub-text">최근 4년 기준</span>
+        <span className="sub-text">최근 7일 기준</span>
       </div>
 
       {/* 차트 */}

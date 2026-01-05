@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kh.triptype.airline.model.dto.PriceChangeDto;
 import com.kh.triptype.airline.model.dto.ReviewRequestDto;
 import com.kh.triptype.airline.model.dto.WishListDto;
 import com.kh.triptype.airline.model.service.AirlineListService;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.PriceChange;
 import com.kh.triptype.airline.model.vo.Review;
 import com.kh.triptype.airline.model.vo.WeeklyPrice;
 import com.kh.triptype.auth.model.vo.AuthUser;
@@ -182,6 +184,32 @@ public class AirlineListController {
 	) {
 	    int memberNo = authUser.getMemberNo();
 	    return airlineListService.checkWish(memberNo, flightOfferId);
+	}
+	
+	
+	// 가격 변동 조회
+	@GetMapping("select/price")
+	public ArrayList<PriceChange> getPriceChange(PriceChangeDto priceChangeDto) {
+		System.out.println("조회 : " + priceChangeDto);
+		
+		switch(priceChangeDto.getTripType()) {
+		case "ROUND" : priceChangeDto.setTripType("N"); break;
+		case "ONEWAY" : priceChangeDto.setTripType("Y"); break;
+		}
+		
+		System.out.println("조회 변경 후 : " + priceChangeDto);
+		
+		 ArrayList<PriceChange> list = airlineListService.selectPrice(priceChangeDto);
+		 
+		 if(!list.isEmpty()) {
+			 for(PriceChange item : list) {
+				 System.out.println("날짜별 최저가 가격 : " + item);
+			 }
+		 } else {
+			 System.out.println("empty");
+		 }
+		 
+		 return list;
 	}
 	
 	

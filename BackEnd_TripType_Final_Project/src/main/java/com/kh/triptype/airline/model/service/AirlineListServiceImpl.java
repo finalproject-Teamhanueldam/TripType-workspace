@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kh.triptype.airline.model.dao.AirlineListDao;
+import com.kh.triptype.airline.model.dto.PriceChangeDto;
 import com.kh.triptype.airline.model.dto.ReviewRequestDto;
 import com.kh.triptype.airline.model.vo.AirlineFilter;
 import com.kh.triptype.airline.model.vo.AirlineListVo;
+import com.kh.triptype.airline.model.vo.PriceChange;
 import com.kh.triptype.airline.model.vo.Review;
 import com.kh.triptype.airline.model.vo.WeeklyPrice;
 import com.kh.triptype.airline.model.vo.WishList;
@@ -131,6 +133,17 @@ public class AirlineListServiceImpl implements AirlineListService {
         int count = airlineListDao.checkWish(sqlSession, wish);
         return count > 0;
     }
+
+	@Override
+	public ArrayList<PriceChange> selectPrice(PriceChangeDto priceChangeDto) {
+		PriceChange priceChange = new PriceChange();
+		priceChange.setDepartDate(priceChangeDto.getDepartDate());
+		priceChange.setArrive(priceChangeDto.getArrive());
+		priceChange.setDepart(priceChangeDto.getDepart());
+		priceChange.setTripType(priceChangeDto.getTripType());
+		
+		return airlineListDao.selectPrice(sqlSession, priceChange);
+	}
 
 
 

@@ -330,7 +330,7 @@ const getFilteredList = () => {
 
           <p className="result-count">
             {filteredData.length}개의 검색 결과 · 
-            <span className="price-check" onClick={() => navigate("/airline/list/price")}> 가격변동 조회</span>
+            <span className="price-check" onClick={() => navigate("/airline/list/price", { state : { searchParams : searchParams } })}> 가격변동 조회</span>
           </p>
           {
             filteredData.map((pair, index) => (
@@ -382,7 +382,8 @@ const getFilteredList = () => {
         </main>
 
         <aside className="side-2">
-          <AlertChartListComponent />
+          <AlertChartListComponent 
+          />
         </aside>
       </div>
     </div>

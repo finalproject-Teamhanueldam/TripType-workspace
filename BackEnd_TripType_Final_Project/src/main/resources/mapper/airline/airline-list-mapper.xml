@@ -38,6 +38,14 @@
 		<result column="FLIGHT_OFFER_ID" property="flightOfferId"/>
 		<result column="MEMBER_NAME" property="memberName"/>
 	</resultMap>
+	
+	<!-- 가격 조회 -->
+	<resultMap id="PriceChangeResultMap" type="PriceChange">
+		<id column="FLIGHT_OFFER_DEPART_DATE" property="departDate"/>
+		<result column="DEPART_IATA_CODE" property="depart"/>
+		<result column="ARRIVE_IATA_CODE" property="arrive"/>
+		<result column="FLIGHT_OFFER_PRICE_TOTAL" property="price"/>
+	</resultMap>
 
   	
 	<select id="selectAirlineListPrice" parameterType="AirlineFilter" resultMap="AirlineListResultMap">
@@ -337,5 +345,22 @@
 	     WHERE MEMBER_NO = #{memberNo}
 	       AND FLIGHT_OFFER_ID = #{flightOfferId}
 	</delete>
+	
+	<!-- 가격 조회 -->
+	<select id="selectPrice" parameterType="PriceChange" resultMap="PriceChangeResultMap">
+		SELECT 
+		    FLIGHT_OFFER_DEPART_DATE AS FLIGHT_OFFER_DEPART_DATE,
+		    DEPART_IATA_CODE AS DEPART_IATA_CODE,
+		    ARRIVE_IATA_CODE AS ARRIVE_IATA_CODE,
+		    MIN(FLIGHT_OFFER_PRICE_TOTAL) AS FLIGHT_OFFER_PRICE_TOTAL
+		  FROM TB_FLIGHT_PRICE_HISTORY
+		 WHERE TRUNC(FLIGHT_OFFER_DEPART_DATE) BETWEEN 
+		        TO_DATE(#{departDate}, 'YYYY-MM-DD') - 3
+		        AND TO_DATE(#{departDate}, 'YYYY-MM-DD') + 4
+		        AND DEPART_IATA_CODE = #{depart}
+		        AND ARRIVE_IATA_CODE = #{arrive}
+                AND FLIGHT_OFFER_ONE_WAY = #{tripType}
+		 GROUP BY FLIGHT_OFFER_DEPART_DATE, DEPART_IATA_CODE, ARRIVE_IATA_CODE
+	</select>
 	
   </mapper>
