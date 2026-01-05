@@ -14,6 +14,7 @@ const AirlineListComponent = () => {
   const locationState = useLocation().state || {};
   const { searchParams, res, searchId } = locationState;
 
+
   // State
   const [selectedPair, setSelectedPair] = useState(null);
   const [open, setOpen] = useState(false);
@@ -35,7 +36,7 @@ const AirlineListComponent = () => {
 
   // 상수 데이터
   const filterList = ["최저가", "비행시간순", "늦은출발"];
-  const transitList = ["직항", "1회 경유", "2회 이상"];
+  const transitList = ["모두", "직항", "1회 경유", "2회 이상"];
   const sortType =
     activeFilter === 0 ? "PRICE" : activeFilter === 1 ? "DURATION" : "LATE";
 
@@ -392,10 +393,17 @@ const AirlineListComponent = () => {
 
   // 핸들러 함수들
   const changeFilter = (index) => setActiveFilter(index);
+
   const changeTransit = (index) => {
     const target = transitList[index];
-    setActiveTransit([target]);
+
+    if (target === "모두") {
+      setActiveTransit([]); // ✅ 전체 허용
+    } else {
+      setActiveTransit([target]);
+    }
   };
+
 
   const changeTime = (value) => setDepartureTime(Number(value));
   const changeAirline = (name) => {
@@ -465,17 +473,22 @@ const AirlineListComponent = () => {
           <div className="filter-card">
             <div className="filter-section">
               <strong>경유</strong>
-              {transitList.map((item, index) => (
-                <label key={index}>
-                  <input
-                    type="radio"
-                    name="segment-option"
-                    value={item}
-                    onChange={() => changeTransit(index)}
-                  />
-                  {item}
-                </label>
-              ))}
+            {transitList.map((item, index) => (
+              <label key={index}>
+                <input
+                  type="radio"
+                  name="segment-option"
+                  value={item}
+                  checked={
+                    item === "모두"
+                      ? activeTransit.length === 0
+                      : activeTransit[0] === item
+                  }
+                  onChange={() => changeTransit(index)}
+                />
+                {item}
+              </label>
+            ))}
             </div>
 
             <div className="filter-section">
@@ -562,13 +575,16 @@ const AirlineListComponent = () => {
 
           <p className="result-count">
             {filteredData.length}개의 검색 결과 ·
-            <span
-              className="price-check"
-              onClick={() => navigate("/airline/list/price", { state: { searchParams } })}
-            >
+            {
+              searchParams.tripType == "MULTI" ? "" : 
+              <span
+                className="price-check"
+                onClick={() => navigate("/airline/list/price", { state: { searchParams } })}
+              >
               {" "}
               가격변동 조회
-            </span>
+              </span>
+            }
           </p>
 
           {filteredData.map((item, index) => (

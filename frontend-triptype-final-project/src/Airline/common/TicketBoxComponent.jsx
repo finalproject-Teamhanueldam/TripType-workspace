@@ -33,12 +33,15 @@ const TicketBoxComponent = ({
     "에어프랑스": "에어프랑스.png",
     "KLM 네덜란드항공": "klm항공.png",
     "에미레이트항공": "에미레이트항공.png",
+    "트립타임 로고" : "트립타임 로고.png"
   };
 
   const getAirlineLogo = (airlineName) => {
-    const fileName = AIRLINE_LOGO_MAP[airlineName];
-    return fileName ? `/images/${fileName}` : "";
-  };
+        if(airlineName == null || airlineName == undefined)
+            airlineName = "트립타임 로고";
+        const fileName = AIRLINE_LOGO_MAP[airlineName];
+        return `/images/${fileName}`;
+    }
 
   // ✅ segments가 있으면 첫/마지막 세그먼트 기준으로 표시값 만들기
   const safeSegments = Array.isArray(segments) && segments.length > 0 ? segments : null;
@@ -171,8 +174,8 @@ const TicketBoxComponent = ({
             </span>
           </div>
           <div className="terminal-info">
-            <FaMapMarkerAlt className="icon-tiny" />
-            터미널 정보
+            {/* <FaMapMarkerAlt className="icon-tiny" />
+            터미널 정보 */}
           </div>
         </div>
 

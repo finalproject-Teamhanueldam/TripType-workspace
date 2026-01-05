@@ -136,3 +136,35 @@
 .save-msg.err {
   color: #ef4444; /* 실패 (빨강) */
 }
+
+.social-btn {
+  margin-left: auto;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.social-btn.link {
+  background: #eef5ff;
+  color: #1d4ed8;
+}
+
+.social-btn.unlink {
+  background: #fff1f2;
+  color: #b91c1c;
+}
+
+.social-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.mypage-warning {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #fff3cd;
+  color: #856404;
+  border-radius: 6px;
+  font-size: 14px;
+}

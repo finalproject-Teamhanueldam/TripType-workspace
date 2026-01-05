@@ -9,17 +9,17 @@ const AdminAirlineReviewListComponent = () => {
   const [filterAirline, setFilterAirline] = useState('');
   const [selectedAirline, setSelectedAirline] = useState(null);
 
-  useEffect(() => {
-    const selectAirlineReviews = async () => {
-      try {
-        const url = "http://localhost:8001/triptype/admin/review/airlineReviews";
-        const response = await axios.get(url);
-        setSummaries(response.data);
-      } catch (error) {
-        console.error("항공사 리뷰 데이터 로드 실패", error);
-      }
-    };
+  const selectAirlineReviews = async () => {
+    try {
+      const url = "http://localhost:8001/triptype/admin/review/airlineReviews";
+      const response = await axios.get(url);
+      setSummaries(response.data);
+    } catch (error) {
+      console.error("항공사 리뷰 데이터 로드 실패", error);
+    }
+  };
 
+  useEffect(() => {
     selectAirlineReviews();
   }, []);
 
@@ -66,6 +66,7 @@ const AdminAirlineReviewListComponent = () => {
         <ReviewDetailModal
           airline={selectedAirline}
           onClose={() => setSelectedAirline(null)}
+          onRefresh={selectAirlineReviews}
         />
       )}
     </div>

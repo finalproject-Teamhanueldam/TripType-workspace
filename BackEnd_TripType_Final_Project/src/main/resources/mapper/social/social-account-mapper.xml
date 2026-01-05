@@ -33,6 +33,7 @@
     </select>
 
     <insert id="insertSocialAccount">
+    
         INSERT INTO TB_SOCIAL_ACCOUNT (
             SOCIAL_ACCOUNT_NO,
             MEMBER_NO,
@@ -50,5 +51,46 @@
         )
     </insert>
 
+	<select id="findSocialConnectionsByMemberNo"
+	        parameterType="int"
+	        resultType="MySocialConnectionDto">
+	    SELECT
+	        SOCIAL_PROVIDER AS provider,
+	        SOCIAL_EMAIL    AS email
+	    FROM TB_SOCIAL_ACCOUNT
+	    WHERE MEMBER_NO = #{memberNo}
+	</select>
+
+	<delete id="deleteSocialAccount">
+	    DELETE FROM TB_SOCIAL_ACCOUNT
+	     WHERE MEMBER_NO = #{memberNo}
+	       AND SOCIAL_PROVIDER = #{provider}
+	</delete>
+
+	<delete id="deleteAllByMemberNo">
+	  DELETE FROM TB_SOCIAL_ACCOUNT
+	  WHERE MEMBER_NO = #{memberNo}
+	</delete>
+
+	<select id="existsByMemberNoAndProvider" resultType="int">
+	    SELECT COUNT(*)
+	      FROM TB_SOCIAL_ACCOUNT
+	     WHERE MEMBER_NO = #{memberNo}
+	       AND SOCIAL_PROVIDER = #{provider}
+	</select>
+
+	<select id="existsByProviderAndProviderUid" resultType="int">
+	    SELECT COUNT(*)
+	      FROM TB_SOCIAL_ACCOUNT
+	     WHERE SOCIAL_PROVIDER = #{provider}
+	       AND SOCIAL_PROVIDER_UID = #{providerUid}
+	</select>
+	
+	<select id="findMemberNoByProviderAndUid" resultType="int">
+	    SELECT MEMBER_NO
+	      FROM TB_SOCIAL_ACCOUNT
+	     WHERE SOCIAL_PROVIDER = #{provider}
+	       AND SOCIAL_PROVIDER_UID = #{providerUid}
+	</select>
 </mapper>
  

@@ -9,7 +9,7 @@ const formatDateOnly = (dateTime) => {
     : dateTime.split(' ')[0];
 };
 
-const ReviewDetailModal = ({ airline, onClose }) => {
+const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
 
   const [reviews, setReviews] = useState([]);
   const [status, setStatus] = useState('Y');
@@ -41,7 +41,7 @@ const ReviewDetailModal = ({ airline, onClose }) => {
     memberNo ? String(r.memberNo).includes(memberNo) : true
   );
 
-  const handleStatusChange = async (reviewId, newStatus) => {
+  const handleStatusChange = async (reviewId) => {
     if (!window.confirm("리뷰 상태를 변경하시겠습니까?")) return;
 
     try {
@@ -49,7 +49,8 @@ const ReviewDetailModal = ({ airline, onClose }) => {
         `http://localhost:8001/triptype/admin/review/status`,
         { reviewId }
       );
-      fetchReviews();
+      await fetchReviews();
+      onRefresh?.();
     } catch (error) {
       console.error("리뷰 상태 변경 실패", error);
     }
