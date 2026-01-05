@@ -107,52 +107,52 @@
 	<select id="selectMonthlySignUpData"
         resultType="com.kh.triptype.admin.statistics.model.dto.MonthlySignUpDto">
 
-    WITH months AS (
-        SELECT
-            TO_CHAR(
-                ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -LEVEL + 1),
-                'YYYY-MM'
-            ) AS month
-        FROM DUAL
-        CONNECT BY LEVEL &lt;= 12
-    )
-    SELECT
-        m.month,
-        NVL(s.joinCount, 0)     AS joinCount,
-        NVL(s.withdrawCount, 0) AS withdrawCount
-    FROM months m
-    LEFT JOIN (
-        SELECT
-            month,
-            SUM(join_count)     AS joinCount,
-            SUM(withdraw_count) AS withdrawCount
-        FROM (
-            SELECT
-                TO_CHAR(MEMBER_CREATE_AT, 'YYYY-MM') AS month,
-                COUNT(*) AS join_count,
-                0 AS withdraw_count
-            FROM TB_MEMBER
-            WHERE MEMBER_CREATE_AT &gt;= TRUNC(ADD_MONTHS(SYSDATE, -11), 'MM')
-            GROUP BY TO_CHAR(MEMBER_CREATE_AT, 'YYYY-MM')
-
-            UNION ALL
-
-            -- 탈퇴자
-            SELECT
-                TO_CHAR(MEMBER_WITHDRAWN_AT, 'YYYY-MM') AS month,
-                0 AS join_count,
-                COUNT(*) AS withdraw_count
-            FROM TB_MEMBER
-            WHERE MEMBER_WITHDRAWN_AT &gt;= TRUNC(ADD_MONTHS(SYSDATE, -11), 'MM')
-              AND MEMBER_IS_ACTIVE = 'N'
-            GROUP BY TO_CHAR(MEMBER_WITHDRAWN_AT, 'YYYY-MM')
-        )
-        GROUP BY month
-    ) s
-        ON m.month = s.month
-    ORDER BY m.month
-
-
-</select>
+	    WITH months AS (
+	        SELECT
+	            TO_CHAR(
+	                ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -LEVEL + 1),
+	                'YYYY-MM'
+	            ) AS month
+	        FROM DUAL
+	        CONNECT BY LEVEL &lt;= 12
+	    )
+	    SELECT
+	        m.month,
+	        NVL(s.joinCount, 0)     AS joinCount,
+	        NVL(s.withdrawCount, 0) AS withdrawCount
+	    FROM months m
+	    LEFT JOIN (
+	        SELECT
+	            month,
+	            SUM(join_count)     AS joinCount,
+	            SUM(withdraw_count) AS withdrawCount
+	        FROM (
+	            SELECT
+	                TO_CHAR(MEMBER_CREATE_AT, 'YYYY-MM') AS month,
+	                COUNT(*) AS join_count,
+	                0 AS withdraw_count
+	            FROM TB_MEMBER
+	            WHERE MEMBER_CREATE_AT &gt;= TRUNC(ADD_MONTHS(SYSDATE, -11), 'MM')
+	            GROUP BY TO_CHAR(MEMBER_CREATE_AT, 'YYYY-MM')
+	
+	            UNION ALL
+	
+	            -- 탈퇴자
+	            SELECT
+	                TO_CHAR(MEMBER_WITHDRAWN_AT, 'YYYY-MM') AS month,
+	                0 AS join_count,
+	                COUNT(*) AS withdraw_count
+	            FROM TB_MEMBER
+	            WHERE MEMBER_WITHDRAWN_AT &gt;= TRUNC(ADD_MONTHS(SYSDATE, -11), 'MM')
+	              AND MEMBER_IS_ACTIVE = 'N'
+	            GROUP BY TO_CHAR(MEMBER_WITHDRAWN_AT, 'YYYY-MM')
+	        )
+	        GROUP BY month
+	    ) s
+	        ON m.month = s.month
+	    ORDER BY m.month
+	
+	
+	</select>
 
 </mapper>

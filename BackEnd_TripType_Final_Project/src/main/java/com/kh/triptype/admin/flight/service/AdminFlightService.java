@@ -1,13 +1,12 @@
 package com.kh.triptype.admin.flight.service;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.kh.triptype.admin.flight.model.dto.AdminTicketOfferDto;
 import com.kh.triptype.admin.flight.model.dto.FlightHistoryInsertDto;
 import com.kh.triptype.admin.flight.model.dto.FlightInsertDto;
 import com.kh.triptype.admin.flight.model.dto.FlightOfferInsertDto;
-import com.kh.triptype.admin.flight.model.dto.FlightSelectTicketsDto;
 
 public interface AdminFlightService {
 
@@ -48,7 +47,12 @@ public interface AdminFlightService {
 	
 	void ensureAirportExists(String iata);
 
-	List<Object> selectTickets();
+	List<AdminTicketOfferDto> selectTickets();
+
+	void deleteFlightOffers(AdminTicketOfferDto dto); 
+		
+		
 	
+
 	
 }

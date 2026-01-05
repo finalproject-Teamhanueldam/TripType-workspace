@@ -7,7 +7,7 @@
 .flight-main-wrap {
     padding: 20px;
     max-width: 1400px;
-    margin-left: 310px; /* 기존 사이드바 여백 유지 */
+    margin-left: 310px;
 }
 
 .flight-main-title {
@@ -80,7 +80,7 @@
     background: white;
     border: 1px solid #dee2e6;
     border-radius: 8px;
-    max-height: calc(100vh - 350px); /* 화면 크기에 맞게 리스트 영역 조절 */
+    max-height: calc(100vh - 350px);
     overflow-y: auto;
 }
 
@@ -90,7 +90,6 @@
     table-layout: fixed;
 }
 
-/* 테이블 헤더도 고정 */
 .ticket-list-table thead th {
     position: sticky;
     top: 0;
@@ -99,16 +98,80 @@
     border-bottom: 2px solid #dee2e6;
     padding: 12px 8px;
     font-weight: bold;
+    text-align: center;
 }
 
 .ticket-list-table td {
-    padding: 11px 8px;
+    padding: 15px 8px;
     border-bottom: 1px solid #eee;
     text-align: center;
     vertical-align: middle;
+    height: 90px;
 }
 
-/* 기존 버튼 및 텍스트 스타일 유지 */
+/* 시간 정보 영역 */
+.datetime-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border: none !important;
+}
+
+.date-display {
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+}
+
+.time-display {
+    font-size: 15px;
+    font-weight: 800;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.time-separator {
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* 가격 정보 */
+.admin-flight-price-info {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.currency {
+    font-size: 12px;
+    color: #777;
+    font-weight: normal;
+}
+
+.last-checked {
+    color: #555;
+}
+
+/* ============================= */
+/* 버튼 공통 스타일 + Hover 효과 */
+/* ============================= */
+.action-btn,
+.admin-flight-delete-btn {
+    transition: background-color 0.2s ease, 
+                transform 0.15s ease, 
+                box-shadow 0.15s ease;
+}
+
+/* 기본 버튼 */
 .action-btn {
     padding: 0 15px;
     height: 40px;
@@ -119,20 +182,76 @@
     border: none;
 }
 
-.search-btn { background-color: #007bff; color: white; }
-.reset-btn { background-color: #6c757d; color: white; }
-.secondary-btn { background-color: #007bff; color: white; }
-.danger-btn { background-color: #dc3545; color: white; }
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
 
+/* 검색 */
+.search-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.search-btn:hover {
+    background-color: #0056b3;
+}
+
+/* 초기화 */
+.reset-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.reset-btn:hover {
+    background-color: #545b62;
+}
+
+/* 보조 버튼 */
+.secondary-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.secondary-btn:hover {
+    background-color: #0056b3;
+}
+
+/* 위험 버튼 */
+.danger-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.danger-btn:hover {
+    background-color: #b02a37;
+}
+
+/* 개별 삭제 버튼 */
 .admin-flight-delete-btn {
     background: #ff3a3a;
     color: white;
-    border: 1px solid #dc3545;
-    padding: 4px 12px;
+    border: none;
+    padding: 6px 14px;
     border-radius: 4px;
     cursor: pointer;
+    font-weight: bold;
 }
 
-.airport-code { font-size: 16px; font-weight: bold; color: #0056b3; }
-.time-display { font-size: 16px; font-weight: bold; }
-.admin-flight-price-info { font-size : 16px; font-weight: bold;}
+.admin-flight-delete-btn:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+/* 기타 */
+.airport-code { 
+    font-size: 16px; 
+    font-weight: bold; 
+    color: #0056b3; 
+}
+
+.one-way-label {
+    color: #ccc;
+    font-size: 13px;
+}

@@ -21,5 +21,13 @@ public class AdminReviewServiceImpl implements AdminReviewService {
 		
 		return adminReviewDao.selectAdminAirlineReview(sqlSession);
 	}
-
+	
+	@Override
+    public List<AirlineReviewVo> selectAirlineReviewList(int airlineId, String status) {
+        return adminReviewDao.selectAirlineReviewList(sqlSession, airlineId, status);
+    }
+	
+	public void updateReviewStatus(int reviewNo) {
+        adminReviewDao.updateReviewStatus(sqlSession, reviewNo);
+    }
 }

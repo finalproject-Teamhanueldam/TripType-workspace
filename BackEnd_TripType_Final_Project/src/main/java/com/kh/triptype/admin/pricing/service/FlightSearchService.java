@@ -1,7 +1,10 @@
 package com.kh.triptype.admin.pricing.service;
 
+import java.util.List;
+
 import com.kh.triptype.admin.pricing.model.dto.FlightSearchRequestDto;
 import com.kh.triptype.admin.pricing.model.dto.FlightSearchResponseDto;
+import com.kh.triptype.admin.review.model.vo.AirlineReviewVo;
 
 /**
  * 항공권 검색 서비스
@@ -18,4 +21,8 @@ public interface FlightSearchService {
      * @return 항공권 검색 결과
      */
     FlightSearchResponseDto searchFlights(FlightSearchRequestDto request);
+ 
+    
+  
+
 }

@@ -31,7 +31,7 @@ const TopSearchedDestinationComponent = () => {
     fetchPopularRoutes();
 }, []);
 
-    if (!routes || routes.length === 0) return <div>데이터 없음</div>;
+    if (!routes || routes.length === 0) return <div style={{width : "400px"}}>데이터를 조회할 수 없습니다. </div>;
 
     const data = [
         ["노선 명", "검색 량"],

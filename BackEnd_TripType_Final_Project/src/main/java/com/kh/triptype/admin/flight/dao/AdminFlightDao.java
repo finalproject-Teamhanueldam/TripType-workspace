@@ -7,10 +7,10 @@ import java.util.Map;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.kh.triptype.admin.flight.model.dto.AdminTicketOfferDto;
 import com.kh.triptype.admin.flight.model.dto.FlightHistoryInsertDto;
 import com.kh.triptype.admin.flight.model.dto.FlightInsertDto;
 import com.kh.triptype.admin.flight.model.dto.FlightOfferInsertDto;
-import com.kh.triptype.admin.flight.model.dto.FlightSelectTicketsDto;
 
 @Repository
 public class AdminFlightDao {
@@ -64,10 +64,39 @@ public class AdminFlightDao {
 		
 	}
 
-	public List<Object> selectTickets(SqlSessionTemplate sqlSession) {
+	public List<AdminTicketOfferDto> selectTickets(SqlSessionTemplate sqlSession) {
 		// TODO Auto-generated method stub
 		return sqlSession.selectList("adminTicketMapper.selectTickets");
 	}
+
+	/*
+    public void updateFlightHistoryIsDelByOfferId(
+            SqlSessionTemplate sqlSession,
+            List<Long> offerIds
+    ) {
+        sqlSession.update("adminFlighHistorytMapper.updateFlightHistoryIsDelByOfferId", offerIds);
+    }
+    */
+    
+
+    public void updateFlightIsDelByOfferId(
+            SqlSessionTemplate sqlSession,
+            List<Long> offerIds
+    ) {
+        sqlSession.update("adminFlightMapper.updateFlightIsDelByOfferId", offerIds);
+    }
+    
+
+    public void updateFlightOfferIsDel(
+            SqlSessionTemplate sqlSession,
+            List<Long> offerIds
+    ) {
+        sqlSession.update("adminFlightOfferMapper.updateFlightOfferIsDel",offerIds);
+    }
+    
+ 
+
+
 
 };
 

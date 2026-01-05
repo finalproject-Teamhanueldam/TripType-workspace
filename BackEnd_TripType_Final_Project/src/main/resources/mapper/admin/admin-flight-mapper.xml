@@ -7,42 +7,51 @@
 	<insert id="InsertFlight"
         parameterType="com.kh.triptype.admin.flight.model.dto.FlightInsertDto">
 
-    <selectKey keyProperty="flightId"
-               resultType="int"
-               order="BEFORE">
-        SELECT TB_FLIGHT_SEQ.NEXTVAL FROM DUAL
-    </selectKey>
+	    <selectKey keyProperty="flightId"
+	               resultType="int"
+	               order="BEFORE">
+	        SELECT TB_FLIGHT_SEQ.NEXTVAL FROM DUAL
+	    </selectKey>
+	
+	    INSERT INTO TB_FLIGHT (
+	        FLIGHT_ID,
+			FLIGHT_SEGMENT_NO,
+			FLIGHT_NUMBER,
+			FLIGHT_DEPART_DATE,
+			FLIGHT_ARRIVE_DATE,
+			FLIGHT_DURATION,
+			FLIGHT_DIRECTION,
+			FLIGHT_IS_DEL,
+			DEPART_AIRPORT,
+			DEST_AIRPORT,
+			OPER_AIRLINE_ID,
+			SELLING_AIRLINE_ID,
+			FLIGHT_OFFER_ID
+	    )
+	    VALUES (
+	        TB_FLIGHT_SEQ.NEXTVAL,
+	    	#{segmentNo},
+	    	#{flightNo},
+	    	#{departDateTime},
+	    	#{arriveDateTime},
+	    	#{duration},
+	    	#{direction},
+	    	#{isDel},
+	    	#{departAirport},
+	    	#{destAirport},
+	    	#{offerAirlineId},
+	    	#{sellAirlineId},
+	    	#{offerId}
+	    )
+	</insert>
+	<update id="updateFlightIsDelByOfferId" parameterType="list">
+	    UPDATE TB_FLIGHT
+	    SET FLIGHT_IS_DEL = 'Y'
+	    WHERE FLIGHT_OFFER_ID IN
+	    <foreach collection="list" item="id" open="(" close=")" separator=",">
+	        #{id}
+	    </foreach>
+</update>
 
-    INSERT INTO TB_FLIGHT (
-        FLIGHT_ID,
-		FLIGHT_SEGMENT_NO,
-		FLIGHT_NUMBER,
-		FLIGHT_DEPART_DATE,
-		FLIGHT_ARRIVE_DATE,
-		FLIGHT_DURATION,
-		FLIGHT_DIRECTION,
-		FLIGHT_IS_DEL,
-		DEPART_AIRPORT,
-		DEST_AIRPORT,
-		OPER_AIRLINE_ID,
-		SELLING_AIRLINE_ID,
-		FLIGHT_OFFER_ID
-    )
-    VALUES (
-        TB_FLIGHT_SEQ.NEXTVAL,
-    	#{segmentNo},
-    	#{flightNo},
-    	#{departDateTime},
-    	#{arriveDateTime},
-    	#{duration},
-    	#{direction},
-    	#{isDel},
-    	#{departAirport},
-    	#{destAirport},
-    	#{offerAirlineId},
-    	#{sellAirlineId},
-    	#{offerId}
-    )
-</insert>
 
 </mapper>

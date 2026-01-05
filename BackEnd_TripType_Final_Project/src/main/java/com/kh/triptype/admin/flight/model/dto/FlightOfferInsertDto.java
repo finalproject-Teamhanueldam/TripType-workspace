@@ -26,5 +26,8 @@ public class FlightOfferInsertDto {
 	private String isDel;						//	FLIGHT_OFFER_IS_DEL	CHAR(1 BYTE)
 	private int airlineId;					//	AIRLINE_ID	NUMBER
 	private int extraSeat;						//	FLIGHT_OFFER_EXTRA_SEAT	NUMBER
+	private String departAirport;
+	private String arriveAirport;
+
 							
 }
