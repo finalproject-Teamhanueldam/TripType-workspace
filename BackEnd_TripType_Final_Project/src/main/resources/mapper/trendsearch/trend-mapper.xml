@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="trendMapper">
+
+  <!-- ✅ 인기 검색 노선 -->
+  <select id="selectPopularRoutes"
+          parameterType="map"
+          resultType="com.kh.triptype.trend.model.dto.TrendRouteDto">
+    SELECT
+      DEPART_IATA_CODE depart,
+      ARRIVE_IATA_CODE arrive,
+      cnt count
+    FROM (
+      SELECT
+        DEPART_IATA_CODE,
+        ARRIVE_IATA_CODE,
+        COUNT(*) cnt
+      FROM TB_SEARCH_LOG
+      WHERE SEARCH_LOG_DATE &gt;= SYSDATE - #{days}
+      GROUP BY DEPART_IATA_CODE, ARRIVE_IATA_CODE
+      ORDER BY COUNT(*) DESC
+    )
+    WHERE ROWNUM &lt;= #{limit}
+  </select>
+
+  <!-- ✅ 최근 가격 변동 노선 (Oracle 11g: ROWNUM 사용) -->
+  <select id="selectPriceMoves"
+          parameterType="map"
+          resultType="com.kh.triptype.trend.model.dto.TrendPriceMoveDto">
+    SELECT
+      depart,
+      arrive,
+      changePct,
+      days
+    FROM (
+      SELECT
+        depart,
+        arrive,
+        ROUND(
+          (last_price - first_price)
+          / (CASE WHEN first_price = 0 THEN NULL ELSE first_price END)
+          * 100
+        , 2) changePct,
+        #{days} days
+      FROM (
+        SELECT
+          DEPART_IATA_CODE depart,
+          ARRIVE_IATA_CODE arrive,
+          MAX(CASE WHEN rn_asc  = 1 THEN FLIGHT_OFFER_PRICE_TOTAL END) first_price,
+          MAX(CASE WHEN rn_desc = 1 THEN FLIGHT_OFFER_PRICE_TOTAL END) last_price
+        FROM (
+          SELECT
+            DEPART_IATA_CODE,
+            ARRIVE_IATA_CODE,
+            FLIGHT_OFFER_PRICE_TOTAL,
+            ROW_NUMBER() OVER (
+              PARTITION BY DEPART_IATA_CODE, ARRIVE_IATA_CODE
+              ORDER BY FLIGHT_OFFER_API_QUERY_DATE ASC
+            ) rn_asc,
+            ROW_NUMBER() OVER (
+              PARTITION BY DEPART_IATA_CODE, ARRIVE_IATA_CODE
+              ORDER BY FLIGHT_OFFER_API_QUERY_DATE DESC
+            ) rn_desc
+          FROM TB_FLIGHT_PRICE_HISTORY
+          WHERE FLIGHT_OFFER_API_QUERY_DATE &gt;= SYSDATE - #{days}
+        )
+        GROUP BY DEPART_IATA_CODE, ARRIVE_IATA_CODE
+      )
+      WHERE first_price IS NOT NULL
+        AND last_price IS NOT NULL
+      ORDER BY ABS(
+        ROUND(
+          (last_price - first_price)
+          / (CASE WHEN first_price = 0 THEN NULL ELSE first_price END)
+          * 100
+        , 2)
+      ) DESC
+    )
+    WHERE ROWNUM &lt;= #{limit}
+  </select>
+
+  <!-- ✅ 최근 검색 급증 노선 (prev_cnt=0 포함) -->
+	<select id="selectSurgeRoutes"
+	        parameterType="map"
+	        resultType="com.kh.triptype.trend.model.dto.TrendSurgeDto">
+	  SELECT
+	    depart,
+	    arrive,
+	    growthPct,
+	    days
+	  FROM (
+	    SELECT
+	      depart,
+	      arrive,
+	      CASE
+	        WHEN prev_cnt = 0 THEN 100
+	        ELSE ROUND((cur_cnt - prev_cnt) / prev_cnt * 100, 2)
+	      END growthPct,
+	      #{days} days,
+	      cur_cnt,
+	      prev_cnt
+	    FROM (
+	      SELECT
+	        a.DEPART_IATA_CODE depart,
+	        a.ARRIVE_IATA_CODE arrive,
+	        NVL(a.cur_cnt, 0)  cur_cnt,
+	        NVL(b.prev_cnt, 0) prev_cnt
+	      FROM (
+	        /* 최근 days일 검색수 */
+	        SELECT
+	          DEPART_IATA_CODE,
+	          ARRIVE_IATA_CODE,
+	          COUNT(*) cur_cnt
+	        FROM TB_SEARCH_LOG
+	        WHERE SEARCH_LOG_DATE &gt;= SYSDATE - #{days}
+	        GROUP BY DEPART_IATA_CODE, ARRIVE_IATA_CODE
+	      ) a
+	      LEFT JOIN (
+	        /* 그 이전 동일 기간(days일) 검색수 */
+	        SELECT
+	          DEPART_IATA_CODE,
+	          ARRIVE_IATA_CODE,
+	          COUNT(*) prev_cnt
+	        FROM TB_SEARCH_LOG
+	        WHERE SEARCH_LOG_DATE &lt;  SYSDATE - #{days}
+	          AND SEARCH_LOG_DATE &gt;= SYSDATE - (#{days} * 2)
+	        GROUP BY DEPART_IATA_CODE, ARRIVE_IATA_CODE
+	      ) b
+	        ON a.DEPART_IATA_CODE = b.DEPART_IATA_CODE
+	       AND a.ARRIVE_IATA_CODE = b.ARRIVE_IATA_CODE
+	    )
+	    /* ✅ 최근 구간에 실제 검색이 있는 것만 */
+	    WHERE cur_cnt &gt; 0
+	    ORDER BY growthPct DESC, cur_cnt DESC
+	  )
+	  WHERE ROWNUM &lt;= #{limit}
+	</select>
+
+</mapper>

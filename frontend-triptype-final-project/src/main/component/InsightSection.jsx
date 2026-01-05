@@ -1,90 +1,179 @@
 import "../css/InsightSection.css";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../common/api/axiosInstance.js"; // ✅ 너희 경로 기준
+import api from "../../common/api/axiosInstance.js";
 
 const InsightSection = () => {
   const navigate = useNavigate();
 
-  // ✅ 인기 목적지(도착지) Top N
-  const [trendDestinations, setTrendDestinations] = useState([]); // [{ arrive:"NRT", count: 12 }, ...]
+  const [popularRoutes, setPopularRoutes] = useState([]);
+  const [priceMoves, setPriceMoves] = useState([]);
+  const [surgeRoutes, setSurgeRoutes] = useState([]);
 
-  // ✅ IATA -> 한글명(없으면 코드 그대로)
-  // 프로젝트에 DESTINATIONS 상수 있으면 그걸 import해서 매핑 쓰는 게 더 좋음.
+  // ✅ [TRACK용] 최근 검색 급증 로딩 상태만 추가
+  const [surgeLoading, setSurgeLoading] = useState(false);
+
   const IATA_NAME = useMemo(
     () => ({
+      ICN: "인천",
+      GMP: "김포",
       NRT: "도쿄",
-      KIX: "오사카",
-      DAD: "다낭",
+      HND: "도쿄(하네다)",
+      KIX: "오사카(간사이)",
       FUK: "후쿠오카",
+      DAD: "다낭",
       BKK: "방콕",
       DPS: "발리",
     }),
     []
   );
 
-  const insights = useMemo(
-    () => [
+  const routeLabel = (code) => IATA_NAME[code] || code || "";
+
+  const formatRouteText = (depart, arrive) => {
+    const d = routeLabel(depart);
+    const a = routeLabel(arrive);
+    if (!depart && !arrive) return "(불러오는 중...)";
+    if (depart && arrive) return `${d} → ${a}`;
+    return `${d}${a}`;
+  };
+
+  const popularSubText = useMemo(() => {
+    if (!popularRoutes || popularRoutes.length === 0) return "서울 → (불러오는 중...)";
+    const names = popularRoutes.slice(0, 3).map((x) => routeLabel(x.arrive));
+    return `서울 → ${names.join(" · ")}`;
+  }, [popularRoutes, IATA_NAME]);
+
+  const priceMoveSubText = useMemo(() => {
+    if (!priceMoves || priceMoves.length === 0) return "(불러오는 중...)";
+    const top = priceMoves[0];
+    const route = formatRouteText(top.depart || "ICN", top.arrive);
+    const pct = Number(top.changePct);
+
+    if (Number.isFinite(pct)) {
+      const sign = pct > 0 ? "▲" : pct < 0 ? "▼" : "–";
+      const abs = Math.abs(pct);
+      return `${route} 최근 ${top.days || 7}일 ${sign}${abs}%`;
+    }
+    return `${route} 최근 변동`;
+  }, [priceMoves]);
+
+  const surgeSubText = useMemo(() => {
+    if (surgeLoading) return "(불러오는 중...)";
+    if (!surgeRoutes || surgeRoutes.length === 0) return "(데이터 없음)";
+    const top = surgeRoutes[0];
+    const route = formatRouteText(top.depart || "ICN", top.arrive);
+    const pct = Number(top.growthPct);
+
+    if (Number.isFinite(pct)) return `${route} 검색 급증 +${pct}%`;
+    return `${route} 검색 급증`;
+  }, [surgeRoutes, surgeLoading]);
+
+  const insights = useMemo(() => {
+    return [
       {
         id: 1,
-        icon: "📉",
-        badge: "INSIGHT",
-        title: "가격 변동 인사이트",
-        desc: "최근 7일간 항공권 가격 흐름을 분석해\n지금이 좋은 타이밍인지 알려드려요.",
-        sub: "서울 → 오사카 평균가 ▼11%",
-        cta: "가격 흐름 보기",
-      },
-      {
-        id: 2,
-        icon: "🔔",
-        badge: "ALERT",
-        title: "가격 알림 기능",
-        desc: "원하는 가격에 도달하면\n알림으로 바로 알려드려요.",
-        sub: "실시간 가격 추적",
-        cta: "가격 알림 설정",
-      },
-      {
-        id: 3,
         icon: "🔥",
         badge: "TREND",
         title: "인기 검색 노선",
-        desc: "지금 가장 많이 검색되고 있는\n항공권 노선을 확인해보세요.",
-        sub: "서울 → (불러오는 중...)",
+        desc: "최근 기간 동안 가장 많이 검색된\n노선을 빠르게 확인해보세요.",
+        sub: popularSubText,
         cta: "바로 검색",
+        disabled: popularRoutes.length === 0,
       },
-    ],
-    []
-  );
+      {
+        id: 2,
+        icon: "📉",
+        badge: "PRICE",
+        title: "최근 가격 변동 노선",
+        desc: "최근 기간 동안 가격 변동이 있었던\n노선을 확인할 수 있어요.",
+        sub: priceMoveSubText,
+        cta: "가격 흐름 보기",
+        disabled: priceMoves.length === 0,
+      },
+      {
+        id: 3,
+        icon: "🚀",
+        badge: "SURGE",
+        title: "최근 검색 급증 노선",
+        desc: "최근 들어 검색이 빠르게 증가한\n노선을 확인해보세요.",
+        sub: surgeSubText,
+        cta: "바로 검색",
+        // ✅ 핵심: "로딩 중"일 때만 비활성화. 빈 배열이어도 클릭 가능하게.
+        disabled: surgeLoading,
+      },
+    ];
+  }, [
+    popularSubText,
+    popularRoutes.length,
+    priceMoveSubText,
+    priceMoves.length,
+    surgeSubText,
+    surgeRoutes.length,
+    surgeLoading,
+  ]);
 
-  // ✅ 인기 목적지 문구 만들기
-  const trendSubText = useMemo(() => {
-    if (!trendDestinations || trendDestinations.length === 0) return "서울 → (불러오는 중...)";
-    const names = trendDestinations
-      .slice(0, 3)
-      .map((x) => IATA_NAME[x.arrive] || x.arrive);
-    return `서울 → ${names.join(" · ")}`;
-  }, [trendDestinations, IATA_NAME]);
+  const pickList = (resp) => {
+    const d = resp?.data;
+    if (Array.isArray(d)) return d;
+    if (Array.isArray(d?.data)) return d.data;
+    return [];
+  };
 
-  // ✅ 최근 7일 인기 목적지 조회
   useEffect(() => {
     let cancelled = false;
 
+    const safeSet = (setter, value) => {
+      if (!cancelled) setter(value);
+    };
+
     (async () => {
       try {
-        // ✅ TODO: 너희 백엔드 인기목적지 API로 변경
-        // 예) GET /api/trends/destinations?days=7&limit=3
-        const r = await api.get("/api/trends/destinations", {
-          params: { days: 7, limit: 3 },
-        });
-
-        // 응답 형태: { success:true, data:[{arrive, count}...] } 가정
-        const data = r?.data?.data;
-        if (!cancelled && Array.isArray(data)) {
-          setTrendDestinations(data);
-        }
+        const r1 = await api.get("/api/trends/routes", { params: { days: 7, limit: 3 } });
+        safeSet(setPopularRoutes, pickList(r1));
       } catch (e) {
-        // 실패해도 UI는 유지 (하드코딩/빈 상태)
-        if (!cancelled) setTrendDestinations([]);
+        safeSet(setPopularRoutes, []);
+      }
+
+      try {
+        const r2 = await api.get("/api/trends/price-moves", { params: { days: 7, limit: 1 } });
+        safeSet(setPriceMoves, pickList(r2));
+      } catch (e) {
+        safeSet(setPriceMoves, []);
+      }
+
+      // ✅ surge만 로딩 트래킹
+      try {
+        safeSet(setSurgeLoading, true);
+
+        console.log("========================================");
+        console.log("🚀 [InsightSection] surge API 호출 시작");
+        console.log("➡️  GET /api/trends/surge params =", { days: 1, limit: 1 });
+
+        const r3 = await api.get("/api/trends/surge", { params: { days: 1, limit: 1 } });
+
+        console.log("✅ [InsightSection] surge API 응답 수신");
+        console.log("📦 r3.status =", r3?.status);
+        console.log("📦 r3.data =", r3?.data);
+
+        const list = pickList(r3);
+        console.log("📌 [InsightSection] pickList(r3) =", list);
+        console.log("📌 [InsightSection] list.length =", list?.length ?? 0);
+
+        safeSet(setSurgeRoutes, list);
+        console.log("✅ [InsightSection] setSurgeRoutes 적용 완료(취소여부 반영)");
+        console.log("========================================");
+      } catch (e) {
+        console.log("========================================");
+        console.log("❌ [InsightSection] surge API 호출 실패");
+        console.log("🧨 error.message =", e?.message);
+        console.log("🧨 error.response?.status =", e?.response?.status);
+        console.log("🧨 error.response?.data =", e?.response?.data);
+        console.log("🧨 error.config?.url =", e?.config?.url);
+        console.log("========================================");
+        safeSet(setSurgeRoutes, []);
+      } finally {
+        safeSet(setSurgeLoading, false);
       }
     })();
 
@@ -93,109 +182,134 @@ const InsightSection = () => {
     };
   }, []);
 
-  // ✅ 바로검색: 고정 필터로 검색 API 호출 → 목록조회 이동
-  const handleQuickSearchTrend = async () => {
-    try {
-      const top = trendDestinations?.[0];
-      if (!top?.arrive) return;
+  const quickSearchToList = async ({ depart = "ICN", arrive }) => {
+    if (!arrive) return;
 
-      // ✅ 고정값 규칙(원하는대로 바꿔도 됨)
+    try {
       const base = new Date();
-      base.setDate(base.getDate() + 30); // 오늘+30일
+      base.setDate(base.getDate() + 30);
       const yyyy = base.getFullYear();
       const mm = String(base.getMonth() + 1).padStart(2, "0");
       const dd = String(base.getDate()).padStart(2, "0");
       const departDate = `${yyyy}-${mm}-${dd}`;
 
       const searchParams = {
-        tripType: "ONEWAY", // ✅ 고정
-        depart: "ICN",      // ✅ 고정(서울)
-        arrive: top.arrive, // ✅ 인기 목적지
+        tripType: "ONEWAY",
+        depart,
+        arrive,
         departDate,
-        // 필요하면 너희 검색 DTO에 맞게 추가:
         adultCount: 1,
         minorCount: 0,
         cabin: "ECONOMY",
       };
 
-      // ✅ TODO: 너희 “검색 시작” API 경로로 변경
-      // 예) GET /api/flights/search (즉시 결과 + searchId 반환)
-      const r = await api.get("/api/flights/search", { params: searchParams });
+      const r = await api.post("/api/flights/search", searchParams);
 
-      // 응답 형태가 프로젝트마다 달라서, 아래는 흔한 케이스 2개를 방어
       const payload = r?.data;
       const res = Array.isArray(payload) ? payload : payload?.data ?? payload?.res ?? [];
       const searchId = payload?.searchId ?? payload?.id ?? null;
 
-      navigate("/airline/list", {
-        state: { searchParams, res, searchId },
-      });
+      navigate("/airline/list", { state: { searchParams, res, searchId } });
     } catch (e) {
-      // 실패 시에는 메인 검색 화면으로 보내서 사용자가 직접 검색하게 해도 됨
       navigate("/", { state: { focus: "search" } });
     }
   };
 
   const handleClick = (id) => {
+    if (id === 3) {
+      console.log("========================================");
+      console.log("🚀 [InsightSection] 최근 검색 급증 노선 CTA 클릭");
+      console.log("📌 surgeLoading =", surgeLoading);
+      console.log("📌 surgeRoutes =", surgeRoutes);
+      console.log("📌 surgeRoutes.length =", surgeRoutes?.length ?? 0);
+
+      const top = surgeRoutes?.[0];
+      console.log("📌 top =", top);
+
+      // ✅ 핵심: 데이터 없으면 '검색영역으로 이동'
+      if (!top?.arrive) {
+        console.log("⚠️ surgeRoutes 비어있음 → 홈 검색영역으로 이동");
+        console.log("========================================");
+        navigate("/", { state: { focus: "search" } });
+        return;
+      }
+
+      console.log("➡️ quickSearchToList args =", {
+        depart: top?.depart || "ICN",
+        arrive: top?.arrive,
+      });
+      console.log("========================================");
+
+      quickSearchToList({ depart: top?.depart || "ICN", arrive: top?.arrive });
+      return;
+    }
+
     if (id === 1) {
-      navigate("/airline/list/price"); // 너희 가격변동 페이지 경로에 맞게
+      const top = popularRoutes?.[0];
+      quickSearchToList({ depart: top?.depart || "ICN", arrive: top?.arrive });
       return;
     }
     if (id === 2) {
-      navigate("/alert"); // 너희 알림 페이지 경로에 맞게
-      return;
-    }
-    if (id === 3) {
-      handleQuickSearchTrend();
+      const top = priceMoves?.[0];
+      if (top?.arrive) {
+        quickSearchToList({ depart: top?.depart || "ICN", arrive: top?.arrive });
+      } else {
+        navigate("/airline/list/price");
+      }
       return;
     }
   };
+
+  useEffect(() => {
+    console.log("========================================");
+    console.log("🔄 [InsightSection] surgeRoutes state 변경됨");
+    console.log("📌 surgeLoading =", surgeLoading);
+    console.log("📌 surgeRoutes =", surgeRoutes);
+    console.log("📌 surgeRoutes.length =", surgeRoutes?.length ?? 0);
+    console.log("========================================");
+  }, [surgeRoutes, surgeLoading]);
 
   return (
     <section className="insight">
       <div className="insight-head">
         <h2>TripType는 이렇게 다릅니다</h2>
-        <p>가격을 단순 비교하지 않고, 흐름을 분석합니다</p>
+        <p>검색/가격 데이터를 기반으로 흐름을 보여줍니다</p>
       </div>
 
       <div className="insight-grid">
-        {insights.map((item) => {
-          const sub = item.id === 3 ? trendSubText : item.sub;
+        {insights.map((item) => (
+          <article className="insight-card" key={item.id}>
+            <div className="insight-left">
+              <div className="insight-icon">{item.icon}</div>
 
-          return (
-            <article className="insight-card" key={item.id}>
-              <div className="insight-left">
-                <div className="insight-icon">{item.icon}</div>
+              <h3 className="insight-title">{item.title}</h3>
 
-                <h3 className="insight-title">{item.title}</h3>
+              <p className="insight-desc">
+                {item.desc.split("\n").map((line, idx) => (
+                  <span key={idx}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+              </p>
 
-                <p className="insight-desc">
-                  {item.desc.split("\n").map((line, idx) => (
-                    <span key={idx}>
-                      {line}
-                      <br />
-                    </span>
-                  ))}
-                </p>
+              <span className="insight-sub">{item.sub}</span>
+            </div>
 
-                <span className="insight-sub">{sub}</span>
-              </div>
+            <div className={`insight-right type-${item.id}`}>
+              <span className="insight-badge">{item.badge}</span>
 
-              <div className={`insight-right type-${item.id}`}>
-                <span className="insight-badge">{item.badge}</span>
-
-                <button
-                  className="insight-cta"
-                  type="button"
-                  onClick={() => handleClick(item.id)}
-                  disabled={item.id === 3 && trendDestinations.length === 0}
-                >
-                  {item.cta}
-                </button>
-              </div>
-            </article>
-          );
-        })}
+              <button
+                className="insight-cta"
+                type="button"
+                onClick={() => handleClick(item.id)}
+                disabled={item.disabled}
+              >
+                {item.cta}
+              </button>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );
