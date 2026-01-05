@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "mybatis-3-mapper.dtd">
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="flightPriceHistoryMapper">
 
@@ -11,7 +11,6 @@
     <resultMap id="flightSearchCacheMap"
                type="com.kh.triptype.admin.pricing.model.vo.FlightSearchCacheVo">
 
-        <!-- PK (반드시 필요) -->
         <id property="flightPriceHistoryNo"
             column="FLIGHT_PRICE_HISTORY_NO"/>
 
@@ -41,6 +40,11 @@
 
     <!-- =========================================
          1️⃣ 1시간 이내 검색 캐시 조회
+         ✅ 수정 포인트
+           1) 날짜 비교는 TRUNC로 통일(시간값 섞여도 안전)
+           2) 편도/왕복 구분은 choose로 단일화
+           3) departDate가 null이면 ORA-01858 같은 오류 가능 → 서비스에서 막는 게 베스트지만
+              매퍼는 그대로 두되 비교는 안전하게 유지
          ========================================= -->
     <select id="selectRecentSearchCache"
             parameterType="com.kh.triptype.admin.pricing.model.dto.FlightSearchRequestDto"
@@ -60,22 +64,24 @@
             AIRLINE_ID
         FROM TB_FLIGHT_PRICE_HISTORY
         WHERE
-            DEPART_IATA_CODE = #{depart}
-            AND ARRIVE_IATA_CODE = #{arrive}
-            AND FLIGHT_OFFER_DEPART_DATE = TO_DATE(#{departDate}, 'YYYY-MM-DD')
+            DEPART_IATA_CODE = #{depart, jdbcType=VARCHAR}
+            AND ARRIVE_IATA_CODE = #{arrive, jdbcType=VARCHAR}
+            AND TRUNC(FLIGHT_OFFER_DEPART_DATE) = TO_DATE(#{departDate, jdbcType=VARCHAR}, 'YYYY-MM-DD')
 
             <!-- 왕복일 경우만 귀국일 조건 -->
             <if test="returnDate != null">
-                AND FLIGHT_OFFER_RETURN_DATE = TO_DATE(#{returnDate}, 'YYYY-MM-DD')
+                AND TRUNC(FLIGHT_OFFER_RETURN_DATE) = TO_DATE(#{returnDate, jdbcType=VARCHAR}, 'YYYY-MM-DD')
             </if>
 
             <!-- 편도 / 왕복 구분 -->
-            <if test="tripType == 'ONEWAY'">
-                AND FLIGHT_OFFER_ONE_WAY = 'Y'
-            </if>
-            <if test="tripType != 'ONEWAY'">
-                AND FLIGHT_OFFER_ONE_WAY = 'N'
-            </if>
+            <choose>
+                <when test="tripType == 'ONEWAY'">
+                    AND FLIGHT_OFFER_ONE_WAY = 'Y'
+                </when>
+                <otherwise>
+                    AND FLIGHT_OFFER_ONE_WAY = 'N'
+                </otherwise>
+            </choose>
 
             <!-- 🔥 1시간 이내 캐시 -->
             AND FLIGHT_OFFER_API_QUERY_DATE >= SYSDATE - (1 / 24)
@@ -86,6 +92,8 @@
 
     <!-- =========================================
          2️⃣ 검색 캐시 저장
+         ✅ 수정 포인트
+           1) jdbcType 명시 (NUMBER/DATE/TIMESTAMP/CHAR 안정화)
          ========================================= -->
     <insert id="insertSearchCache"
             parameterType="com.kh.triptype.admin.pricing.model.vo.FlightSearchCacheVo">
@@ -104,16 +112,16 @@
             AIRLINE_ID
         ) VALUES (
             TB_FLIGHT_PRICE_HISTORY_SEQ.NEXTVAL,
-            #{flightOfferId},
-            #{flightOfferPriceTotal},
-            #{flightOfferCurrency},
-            #{flightOfferOneWay},
-            #{flightOfferDepartDate},
-            #{flightOfferReturnDate},
-            #{flightOfferApiQueryDate},
-            #{departIataCode},
-            #{arriveIataCode},
-            #{airlineId}
+            #{flightOfferId, jdbcType=NUMERIC},
+            #{flightOfferPriceTotal, jdbcType=NUMERIC},
+            #{flightOfferCurrency, jdbcType=VARCHAR},
+            #{flightOfferOneWay, jdbcType=CHAR},
+            #{flightOfferDepartDate, jdbcType=DATE},
+            #{flightOfferReturnDate, jdbcType=DATE},
+            #{flightOfferApiQueryDate, jdbcType=TIMESTAMP},
+            #{departIataCode, jdbcType=VARCHAR},
+            #{arriveIataCode, jdbcType=VARCHAR},
+            #{airlineId, jdbcType=INTEGER}
         )
 
     </insert>

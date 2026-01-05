@@ -6,24 +6,62 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.kh.triptype.auth.jwt.JwtAuthenticationFilter;
+import com.kh.triptype.auth.oauth.CustomOAuth2UserService;
+import com.kh.triptype.auth.oauth.OAuth2SuccessHandler;
+
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+
+
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
+
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
+	
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     	
-        http
+        http 
             .csrf(csrf -> csrf.disable())
             .cors(cors -> {}) // ⭐ 아래 Bean과 연결됨
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
+            
+            // 마이페이지 principal을 직접 꺼내서 오류나는 부분 수정
+            .anonymous(anonymous -> anonymous.disable())
 
+            // 인증 실패 시 OAuth redirect 금지 (마이페이지 관련 문제 때문에 추가)
+            .exceptionHandling(e -> e
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write(
+                        "{\"message\":\"UNAUTHORIZED\"}"
+                    );
+                })
+            )
+            
+
+            // 세션 완전 비활성화
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(
+                    org.springframework.security.config.http.SessionCreationPolicy.STATELESS
+                )
+            )
+            
             .authorizeHttpRequests(auth -> auth
                 // ✅ 회원가입 + 이메일 인증은 로그인 없이 허용
+
                 .requestMatchers(
                     "/mail/auth/**",
                     "/member/join",
@@ -41,13 +79,42 @@ public class SecurityConfig {
                     "/triptype/js/**"
                 ).permitAll()
 
+                // ✅✅ [추가] 취향 설문 API는 로그인 필수
+                .requestMatchers(
+                    "/triptype/api/survey/**",
+                    "/api/survey/**"
+                ).authenticated()
+                
+                // JWT 보호 API
+                .requestMatchers("/triptype/airline/review", "/airline/review").authenticated()
+                .requestMatchers("/triptype/api/mypage/**", "/api/mypage/**").authenticated()
+                .requestMatchers("/api/member/me", "/triptype/api/member/me").authenticated()
+                
+                // ✨ 첨부파일 다운로드는 로그인된 사용자만 (김동윤)
+                .requestMatchers(
+                    "/triptype/notice/download/**",
+                    "/notice/download/**",
+                    "/triptype/upload/notice/**",
+                    "/upload/notice/**"
+                ).authenticated()  // 인증 필요
+                
+                // 관리자 페이지 → ADMIN 권한 필요 (김동윤)
+                .requestMatchers("/triptype/admin/**").hasRole("ADMIN")
+                
+                .requestMatchers("/triptype/airline/review").authenticated() 
+
+                
                 .anyRequest().permitAll()
             )
-
+            
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             // 네이버 OAuth
             .oauth2Login(oauth -> oauth
-                .defaultSuccessUrl("/triptype/login/success", true)
-            );
+            	    .userInfoEndpoint(userInfo ->
+            	        userInfo.userService(customOAuth2UserService)
+            	    )
+            	    .successHandler(oAuth2SuccessHandler)
+            	);
 
         return http.build();
     }

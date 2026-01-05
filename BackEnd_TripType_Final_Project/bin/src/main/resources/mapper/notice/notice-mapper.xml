@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kh.triptype.notice.dao.NoticeDao">
+
+    <!-- ================= 공지 목록 전용 ResultMap (첨부 ❌) ================= -->
+    <resultMap id="noticeListResultMap"
+	           type="com.kh.triptype.notice.model.vo.Notice">
+	    <id     property="noticeId"          column="NOTICE_ID"/>
+	    <result property="noticeTitle"       column="NOTICE_TITLE"/>
+	    <result property="noticeContent"     column="NOTICE_CONTENT"/>
+	    <result property="noticeCreatedAt"   column="NOTICE_CREATED_AT"/>
+	    <result property="noticeUpdatedAt"   column="NOTICE_UPDATED_AT"/>
+	    <result property="noticeViews"       column="NOTICE_VIEWS"/>
+	    <result property="noticeIsImportant" column="NOTICE_IS_IMPORTANT"/>
+	    <result property="noticeIsDel"       column="NOTICE_IS_DEL"/>
+	</resultMap>
+
+    <!-- ================= 공지 상세 전용 ResultMap (첨부 ⭕) ================= -->
+    <resultMap id="noticeDetailResultMap"
+               type="com.kh.triptype.notice.model.vo.Notice">
+        <id     property="noticeId"          column="NOTICE_ID"/>
+        <result property="noticeTitle"       column="NOTICE_TITLE"/>
+        <result property="noticeContent"     column="NOTICE_CONTENT"/>
+        <result property="noticeCreatedAt"   column="NOTICE_CREATED_AT"/>
+        <result property="noticeUpdatedAt"   column="NOTICE_UPDATED_AT"/>
+        <result property="noticeViews"       column="NOTICE_VIEWS"/>
+        <result property="noticeIsImportant" column="NOTICE_IS_IMPORTANT"/>
+        <result property="noticeIsDel"       column="NOTICE_IS_DEL"/>
+
+        <!-- 🔥 첨부파일 -->
+        <collection
+            property="attachmentList"
+            ofType="com.kh.triptype.notice.model.vo.Attachment"
+            column="{noticeId=NOTICE_ID}"
+            select="selectAttachmentList"/>
+    </resultMap>
+
+    <!-- ================= 첨부파일 ResultMap ================= -->
+    <resultMap id="attachmentResultMap"
+               type="com.kh.triptype.notice.model.vo.Attachment">
+        <id     property="noticeAttachmentId" column="NOTICE_ATTACHMENT_ID"/>
+        <result property="noticeAttachmentName" column="NOTICE_ATTACHMENT_NAME"/>
+        <result property="noticeAttachmentUpdate" column="NOTICE_ATTACHMENT_UPDATE"/>
+        <result property="noticeAttachmentUrl" column="NOTICE_ATTACHMENT_URL"/>
+        <result property="noticeAttachmentUploadedAt" column="NOTICE_ATTACHMENT_UPLOADED_AT"/>
+        <result property="noticeAttachmentIsDel" column="NOTICE_ATTACHMENT_IS_DEL"/>
+        <result property="noticeId" column="NOTICE_ID"/>
+    </resultMap>
+
+    <!-- ================= 공지 목록 조회 (관리자) ================= -->
+	<!-- ================= 사용자 공지 목록 조회 ================= -->
+	<select id="selectNoticeList"
+	        resultMap="noticeListResultMap">
+	    SELECT
+	        NOTICE_ID,
+	        NOTICE_TITLE,
+	        NOTICE_CONTENT,
+	        NOTICE_CREATED_AT,
+	        NOTICE_UPDATED_AT,
+	        NOTICE_VIEWS,
+	        NOTICE_IS_IMPORTANT,
+	        NOTICE_IS_DEL
+	    FROM TB_NOTICE
+	    WHERE NOTICE_IS_DEL = 'N'
+	    ORDER BY
+	        NOTICE_IS_IMPORTANT DESC,
+	        NOTICE_CREATED_AT DESC
+	</select>
+
+    <!-- ================= 공지 상세 조회 ================= -->
+    <select id="selectNoticeDetail"
+            parameterType="long"
+            resultMap="noticeDetailResultMap">
+        SELECT *
+        FROM TB_NOTICE
+        WHERE NOTICE_ID = #{noticeId}
+          AND NOTICE_IS_DEL = 'N'
+    </select>
+	
+	<!-- ================= 공지 목록 조회 (관리자: 삭제 포함) ================= -->
+	<select id="selectNoticeListAdmin"
+	        resultMap="noticeListResultMap">
+	    SELECT
+	        NOTICE_ID,
+	        NOTICE_TITLE,
+	        NOTICE_CONTENT,
+	        NOTICE_CREATED_AT,
+	        NOTICE_UPDATED_AT,
+	        NOTICE_VIEWS,
+	        NOTICE_IS_IMPORTANT,
+	        NOTICE_IS_DEL
+	    FROM TB_NOTICE
+	    ORDER BY
+	        NOTICE_IS_IMPORTANT DESC,
+	        NOTICE_CREATED_AT DESC
+	</select>
+	
+	<!-- ================= 공지 등록 ================= -->
+    <insert id="insertNotice"
+            parameterType="com.kh.triptype.notice.model.vo.Notice">
+        <selectKey keyProperty="noticeId" resultType="long" order="BEFORE">
+            SELECT TB_NOTICE_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO TB_NOTICE (
+            NOTICE_ID,
+            NOTICE_TITLE,
+            NOTICE_CONTENT,
+            NOTICE_CREATED_AT,
+            NOTICE_UPDATED_AT,
+            NOTICE_VIEWS,
+            NOTICE_IS_IMPORTANT,
+            NOTICE_IS_DEL
+        ) VALUES (
+            #{noticeId},
+            #{noticeTitle},
+            #{noticeContent},
+            SYSDATE,
+            SYSDATE,
+            0,
+            #{noticeIsImportant},
+            'N'
+        )
+    </insert>
+
+
+    <!-- ================= 공지 수정 ================= -->
+    <update id="updateNotice"
+            parameterType="com.kh.triptype.notice.model.vo.Notice">
+        UPDATE TB_NOTICE
+        SET
+            NOTICE_TITLE = #{noticeTitle},
+            NOTICE_CONTENT = #{noticeContent},
+            NOTICE_UPDATED_AT = SYSDATE,
+            NOTICE_IS_IMPORTANT = #{noticeIsImportant}
+        WHERE NOTICE_ID = #{noticeId}
+          AND NOTICE_IS_DEL = 'N'
+    </update>
+
+    <!-- ================= 공지 삭제 ================= -->
+    <update id="deleteNotice" parameterType="long">
+        UPDATE TB_NOTICE
+        SET NOTICE_IS_DEL = 'Y'
+        WHERE NOTICE_ID = #{noticeId}
+    </update>
+
+    <!-- ================= 🔥 첨부파일 추가 부분 ================= -->
+    
+    <!-- ================= 첨부파일 조회 (상세용) ================= -->
+    <select id="selectAttachmentList"
+            parameterType="map"
+            resultMap="attachmentResultMap">
+        SELECT
+            NOTICE_ATTACHMENT_ID,
+            NOTICE_ATTACHMENT_NAME,
+            NOTICE_ATTACHMENT_UPDATE,
+            NOTICE_ATTACHMENT_URL,
+            NOTICE_ATTACHMENT_UPLOADED_AT,
+            NOTICE_ATTACHMENT_IS_DEL,
+            NOTICE_ID
+        FROM TB_NOTICE_ATTACHMENT
+        WHERE NOTICE_ID = #{noticeId}
+          AND NOTICE_ATTACHMENT_IS_DEL = 'N'
+        ORDER BY NOTICE_ATTACHMENT_ID
+    </select>
+
+	
+	<select id="selectAttachmentListAdmin"
+	        parameterType="long"
+	        resultType="Attachment">
+	    SELECT *
+	    FROM TB_NOTICE_ATTACHMENT
+	    WHERE NOTICE_ID = #{noticeId}
+	    ORDER BY NOTICE_ATTACHMENT_ID
+	</select>
+
+    <!-- ================= 첨부파일 등록 ================= -->
+    <insert id="insertAttachment"
+            parameterType="com.kh.triptype.notice.model.vo.Attachment">
+        INSERT INTO TB_NOTICE_ATTACHMENT (
+            NOTICE_ATTACHMENT_ID,
+            NOTICE_ATTACHMENT_NAME,
+            NOTICE_ATTACHMENT_UPDATE,
+            NOTICE_ATTACHMENT_URL,
+            NOTICE_ATTACHMENT_UPLOADED_AT,
+            NOTICE_ATTACHMENT_IS_DEL,
+            NOTICE_ID
+        ) VALUES (
+            TB_NOTICE_ATTACHMENT_SEQ.NEXTVAL,
+            #{noticeAttachmentName},
+            #{noticeAttachmentUpdate},
+            #{noticeAttachmentUrl},
+            SYSDATE,
+            'N',
+            #{noticeId}
+        )
+    </insert>
+    
+    <!-- ================= 첨부파일 삭제 ================= -->
+    <update id="deleteAttachment" parameterType="map">
+        UPDATE TB_NOTICE_ATTACHMENT
+        SET NOTICE_ATTACHMENT_IS_DEL = 'Y'
+        WHERE NOTICE_ATTACHMENT_ID IN
+        <foreach collection="deletedFileIds" item="id"
+                 open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="deleteAttachmentByNotice" parameterType="long">
+        UPDATE TB_NOTICE_ATTACHMENT
+        SET NOTICE_ATTACHMENT_IS_DEL = 'Y'
+        WHERE NOTICE_ID = #{noticeId}
+    </update>
+    
+    <!-- ================= 조회수 증가 ================= -->
+    <update id="increaseViews" parameterType="map">
+        UPDATE TB_NOTICE
+        SET NOTICE_VIEWS = NOTICE_VIEWS + 1
+        WHERE NOTICE_ID = #{noticeId}
+          AND NOTICE_IS_DEL = 'N'
+    </update>
+
+</mapper>

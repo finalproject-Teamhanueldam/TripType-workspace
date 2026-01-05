@@ -1,0 +1,158 @@
+/* survey/css/page/ResultPage.css */
+
+/* QuestionPage에서 쓰던 Wrapper/Card 그대로 재사용 */
+.surveyWrap {
+  min-height: calc(100vh - 160px);
+  padding: 40px 16px;
+  background: linear-gradient(180deg, #cedef2 0%, #f6faff 45%, #ffffff 100%);
+  display: flex;
+  justify-content: center;
+}
+
+.surveyCard {
+  width: 100%;
+  max-width: 980px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(2, 48, 89, 0.12);
+  border-radius: 22px;
+  box-shadow: 0 12px 30px rgba(2, 48, 89, 0.08);
+  padding: 26px 26px 22px;
+  display: grid;
+  gap: 16px;
+}
+
+.survey-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.survey-close {
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  color: rgba(2, 48, 89, 0.7);
+}
+
+.surveyBadge {
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(110, 191, 228, 0.18);
+  color: #023059;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.resultTitle {
+  margin: 10px 0 6px;
+  font-size: 26px;
+  font-weight: 900;
+  color: #023059;
+  line-height: 1.25;
+}
+
+.resultDesc {
+  margin: 0;
+  color: rgba(2, 48, 89, 0.65);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 바 차트 */
+.resultBars {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(2, 48, 89, 0.1);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.barRow {
+  display: grid;
+  /* ✅ barValue가 길어져서(2/14 (6/10)) 44px로는 부족함 */
+  grid-template-columns: 140px 1fr 120px;
+  align-items: center;
+  gap: 12px;
+}
+
+.barLabel {
+  font-weight: 800;
+  color: rgba(2, 48, 89, 0.85);
+  font-size: 13px;
+}
+
+.barTrack {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(2, 48, 89, 0.08);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6ebfe4, #023059);
+}
+
+.barValue {
+  text-align: right;
+  font-weight: 900;
+  color: #023059;
+  white-space: nowrap; /* ✅ 줄바꿈 방지 */
+}
+
+/* ✅ (6/10) 같은 보조 텍스트 */
+.barSub {
+  font-size: 12px;
+  color: rgba(2, 48, 89, 0.55);
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+.survey-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.survey-btn {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(2, 48, 89, 0.14);
+  background: #fff;
+  cursor: pointer;
+  min-width: 120px;
+  font-weight: 700;
+}
+
+.survey-btn.primary {
+  border: 0;
+  background: #023059;
+  color: #fff;
+}
+
+.resultHint {
+  font-size: 12px;
+  color: rgba(2, 48, 89, 0.55);
+}
+
+/* ✅ 반응형: 모바일에서 레이아웃 깨짐 방지 */
+@media (max-width: 640px) {
+  .surveyCard {
+    padding: 20px 18px 18px;
+  }
+
+  .barRow {
+    grid-template-columns: 110px 1fr 96px;
+    gap: 10px;
+  }
+
+  .resultTitle {
+    font-size: 22px;
+  }
+}

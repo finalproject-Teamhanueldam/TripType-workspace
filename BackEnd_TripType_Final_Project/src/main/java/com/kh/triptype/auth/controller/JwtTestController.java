@@ -15,6 +15,6 @@ public class JwtTestController {
 
     @GetMapping("/auth/jwt-test")
     public String test() {
-        return jwtProvider.createToken(1L, "USER");
+        return jwtProvider.createToken(1, "USER");
     }
 }

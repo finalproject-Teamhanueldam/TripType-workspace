@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="surveyMapper">
+
+    <!-- ✅ AS 없이 컬럼명 -> VO 필드명 강제 매핑 -->
+    <resultMap id="SurveyVoMap" type="com.kh.triptype.survey.model.vo.SurveyVo">
+        <id     column="SURVEY_ID"             property="surveyId"/>
+        <result column="MEMBER_NO"             property="memberNo"/>
+        <result column="SURVEY_RESULT"         property="surveyResult"/>
+        <result column="SURVEY_RELAX_SCORE"    property="surveyRelaxScore"/>
+        <result column="SURVEY_CITY_SCORE"     property="surveyCityScore"/>
+        <result column="SURVEY_NATURE_SCORE"   property="surveyNatureScore"/>
+        <result column="SURVEY_ACTIVITY_SCORE" property="surveyActivityScore"/>
+        <result column="SURVEY_CREATED_AT"     property="surveyCreatedAt"/>
+    </resultMap>
+
+    <!-- ===============================
+         회원당 설문 존재 여부 확인
+         =============================== -->
+    <select id="existsByMemberNo" parameterType="long" resultType="int">
+        SELECT COUNT(*)
+        FROM TB_SURVEY
+        WHERE MEMBER_NO = #{value}
+    </select>
+
+    <!-- ===============================
+         설문 INSERT (회원당 1행)
+         =============================== -->
+    <insert id="insertSurvey" parameterType="com.kh.triptype.survey.model.vo.SurveyVo">
+        INSERT INTO TB_SURVEY (
+            MEMBER_NO,
+            SURVEY_RESULT,
+            SURVEY_RELAX_SCORE,
+            SURVEY_CITY_SCORE,
+            SURVEY_NATURE_SCORE,
+            SURVEY_ACTIVITY_SCORE,
+            SURVEY_CREATED_AT
+        ) VALUES (
+            #{memberNo},
+            #{surveyResult},
+            #{surveyRelaxScore},
+            #{surveyCityScore},
+            #{surveyNatureScore},
+            #{surveyActivityScore},
+            SYSDATE
+        )
+    </insert>
+
+    <!-- ===============================
+         설문 UPDATE (회원당 1행)
+         =============================== -->
+    <update id="updateSurvey" parameterType="com.kh.triptype.survey.model.vo.SurveyVo">
+        UPDATE TB_SURVEY
+        SET
+            SURVEY_RESULT = #{surveyResult},
+            SURVEY_RELAX_SCORE = #{surveyRelaxScore},
+            SURVEY_CITY_SCORE = #{surveyCityScore},
+            SURVEY_NATURE_SCORE = #{surveyNatureScore},
+            SURVEY_ACTIVITY_SCORE = #{surveyActivityScore},
+            SURVEY_CREATED_AT = SYSDATE
+        WHERE MEMBER_NO = #{memberNo}
+    </update>
+
+    <!-- ===============================
+         회원 설문 결과 조회
+         =============================== -->
+    <select id="selectSurveyByMemberNo"
+            parameterType="long"
+            resultMap="SurveyVoMap">
+        SELECT
+            SURVEY_ID,
+            MEMBER_NO,
+            SURVEY_RESULT,
+            SURVEY_RELAX_SCORE,
+            SURVEY_CITY_SCORE,
+            SURVEY_NATURE_SCORE,
+            SURVEY_ACTIVITY_SCORE,
+            SURVEY_CREATED_AT
+        FROM TB_SURVEY
+        WHERE MEMBER_NO = #{value}
+    </select>
+
+</mapper>

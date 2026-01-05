@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.triptype.member.model.dto.MemberJoinRequestDto;
+import com.kh.triptype.member.model.dto.MemberUnlockRequest;
 import com.kh.triptype.member.service.MemberService;
 
 @RestController
@@ -64,5 +65,13 @@ public class MemberController {
 	    return ResponseEntity.ok(
 	        Map.of("memberIds", ids)
 	    );
+    }
+    
+    @PostMapping("/unlock")
+    public ResponseEntity<Void> unlockMember(
+            @RequestBody MemberUnlockRequest req
+    ) {
+        memberService.unlockMember(req);
+        return ResponseEntity.ok().build();
     }
 }

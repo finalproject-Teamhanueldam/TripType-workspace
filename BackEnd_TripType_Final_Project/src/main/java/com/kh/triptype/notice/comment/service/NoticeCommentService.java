@@ -1,20 +1,25 @@
 package com.kh.triptype.notice.comment.service;
 
 import java.util.List;
+
 import com.kh.triptype.notice.comment.model.vo.NoticeComment;
 
 public interface NoticeCommentService {
 
-    /** 댓글 목록 */
-    List<NoticeComment> getCommentList(Long noticeId);
+    // 사용자 댓글 조회 (페이징)
+    List<NoticeComment> getCommentList(Long noticeId, int startRow, int endRow, jakarta.servlet.http.HttpServletRequest request);
 
-    /** 댓글 등록 */
-    int createComment(NoticeComment comment);
+    // 관리자 댓글 조회 (페이징 + 삭제여부 토글)
+    List<NoticeComment> getCommentListAdmin(Long noticeId, int startRow, int endRow, String showDeleted);
 
-    /** 댓글 수정 */
-    int updateComment(NoticeComment comment);
+    // 총 댓글 수
+    int getCommentCount(Long noticeId);
+    int getCommentCountAdmin(Long noticeId, String showDeleted);
 
-    /** 댓글 삭제 
-     * @param memberNo */
-    int deleteComment(Long noticeCommentId, Long memberNo);
+    // jwt
+    int createComment(NoticeComment comment, Long memberNo);
+    int updateComment(NoticeComment comment, Long memberNo);
+    int deleteCommentByUser(Long commentId, Long memberNo);
+    
+    int deleteCommentByAdmin(Long commentId);
 }

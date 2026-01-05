@@ -1,5 +1,6 @@
 package com.kh.triptype.notice.dao;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,12 +14,22 @@ import com.kh.triptype.notice.model.vo.Notice;
 public class NoticeDao {
 
     /* ================= 공지 ================= */
+	public List<Notice> selectNoticeList(
+	    SqlSessionTemplate sqlSession,
+	    int startRow,
+	    int endRow
+	) {
+	    Map<String, Object> param = new HashMap<>();
+	    param.put("startRow", startRow);
+	    param.put("endRow", endRow);
 
-    public List<Notice> selectNoticeList(SqlSessionTemplate sqlSession) {
-        return sqlSession.selectList(
-            "com.kh.triptype.notice.dao.NoticeDao.selectNoticeList"
-        );
-    }
+	    return sqlSession.selectList(
+	        "com.kh.triptype.notice.dao.NoticeDao.selectNoticeList",
+	        param
+	    );
+	}
+
+
 
     public Notice selectNoticeDetail(SqlSessionTemplate sqlSession, Map<String, Object> param) {
         return sqlSession.selectOne(
@@ -89,11 +100,17 @@ public class NoticeDao {
     }
     
     /* ================= 관리자 ================= */
-    public List<Notice> selectNoticeListAdmin(SqlSessionTemplate sqlSession) {
-        return sqlSession.selectList(
-            "com.kh.triptype.notice.dao.NoticeDao.selectNoticeListAdmin"
-        );
-    }
+    public List<Notice> selectNoticeListAdmin(
+    	    SqlSessionTemplate sqlSession,
+    	    Map<String, Object> param
+    	) {
+    	    return sqlSession.selectList(
+    	        "com.kh.triptype.notice.dao.NoticeDao.selectNoticeListAdmin",
+    	        param
+    	    );
+    	}
+
+
 
 
     public int deleteAttachmentByNotice(SqlSessionTemplate sqlSession, Long noticeId) {
@@ -102,4 +119,22 @@ public class NoticeDao {
             noticeId
         );
     }
+    
+    /* ================= 페이징 ================= */
+    public int selectNoticeCount(SqlSessionTemplate sqlSession) {
+        return sqlSession.selectOne(
+            "com.kh.triptype.notice.dao.NoticeDao.selectNoticeCount"
+        );
+    }
+
+    public int selectNoticeCountAdmin(SqlSessionTemplate sqlSession, Map<String, Object> param) {
+    	return sqlSession.selectOne(
+    		    "com.kh.triptype.notice.dao.NoticeDao.selectNoticeCountAdmin",
+    		    param
+    		);
+    }
+
+
+
+    
 }

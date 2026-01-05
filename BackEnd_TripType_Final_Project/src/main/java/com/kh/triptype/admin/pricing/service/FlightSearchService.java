@@ -4,7 +4,8 @@ import java.util.List;
 
 import com.kh.triptype.admin.pricing.model.dto.FlightSearchRequestDto;
 import com.kh.triptype.admin.pricing.model.dto.FlightSearchResponseDto;
-import com.kh.triptype.admin.review.model.vo.AirlineReviewVo;
+import com.kh.triptype.airline.model.vo.AirlineListVo;
+
 
 /**
  * 항공권 검색 서비스
@@ -21,8 +22,12 @@ public interface FlightSearchService {
      * @return 항공권 검색 결과
      */
     FlightSearchResponseDto searchFlights(FlightSearchRequestDto request);
- 
+
     
-  
+    // ✅ 이거 추가
+    List<AirlineListVo> searchFlightsForList(FlightSearchRequestDto request);
+    String startSearchAsync(FlightSearchRequestDto request);
+
+    List<AirlineListVo> getSearchResult(String searchId);
 
 }

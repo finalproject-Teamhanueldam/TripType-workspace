@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mypageMapper">
+
+	<select id="selectMyProfile" parameterType="Int" resultType="MyProfileRes">
+		  SELECT
+		    MEMBER_ID AS memberId,
+		    MEMBER_NAME AS memberName,
+		    MEMBER_BIRTH_DATE AS memberBirthDate,
+		    MEMBER_GENDER AS memberGender,
+		    MEMBER_PHONE AS memberPhone,
+		    MEMBER_CREATE_AT AS memberCreateAt,
+		    MEMBER_LAST_LOGIN_AT AS memberLastLoginAt
+		  FROM TB_MEMBER
+		  WHERE MEMBER_NO = #{memberNo}
+		    AND MEMBER_IS_ACTIVE = 'Y'
+	</select>
+</mapper>

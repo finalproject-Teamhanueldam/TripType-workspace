@@ -258,3 +258,45 @@
   font-size: 14px;
   color: #374151;
 }
+
+/* ===== Deleted Comment (Admin Only) ===== */
+.comment-row.deleted {
+  background: #f9fafb;
+  opacity: 0.65;
+}
+
+.comment-row.deleted:hover {
+  background: #f3f4f6;
+}
+
+.comment-row.deleted .comment-text {
+  /* text-decoration: line-through; */
+  color: #6b7280;
+}
+
+.comment-row.deleted .member-id {
+  color: #9ca3af;
+}
+
+
+/* 페이징 */
+.pagination {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.page-btn {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.page-btn.active {
+  background: #3f51b5;
+  color: #ffffff;
+  border-color: #3f51b5;
+}

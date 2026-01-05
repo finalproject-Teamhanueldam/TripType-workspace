@@ -1,10 +1,9 @@
 package com.kh.triptype.notice.service;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import java.io.File;
 import java.util.UUID;
 
 import org.mybatis.spring.SqlSessionTemplate;
@@ -12,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.kh.triptype.common.model.vo.PageInfo;
+import com.kh.triptype.common.template.Pagination;
 import com.kh.triptype.notice.dao.NoticeDao;
 import com.kh.triptype.notice.model.vo.Attachment;
 import com.kh.triptype.notice.model.vo.Notice;
@@ -28,9 +29,30 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public List<Notice> getNoticeList() {
-        return noticeDao.selectNoticeList(sqlSession);
+    public Map<String, Object> getNoticeList(int currentPage) {
+
+        int listCount = noticeDao.selectNoticeCount(sqlSession);
+
+        PageInfo pi = Pagination.getPageInfo(
+            listCount,
+            currentPage,
+            10, // pageLimit
+            10  // boardLimit
+        );
+
+        int startRow = (pi.getCurrentPage() - 1) * pi.getBoardLimit() + 1;
+        int endRow   = pi.getCurrentPage() * pi.getBoardLimit();
+
+        List<Notice> list =
+            noticeDao.selectNoticeList(sqlSession, startRow, endRow);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", list);
+        result.put("pageInfo", pi);
+
+        return result;
     }
+
 
     @Override
     @Transactional
@@ -120,12 +142,50 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     
+    
+    
+    @Override
     @Transactional
-    public List<Notice> getNoticeListAdmin() {
-        return noticeDao.selectNoticeListAdmin(sqlSession);
+    public Map<String, Object> getNoticeListAdmin(
+            int currentPage,
+            String showDeleted
+    ) {
+        // 1️⃣ COUNT
+        Map<String, Object> countParam = new HashMap<>();
+        countParam.put("showDeleted", showDeleted);
+
+        int listCount =
+            noticeDao.selectNoticeCountAdmin(sqlSession, countParam);
+
+        PageInfo pi = Pagination.getPageInfo(
+            listCount,
+            currentPage,
+            10, // pageLimit
+            10  // boardLimit
+        );
+
+        // 2️⃣ Oracle ROWNUM용 startRow / endRow
+        int startRow = (pi.getCurrentPage() - 1) * pi.getBoardLimit() + 1;
+        int endRow   = pi.getCurrentPage() * pi.getBoardLimit();
+
+        Map<String, Object> listParam = new HashMap<>();
+        listParam.put("startRow", startRow);
+        listParam.put("endRow", endRow);
+        listParam.put("showDeleted", showDeleted);
+
+        List<Notice> list =
+            noticeDao.selectNoticeListAdmin(sqlSession, listParam);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", list);
+        result.put("pageInfo", pi);
+
+        return result;
     }
 
-    
+
+
+    @Override
     @Transactional
     public Notice getNoticeDetailAdmin(Long noticeId) {
 

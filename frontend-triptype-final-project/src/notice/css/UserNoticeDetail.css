@@ -1,10 +1,15 @@
+/* =========================
+   공지 상세 페이지 레이아웃
+========================= */
 .notice-detail-page {
   width: 80%;
   max-width: 900px;
   margin: 60px auto;
 }
 
-/* ===== 제목 + 버튼 한 줄 ===== */
+/* =========================
+   제목 영역 (제목 + 목록 버튼)
+========================= */
 .notice-title-row {
   display: flex;
   justify-content: space-between;
@@ -17,15 +22,19 @@
   color: #023059;
 }
 
+/* =========================
+   메타 정보 (날짜 / 조회수 / 첨부파일)
+========================= */
 .notice-meta {
   font-size: 13px;
-  color: #888;
-  margin-bottom: 30px;
+  color: #777;
+  margin-bottom: 20px;
 }
 
 
-
-/* ===== 목록으로 버튼 (아이콘) ===== */
+/* =========================
+   목록으로 버튼
+========================= */
 .notice-back-btn.icon {
   display: flex;
   align-items: center;
@@ -47,11 +56,105 @@
   background: #f5f5f5;
 }
 
-/* 내용 */
+/* =========================
+   공지 내용 영역
+========================= */
 .notice-content-box {
   background: #ffffff;
   padding: 28px;
   border-radius: 16px;
   line-height: 1.7;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   첨부파일 리스트
+========================= */
+.notice-attachments {
+  margin-top: 8px;
+  padding-left: 20px;     /* 글머리 들여쓰기 */
+}
+
+.notice-attachment-item {
+  align-items: center;
+  gap: 6px;
+  list-style: disc;       /* 혹시 몰라 이중 안전 */
+  margin-bottom: 6px;
+}
+
+.file-name {
+  font-size: 13px;
+  color: #555;
+}
+
+/* 첨부파일 버튼 (미리보기 / 다운로드) */
+.preview-btn,
+.download-btn {
+  padding-top: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #888;
+}
+
+.preview-btn:hover,
+.download-btn:hover {
+  color: #023059;
+}
+
+/* =========================
+   미리보기 모달
+========================= */
+.preview-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.preview-content {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80%;
+  overflow: auto;
+  position: relative;
+}
+
+.preview-content img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/* =========================
+   텍스트 파일 미리보기
+========================= */
+.text-preview {
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 14px;
+  background: #f7f7f7;
+  padding: 16px;
+  border-radius: 8px;
+  max-height: 600px;
+  overflow: auto;
+}
+
+/* =========================
+   모달 닫기 버튼
+========================= */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
 }

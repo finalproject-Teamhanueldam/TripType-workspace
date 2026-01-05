@@ -22,35 +22,98 @@ const AdminNoticeDetail = () => {
   const [deletedFileIds, setDeletedFileIds] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
 
+  const [showDeleted, setShowDeleted] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
   // 공지사항 상세 조회
   const fetchNoticeDetail = async () => {
     if (!noticeId) return;
     try {
       const res = await axios.get(`http://localhost:8001/triptype/admin/notice/${noticeId}`);
+      console.log("공지 상세 응답:", res.data);
+      console.log("attachments:", res.data.attachmentList);
       setNotice(res.data);
-      setExistingFiles(res.data.attachmentList || []); // 🔥 핵심
+      setExistingFiles(res.data.attachmentList || []);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // 댓글 목록 조회
+  // 댓글 조회
   const fetchComments = async () => {
     if (!noticeId) return;
     try {
+      const startRow = (currentPage - 1) * pageSize + 1;
+      const endRow = currentPage * pageSize;
       const res = await axios.get(
-        `http://localhost:8001/triptype/admin/notice/${noticeId}/comment`
+        `http://localhost:8001/triptype/admin/notice/${noticeId}/comment`,
+        { params: { startRow, endRow, showDeleted: showDeleted ? "Y" : "N" } }
       );
-      setComments(res.data);
+
+      const data = res.data;
+      setComments(Array.isArray(data.comments) ? data.comments : data || []);
+      setTotalCount(
+        data.totalCount ?? (Array.isArray(data.comments) ? data.comments.length : (Array.isArray(data) ? data.length : 0))
+      );
     } catch (err) {
       console.error(err);
     }
   };
 
   useEffect(() => {
-    fetchNoticeDetail();
-    fetchComments();
+    if (noticeId) {
+      fetchNoticeDetail();
+      fetchComments();
+    }
   }, [noticeId]);
+
+  useEffect(() => {
+    if (noticeId) fetchComments();
+  }, [noticeId, showDeleted, currentPage]);
+
+  // 댓글 필터 + 정렬
+  const filteredComments = useMemo(() => {
+    if (!comments) return [];
+    const lowerKeyword = keyword.trim().toLowerCase();
+    return comments
+      .filter(c => showDeleted || c.noticeCommentIsDel !== "Y")
+      .filter(c => !lowerKeyword || String(c.memberNo).toLowerCase().includes(lowerKeyword) || c.noticeCommentContent.toLowerCase().includes(lowerKeyword))
+      .sort((a, b) => new Date(b.noticeCommentCreatedAt) - new Date(a.noticeCommentCreatedAt));
+  }, [comments, keyword, showDeleted]);
+
+  // 체크박스 관련
+  const toggleDeleteMode = () => {
+    setDeleteMode(prev => !prev);
+    setCheckedIds([]);
+  };
+  const toggleCheck = id => {
+    setCheckedIds(prev => (prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]));
+  };
+  const handleAllCheck = checked => {
+    if (checked) setCheckedIds(filteredComments.map(c => c.noticeCommentId));
+    else setCheckedIds([]);
+  };
+  const handleSelectedDelete = async () => {
+    if (checkedIds.length === 0) return alert("삭제할 댓글을 선택하세요.");
+    try {
+      await Promise.all(
+        checkedIds.map(id =>
+          axios.delete(`http://localhost:8001/triptype/admin/notice/${noticeId}/comment/${id}`)
+        )
+      );
+      fetchComments();
+      setCheckedIds([]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  if (!notice) return <div>공지사항 정보를 불러오는 중...</div>;
+
 
   // ===== 공지 수정 =====
   const handleNoticeChange = (e) => {
@@ -79,104 +142,55 @@ const AdminNoticeDetail = () => {
   };
 
   const handleNoticeUpdate = async () => {
-  if (!notice) return;
+    try {
+      const formData = new FormData();
 
-  try {
-    const formData = new FormData();
+      // ✔️ 공지 기본 정보 (attachmentList 없음)
+      formData.append(
+        "notice",
+        new Blob(
+          [
+            JSON.stringify({
+              noticeId: notice.noticeId,
+              noticeTitle: notice.noticeTitle,
+              noticeContent: notice.noticeContent,
+              noticeIsImportant: notice.noticeIsImportant
+            })
+          ],
+          { type: "application/json" }
+        )
+      );
 
-    // 서버로 보낼 notice 객체 복사 후 날짜 필드 제거
-    const noticeToSend = { ...notice };
-    delete noticeToSend.noticeCreatedAt;
-    delete noticeToSend.noticeUpdatedAt;
+      // ✔️ 삭제할 첨부파일 ID 목록
+      formData.append(
+        "deletedFileIds",
+        new Blob(
+          [JSON.stringify(deletedFileIds)],
+          { type: "application/json" }
+        )
+      );
 
-    formData.append(
-      "notice",
-      new Blob([JSON.stringify(noticeToSend)], { type: "application/json" })
-    );
+      // ✔️ 신규 파일
+      newFiles.forEach(file => {
+        formData.append("files", file);
+      });
 
-    // 삭제할 기존 파일 ID
-    formData.append(
-      "deletedFileIds",
-      new Blob([JSON.stringify(deletedFileIds)], { type: "application/json" })
-    );
+      await axios.put(
+        `http://localhost:8001/triptype/admin/notice/${noticeId}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
-    // 신규 첨부파일
-    newFiles.forEach((file) => {
-      formData.append("files", file);
-    });
-
-    const res = await axios.put(
-      `http://localhost:8001/triptype/admin/notice/${noticeId}`,
-      formData,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
-
-    if (res.data > 0) {
       alert("공지사항이 수정되었습니다.");
       fetchNoticeDetail();
       setNewFiles([]);
       setDeletedFileIds([]);
-    } else {
-      alert("수정에 실패했습니다.");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("서버 에러가 발생했습니다.");
-  }
-};
-
-
-  // ===== 댓글 관리 =====
-  const filteredComments = useMemo(() => {
-    const lowerKeyword = keyword.trim().toLowerCase();
-    return comments
-      .filter((c) => {
-        if (!lowerKeyword) return true;
-        return (
-          String(c.memberNo).toLowerCase().includes(lowerKeyword) ||
-          c.noticeCommentContent.toLowerCase().includes(lowerKeyword)
-        );
-      })
-      .sort(
-        (a, b) =>
-          new Date(b.noticeCommentCreatedAt) - new Date(a.noticeCommentCreatedAt)
-      );
-  }, [comments, keyword]);
-
-  const toggleDeleteMode = () => {
-    setDeleteMode((prev) => !prev);
-    setCheckedIds([]);
-  };
-
-  const toggleCheck = (id) => {
-    setCheckedIds((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
-    );
-  };
-
-  const handleAllCheck = (checked) => {
-    if (checked) setCheckedIds(filteredComments.map((c) => c.noticeCommentId));
-    else setCheckedIds([]);
-  };
-
-  const handleSelectedDelete = async () => {
-    if (checkedIds.length === 0) return alert("삭제할 댓글을 선택하세요.");
-    try {
-      await Promise.all(
-        checkedIds.map((id) =>
-          axios.delete(
-            `http://localhost:8001/triptype/admin/notice/${noticeId}/comment/${id}`
-          )
-        )
-      );
-      fetchComments();
-      setCheckedIds([]);
     } catch (err) {
       console.error(err);
+      alert("수정 중 오류가 발생했습니다.");
     }
   };
 
-  if (!notice) return <div>공지사항 정보를 불러오는 중...</div>;
 
   return (
     <div className="admin-page">
@@ -291,6 +305,17 @@ const AdminNoticeDetail = () => {
         <div className="comment-header">
           <h3 className="page-title">댓글 관리</h3>
 
+          {/* ✅ 삭제여부 필터 */}
+          <div className="filter-box">
+            <button
+              className={`filter-toggle ${showDeleted ? "active" : ""}`}
+              onClick={() => setShowDeleted(!showDeleted)}
+              type="button"
+            >
+              삭제된 댓글 표시
+            </button>
+          </div>
+
           <div className="comment-header-right">
             <div className="search-box">
               <FaSearch className="search-icon" />
@@ -339,7 +364,9 @@ const AdminNoticeDetail = () => {
             filteredComments.map((c) => (
               <div
                 key={c.noticeCommentId}
-                className="comment-row"
+                className={`comment-row ${
+                  c.noticeCommentIsDel === "Y" ? "deleted" : ""
+                }`}
                 onClick={() => deleteMode && toggleCheck(c.noticeCommentId)}
               >
                 <div>{c.noticeCommentId}</div>
@@ -377,6 +404,34 @@ const AdminNoticeDetail = () => {
           )}
         </div>
       </div>
+
+      {/* 페이징 */}
+      <div className="pagination">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(p => p - 1)}
+        >
+          이전
+        </button>
+
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+          <button
+            key={page}
+            className={page === currentPage ? "active" : ""}
+            onClick={() => setCurrentPage(page)}
+          >
+            {page}
+          </button>
+        ))}
+
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage(p => p + 1)}
+        >
+          다음
+        </button>
+      </div>
+
 
       {deleteMode && (
         <div className="delete-floating-bar">

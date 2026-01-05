@@ -19,24 +19,26 @@
 	</resultMap>
 
     <!-- ================= 공지 상세 전용 ResultMap (첨부 ⭕) ================= -->
-    <resultMap id="noticeDetailResultMap"
-               type="com.kh.triptype.notice.model.vo.Notice">
-        <id     property="noticeId"          column="NOTICE_ID"/>
-        <result property="noticeTitle"       column="NOTICE_TITLE"/>
-        <result property="noticeContent"     column="NOTICE_CONTENT"/>
-        <result property="noticeCreatedAt"   column="NOTICE_CREATED_AT"/>
-        <result property="noticeUpdatedAt"   column="NOTICE_UPDATED_AT"/>
-        <result property="noticeViews"       column="NOTICE_VIEWS"/>
-        <result property="noticeIsImportant" column="NOTICE_IS_IMPORTANT"/>
-        <result property="noticeIsDel"       column="NOTICE_IS_DEL"/>
-
-        <!-- 🔥 첨부파일 -->
-        <collection
-            property="attachmentList"
-            ofType="com.kh.triptype.notice.model.vo.Attachment"
-            column="{noticeId=NOTICE_ID}"
-            select="selectAttachmentList"/>
-    </resultMap>
+	<resultMap id="noticeDetailResultMap" type="com.kh.triptype.notice.model.vo.Notice">
+	    <id     property="noticeId"          column="NOTICE_ID"/>
+	    <result property="noticeTitle"       column="NOTICE_TITLE"/>
+	    <result property="noticeContent"     column="NOTICE_CONTENT"/>
+	    <result property="noticeCreatedAt"   column="NOTICE_CREATED_AT"/>
+	    <result property="noticeUpdatedAt"   column="NOTICE_UPDATED_AT"/>
+	    <result property="noticeViews"       column="NOTICE_VIEWS"/>
+	    <result property="noticeIsImportant" column="NOTICE_IS_IMPORTANT"/>
+	    <result property="noticeIsDel"       column="NOTICE_IS_DEL"/>
+	
+	    <collection property="attachmentList" ofType="com.kh.triptype.notice.model.vo.Attachment">
+	        <id     property="noticeAttachmentId" column="NOTICE_ATTACHMENT_ID"/>
+	        <result property="noticeAttachmentName" column="NOTICE_ATTACHMENT_NAME"/>
+	        <result property="noticeAttachmentUpdate" column="NOTICE_ATTACHMENT_UPDATE"/>
+	        <result property="noticeAttachmentUrl" column="NOTICE_ATTACHMENT_URL"/>
+	        <result property="noticeAttachmentUploadedAt" column="NOTICE_ATTACHMENT_UPLOADED_AT"/>
+	        <result property="noticeAttachmentIsDel" column="NOTICE_ATTACHMENT_IS_DEL"/>
+	        <result property="noticeId" column="NOTICE_ID"/>
+	    </collection>
+	</resultMap>
 
     <!-- ================= 첨부파일 ResultMap ================= -->
     <resultMap id="attachmentResultMap"
@@ -53,49 +55,68 @@
     <!-- ================= 공지 목록 조회 (관리자) ================= -->
 	<!-- ================= 사용자 공지 목록 조회 ================= -->
 	<select id="selectNoticeList"
+	        parameterType="map"
 	        resultMap="noticeListResultMap">
-	    SELECT
-	        NOTICE_ID,
-	        NOTICE_TITLE,
-	        NOTICE_CONTENT,
-	        NOTICE_CREATED_AT,
-	        NOTICE_UPDATED_AT,
-	        NOTICE_VIEWS,
-	        NOTICE_IS_IMPORTANT,
-	        NOTICE_IS_DEL
-	    FROM TB_NOTICE
-	    WHERE NOTICE_IS_DEL = 'N'
-	    ORDER BY
-	        NOTICE_IS_IMPORTANT DESC,
-	        NOTICE_CREATED_AT DESC
+	    SELECT *
+	    FROM (
+	        SELECT
+	            ROW_NUMBER() OVER (
+	                ORDER BY NOTICE_IS_IMPORTANT DESC, NOTICE_CREATED_AT DESC
+	            ) AS RN,
+	            N.*
+	        FROM TB_NOTICE N
+	        WHERE NOTICE_IS_DEL = 'N'
+	    )
+	    WHERE RN BETWEEN #{startRow} AND #{endRow}
+	</select>
+
+		
+	<!-- ================= 공지 목록 조회 (관리자: 삭제 포함) ================= -->
+	<select id="selectNoticeListAdmin"
+	        parameterType="map"
+	        resultMap="noticeListResultMap">
+	
+	    SELECT *
+		FROM (
+		    SELECT
+		        ROWNUM RN,
+		        A.*
+		    FROM (
+		        SELECT *
+		        FROM TB_NOTICE
+		        <where>
+		            <if test="showDeleted != null and showDeleted == &quot;N&quot;">
+					    NOTICE_IS_DEL = 'N'
+					</if>
+		        </where>
+		        ORDER BY NOTICE_ID DESC
+		    ) A
+		    WHERE ROWNUM &lt;= #{endRow}
+		)
+		WHERE RN &gt;= #{startRow}
 	</select>
 
     <!-- ================= 공지 상세 조회 ================= -->
-    <select id="selectNoticeDetail"
-            parameterType="long"
-            resultMap="noticeDetailResultMap">
-        SELECT *
-        FROM TB_NOTICE
-        WHERE NOTICE_ID = #{noticeId}
-          AND NOTICE_IS_DEL = 'N'
-    </select>
-	
-	<!-- ================= 공지 목록 조회 (관리자: 삭제 포함) ================= -->
-	<select id="selectNoticeListAdmin"
-	        resultMap="noticeListResultMap">
+	<select id="selectNoticeDetail" parameterType="long" resultMap="noticeDetailResultMap">
 	    SELECT
-	        NOTICE_ID,
-	        NOTICE_TITLE,
-	        NOTICE_CONTENT,
-	        NOTICE_CREATED_AT,
-	        NOTICE_UPDATED_AT,
-	        NOTICE_VIEWS,
-	        NOTICE_IS_IMPORTANT,
-	        NOTICE_IS_DEL
-	    FROM TB_NOTICE
-	    ORDER BY
-	        NOTICE_IS_IMPORTANT DESC,
-	        NOTICE_CREATED_AT DESC
+	        N.NOTICE_ID,
+	        N.NOTICE_TITLE,
+	        N.NOTICE_CONTENT,
+	        N.NOTICE_CREATED_AT,
+	        N.NOTICE_UPDATED_AT,
+	        N.NOTICE_VIEWS,
+	        N.NOTICE_IS_IMPORTANT,
+	        N.NOTICE_IS_DEL,
+	        A.NOTICE_ATTACHMENT_ID,
+	        A.NOTICE_ATTACHMENT_NAME,
+	        A.NOTICE_ATTACHMENT_UPDATE,
+	        A.NOTICE_ATTACHMENT_URL,
+	        A.NOTICE_ATTACHMENT_UPLOADED_AT,
+	        A.NOTICE_ATTACHMENT_IS_DEL
+	    FROM TB_NOTICE N
+	    LEFT JOIN TB_NOTICE_ATTACHMENT A ON (N.NOTICE_ID = A.NOTICE_ID AND A.NOTICE_ATTACHMENT_IS_DEL = 'N')
+	    WHERE N.NOTICE_ID = #{noticeId}
+	      AND N.NOTICE_IS_DEL = 'N'
 	</select>
 	
 	<!-- ================= 공지 등록 ================= -->
@@ -170,10 +191,18 @@
 	
 	<select id="selectAttachmentListAdmin"
 	        parameterType="long"
-	        resultType="Attachment">
-	    SELECT *
+	        resultMap="attachmentResultMap">
+	    SELECT
+	        NOTICE_ATTACHMENT_ID,
+	        NOTICE_ATTACHMENT_NAME,
+	        NOTICE_ATTACHMENT_UPDATE,
+	        NOTICE_ATTACHMENT_URL,
+	        NOTICE_ATTACHMENT_UPLOADED_AT,
+	        NOTICE_ATTACHMENT_IS_DEL,
+	        NOTICE_ID
 	    FROM TB_NOTICE_ATTACHMENT
 	    WHERE NOTICE_ID = #{noticeId}
+	      AND NOTICE_ATTACHMENT_IS_DEL = 'N'
 	    ORDER BY NOTICE_ATTACHMENT_ID
 	</select>
 
@@ -223,5 +252,25 @@
         WHERE NOTICE_ID = #{noticeId}
           AND NOTICE_IS_DEL = 'N'
     </update>
+    
+    <!-- ================= 페이징 ================= -->
+    <select id="selectNoticeCount" resultType="int">
+	    SELECT COUNT(*)
+	    FROM TB_NOTICE
+	    WHERE NOTICE_IS_DEL = 'N'
+	</select>
+	
+	<select id="selectNoticeCountAdmin" resultType="int">
+	    SELECT COUNT(*)
+	    FROM TB_NOTICE
+	    <where>
+	        <if test='showDeleted == "N"'>
+	            NOTICE_IS_DEL = 'N'
+	        </if>
+	    </where>
+	</select>
+
+
+
 
 </mapper>

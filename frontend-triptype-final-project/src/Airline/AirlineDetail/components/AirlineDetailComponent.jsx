@@ -1,215 +1,148 @@
 import "../css/TotalCss.css";
 import "../css/AirlineDetailComponent.css";
 import left from "../images/left.svg";
-
 import TicketPriceChart from "./AlertChartDetailComponent";
 import TicketBoxComponent from "../../common/TicketBoxComponent";
 import ReviewComponent from "./ReviewComponent";
 
-import { useParams } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import { useState } from "react";
-
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const AirlineDetailComponent = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // 1. 데이터 가져오기
+  const { inbound, outbound, tripType } = location.state || {};
+  const displayTripType = tripType; // ⭐ 그대로 사용
 
-  const airlineNo = useParams().airlineNo;
 
-  // 구조분해할당
-  // const { tripType, segmentCount } = useLocation().state;
+  console.log('outbound : 상세',outbound);
 
 
   // 찜 State
   const [isWished, setIsWished] = useState(false);
 
-  const tripInfo = {
-    tripType: "TRANSIT", // ONE_WAY | ROUND | TRANSIT
-    totalPrice: 812000,
-    currency: "KRW",
-
-    segments: [
-      {
-        segmentNo: 1,
-        airline: {
-          code: "OZ",
-          name: "아시아나항공",
-          logoUrl: "/airlines/OZ.png",
-        },
-        flightNumber: "OZ102",
-        departure: {
-          airportCode: "ICN",
-          city: "인천",
-          time: "2025-12-16T09:20",
-        },
-        arrival: {
-          airportCode: "NRT",
-          city: "도쿄",
-          time: "2025-12-16T11:45",
-        },
-        duration: 145,
-        cabinClass: "ECONOMY",
-      },
-      {
-        segmentNo: 2,
-        airline: {
-          code: "JL",
-          name: "일본항공",
-          logoUrl: "/airlines/JL.png",
-        },
-        flightNumber: "JL742",
-        departure: {
-          airportCode: "NRT",
-          city: "도쿄",
-          time: "2025-12-16T13:10",
-        },
-        arrival: {
-          airportCode: "BKK",
-          city: "방콕",
-          time: "2025-12-16T17:50",
-        },
-        duration: 340,
-        cabinClass: "ECONOMY",
-      },
-      {
-        segmentNo: 3,
-        airline: {
-          code: "VN",
-          name: "베트남항공",
-          logoUrl: "/airlines/VN.png",
-        },
-        flightNumber: "VN755",
-        departure: {
-          airportCode: "BKK",
-          city: "방콕",
-          time: "2025-12-16T19:20",
-        },
-        arrival: {
-          airportCode: "DAD",
-          city: "다낭",
-          time: "2025-12-16T21:05",
-        },
-        duration: 105,
-        cabinClass: "ECONOMY",
-      },
-    ],
+  const changeIsWished = () => {
+    setIsWished(!isWished);
   };
 
+  // 데이터 없을 경우 처리
+  if (!outbound) return <div>데이터를 찾을 수 없습니다.</div>;
 
 
-  // const tripType = "TRANSIT";
-  // const segmentCount = 5;
+    useEffect(() => {
+    const fetchWishStatus = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) return;
 
-  // 항공편 타입 정의
-  const TRIP_TYPE = {
-    ONE : "ONE", // 편도
-    ROUND : "ROUND", // 왕복
-    TRANSIT : "TRANSIT" // 경유
-  }
+        const response = await axios.get(
+          "http://localhost:8001/triptype/airline/wish/check",
+          {
+            params: { flightOfferId: outbound.flightOfferId },
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
 
-  const changeIsWished = () => {
-    setIsWished(true);
+        setIsWished(response.data);
+
+      } catch (error) {
+        console.error("찜 상태 조회 실패", error);
+      }
+    };
+
+    fetchWishStatus();
+  }, [outbound]);
+
+
+  const toggleWish = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+
+    if(token == null) {
+      toast.info("로그인을 먼저 진행해주세요.");
+      return;
+    }
+
+    const response = await axios.post(
+      "http://localhost:8001/triptype/airline/wish/toggle",
+      { flightOfferId: outbound.flightOfferId },
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    // 서버에서 true / false 반환
+    setIsWished(response.data);
+
+    } catch (error) {
+      console.error("찜 처리 실패", error);
+    }
   };
 
   return (
     <div className="airline-detail-container">
-
-
-      {/* 상단 헤더 (항공권 요약) */}
+      {/* 상단 헤더 */}
       <div className="ticket-header">
-        <img className="ticekt-header-left" src={left} alt="<-" />
+        <img 
+          className="ticekt-header-left" 
+          src={left} 
+          alt="뒤로가기" 
+          onClick={() => navigate(-1)} 
+          style={{cursor: 'pointer'}}
+        />
 
         <div className="ticekt-header-info">
-          <div className="ticekt-header-route">인천(ICN) → 다낭(DAD)</div>
-          <div className="ticekt-header-date">2025.12.16 · 
-            {(tripInfo.tripType == "TRANSIT") ? "경유" :
-             (tripInfo.tripType == "ROUND") ? "왕복" :
-             (tripInfo.tripType == "ONE") ? "편도" : ""
-          }
+          <div className="ticekt-header-route">
+            {outbound.departCity}({outbound.departAirportCode}) → {outbound.arriveCity}({outbound.arriveAirportCode})
+          </div>
+          <div className="ticekt-header-date">
+            {outbound.departDate.split('T')[0]} · 
+            {/* 변환된 displayTripType 사용 */}
+            {displayTripType === "ROUND" ? " 왕복" : " 편도"}
           </div>
         </div>
 
-        {/* 찜 버튼 */}
-        <button className={`ticekt-header-wish-btn (${isWished ? "active" : ""})`} onClick={changeIsWished}>
-          {isWished ? "❤" : "♡"}
+        <button
+          className={`ticekt-header-wish-btn ${isWished ? "active" : ""}`}
+          onClick={toggleWish}
+        >
+          {isWished ? "❤️" : "♡"}
         </button>
+
       </div>
 
-
-
-
-      {/* 메인 콘텐츠 */}
       <div className="airline-detail-layout">
-
-        {/* 항공권 정보 영역 */}
         <div className="left-section">
+          
+          {/* 가는 편 (공통) */}
+          <p className="section-title">가는 편</p>
+          <TicketBoxComponent segment={outbound} showPlus={false} tripType={displayTripType} />
 
+          {/* 왕복(ROUND)일 경우 오는 편 렌더링 */}
+          {displayTripType === "ROUND" && inbound && (
+            <>
+              <p className="section-title">오는 편</p>
+              <TicketBoxComponent segment={inbound} showPlus={false} tripType={displayTripType} />
+            </>
+          )}
 
-
-          {/* 편도일 경우 */}
-          {
-            (tripInfo.tripType  == "ONE") && (
-              <>
-                {/* 가는 편 */}
-                <p className="section-title">가는 편</p>
-                <TicketBoxComponent />
-              </>
-            )
-          }
-
-
-          {/* 왕복일 경우 */}
-          {
-            (tripInfo.tripType == "ROUND") && (
-              <>
-                {/* 가는 편 */}
-                <p className="section-title">가는 편</p>
-                <TicketBoxComponent  showPlus={false}/>
-
-                {/* 오는 편 */}
-                <p className="section-title">오는 편</p>
-                <TicketBoxComponent  showPlus={false}/>
-              </>
-            )
-          }
-
-          {/* 경유일 경우 */}
-          {
-            (tripInfo.tripType  == "TRANSIT") && (
-              tripInfo.segments.map((segment, index) => 
-                <TicketBoxComponent key={segment.segmentNo} segment={segment} tripType={tripInfo.tripType} showPlus={false}/>
-              ))
-          }
-
-          {/* 가는 편 */}
-          {/* <p className="section-title">가는 편</p>
-          <TicketBoxComponent /> */}
-
-          {/* 오는 편 */}
-          {/* <p className="section-title">오는 편</p>
-          <TicketBoxComponent /> */}
-
-          {/* 리뷰 영역 */}
           <div className="review-wrapper">
-            <ReviewComponent/>
+            <ReviewComponent outbound={outbound} inbound={inbound}/>
           </div>
-
         </div>
 
-
-
-
-
-        {/* 오른쪽 차트 */}
         <aside className="right-section">
           <div className="sticky-box">
             <TicketPriceChart />
           </div>
         </aside>
       </div>
-
     </div>
   );
 };
-
 
 export default AirlineDetailComponent;

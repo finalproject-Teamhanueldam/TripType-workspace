@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
   <mapper namespace="airlineList">
-	<resultMap id="AirlineListResultMap" type="AirlineList">
+	<resultMap id="AirlineListResultMap" type="AirlineListVo">
 	    <id property="flightNumber" column="FLIGHT_NUMBER"/>
-
 	    <result property="airlineName" column="AIRLINE_AIRLINE_NAME"/>
-	    <result property="flightNumber" column="FLIGHT_NUMBER"/>
 	
 	    <result property="departDate" column="FLIGHT_DEPART_DATE"/>
 	    <result property="departCity" column="DEPART_CITY"/>
@@ -22,11 +20,23 @@
 	    <result property="extraSeat" column="SEAT"/>
 	    <result property="flightOfferId" column="FLIGHT_OFFER_ID"/>
 	    <result property="totalPrice" column="FLIGHT_OFFER_PRICE_TOTAL"/>
+	    <result property="flightSegmentNo" column="FLIGHT_SEGMENT_NO"/>
 	</resultMap>
 	
 	<resultMap id="WeeklyPriceResultMap" type="WeeklyPrice">
 		<id column="DEPART_DATE" property="offerDepartDay"/>
 		<result column="TOTAL_PRICE" property="offerPriceTotal"/>
+	</resultMap>
+	
+	<resultMap id="ReviewResultMap" type="Review">
+		<id column="REVIEW_NO" property="reviewNo"/>
+		<result column="REVIEW_CONTENT" property="reviewContent"/>
+		<result column="REVIEW_CREATE_DATE" property="reviewCreateDate"/>
+		<result column="REVIEW_MODIFY_DATE" property="reviewModifyDate"/>
+		<result column="REVIEW_STATUS" property="reviewStatus"/>
+		<result column="MEMBER_NO" property="memberNo"/>
+		<result column="FLIGHT_OFFER_ID" property="flightOfferId"/>
+		<result column="MEMBER_NAME" property="memberName"/>
 	</resultMap>
 
   	
@@ -38,6 +48,8 @@
 	        f.FLIGHT_ARRIVE_DATE,
 	        f.FLIGHT_DURATION,
 	        f.FLIGHT_OFFER_ID,
+	        f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
+	        f.FLIGHT_SEGMENT_NO,
 	        dep.AIRPORT_CITY AS DEPART_CITY,
 	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	        arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -56,7 +68,6 @@
 	      AND f.DEST_AIRPORT = #{arrive}
 	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{departDate}, 'YYYY-MM-DD')
 	      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
-
 	      AND f.FLIGHT_IS_DEL = 'N'
 	
 	
@@ -70,6 +81,8 @@
 	        f.FLIGHT_ARRIVE_DATE,
 	        f.FLIGHT_DURATION,
 	        f.FLIGHT_OFFER_ID,
+	        f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
+	        f.FLIGHT_SEGMENT_NO,
 	        dep.AIRPORT_CITY AS DEPART_CITY,
 	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	        arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -86,7 +99,7 @@
         JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
 	    WHERE f.DEPART_AIRPORT = #{arrive}   /* 출발/도착 반전 */
 	      AND f.DEST_AIRPORT = #{depart}    /* 출발/도착 반전 */
-	     
+	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{returnDate}, 'YYYY-MM-DD')
 	      AND f.FLIGHT_IS_DEL = 'N'
 	      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
 	    ORDER BY FLIGHT_OFFER_PRICE_TOTAL asc
@@ -103,6 +116,7 @@
 	            f.FLIGHT_ARRIVE_DATE,
 	            f.FLIGHT_DURATION,
 	            f.FLIGHT_OFFER_ID,
+	            f.FLIGHT_SEGMENT_NO,
 	            dep.AIRPORT_CITY AS DEPART_CITY,
 	            dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	            arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -131,6 +145,7 @@
 	            f.FLIGHT_ARRIVE_DATE,
 	            f.FLIGHT_DURATION,
 	            f.FLIGHT_OFFER_ID,
+	            f.FLIGHT_SEGMENT_NO,
 	            dep.AIRPORT_CITY AS DEPART_CITY,
 	            dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	            arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -150,9 +165,9 @@
 	          AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
 	          AND f.FLIGHT_IS_DEL = 'N'
 	    )
-	    ORDER BY 
+	    ORDER BY
 	        /* ISO 8601 Duration(PT2H20M)을 숫자로 변환하여 정렬 */
-	        TO_NUMBER(NVL(REGEXP_SUBSTR(FLIGHT_DURATION, '(\d+)H', 1, 1, 'i', 1), 0)) * 60 + 
+	        TO_NUMBER(NVL(REGEXP_SUBSTR(FLIGHT_DURATION, '(\d+)H', 1, 1, 'i', 1), 0)) * 60 +
 	        TO_NUMBER(NVL(REGEXP_SUBSTR(FLIGHT_DURATION, '(\d+)M', 1, 1, 'i', 1), 0)) ASC
 	</select>
 	
@@ -165,6 +180,7 @@
 	        f.FLIGHT_ARRIVE_DATE,
 	        f.FLIGHT_DURATION,
 	        f.FLIGHT_OFFER_ID,
+	        f.FLIGHT_SEGMENT_NO,
 	        dep.AIRPORT_CITY AS DEPART_CITY,
 	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	        arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -196,6 +212,7 @@
 	        f.FLIGHT_ARRIVE_DATE,
 	        f.FLIGHT_DURATION,
 	        f.FLIGHT_OFFER_ID,
+	        f.FLIGHT_SEGMENT_NO,
 	        dep.AIRPORT_CITY AS DEPART_CITY,
 	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
 	        arr.AIRPORT_CITY AS ARRIVE_CITY,
@@ -221,11 +238,11 @@
 	
 	<!-- 주간 가격 정보 -->
 	<select id="selectWeeklyPrice" parameterType="AirlineFilter" resultMap="WeeklyPriceResultMap">
-	  SELECT 
+	  SELECT
 	       TO_CHAR(FLIGHT_OFFER_DEPART_DATE, 'YYYY-MM-DD') AS DEPART_DATE,
 	       MIN(FLIGHT_OFFER_PRICE_TOTAL) AS TOTAL_PRICE
-	  FROM  
-	       TB_FLIGHT_PRICE_HISTORY history 
+	  FROM
+	       TB_FLIGHT_PRICE_HISTORY history
 	       JOIN TB_FLIGHT f ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
 	  WHERE FLIGHT_OFFER_ONE_WAY = #{tripType}
 	    AND DEPART_IATA_CODE = #{depart}
@@ -235,6 +252,90 @@
 	                                     AND TO_DATE(#{departDate}, 'YYYY-MM-DD') +4
 	  GROUP BY FLIGHT_OFFER_DEPART_DATE
 	</select>
-  </mapper>
+	
+	<!-- 리뷰 작성 -->
+	<insert id="writeReview" parameterType="Review">
+	    INSERT INTO TB_REVIEW (
+	        REVIEW_NO,
+	        REVIEW_CONTENT,
+	        REVIEW_CREATE_DATE,
+	        REVIEW_MODIFY_DATE,
+	        REVIEW_STATUS,
+	        MEMBER_NO,
+	        AIRLINE_ID
+	    ) VALUES (
+	        TB_REVIEW_SEQ.NEXTVAL,
+	        #{reviewContent},
+	        SYSDATE,
+	        SYSDATE,
+	        'N',
+	        #{memberNo},
+	        #{flightOfferId}
+	    )
+	</insert>
+	
+	<!-- 리뷰 조회 -->
+	<select id="selectReview" parameterType="_int" resultMap="ReviewResultMap">
+	    SELECT
+	        R.REVIEW_NO,
+	        R.REVIEW_CONTENT,
+	        R.REVIEW_CREATE_DATE,
+	        R.MEMBER_NO,
+	        M.MEMBER_NAME,
+	        offer.FLIGHT_OFFER_ID
+	    FROM TB_REVIEW R
+	    JOIN TB_MEMBER M ON R.MEMBER_NO = M.MEMBER_NO
+	    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = R.AIRLINE_ID
+	    WHERE R.AIRLINE_ID = #{flightOfferId}
+	      AND offer.FLIGHT_OFFER_IS_DEL = 'N'
+	      AND R.REVIEW_STATUS = 'N'
+    </select>
 
-  
+	<!-- 리뷰 수정 -->
+	<update id="updateReview" parameterType="Review">
+		UPDATE TB_REVIEW
+		   SET REVIEW_CONTENT = #{reviewContent}
+		     , REVIEW_MODIFY_DATE = SYSDATE
+		 WHERE MEMBER_NO = #{memberNo}
+		   AND REVIEW_NO = #{reviewNo}
+		   AND AIRLINE_ID = #{flightOfferId}
+		   AND REVIEW_STATUS = 'N'
+	</update>
+	
+	<!-- 리뷰 삭제 -->
+	<update id="deleteReview" parameterType="Review">
+		UPDATE TB_REVIEW
+		   SET REVIEW_STATUS = 'Y'
+		 WHERE MEMBER_NO = #{memberNo}
+		   AND REVIEW_NO = #{reviewNo}
+		   AND AIRLINE_ID = #{flightOfferId}
+	</update>
+
+	<!-- 찜 여부 확인 -->
+	<select id="checkWish" parameterType="com.kh.triptype.airline.model.vo.WishList" resultType="int">
+	    SELECT COUNT(*)
+	      FROM TB_WISHLIST
+	     WHERE MEMBER_NO = #{memberNo}
+	       AND FLIGHT_OFFER_ID = #{flightOfferId}
+	</select>
+	
+	<!-- 찜 추가 -->
+	<insert id="insertWish" parameterType="com.kh.triptype.airline.model.vo.WishList">
+	    INSERT INTO TB_WISHLIST (
+	        MEMBER_NO,
+	        FLIGHT_OFFER_ID
+	    ) VALUES (
+	        #{memberNo},
+	        #{flightOfferId}
+	    )
+	</insert>
+	
+	<!-- 찜 삭제 -->
+	<delete id="deleteWish" parameterType="com.kh.triptype.airline.model.vo.WishList">
+	    DELETE
+	      FROM TB_WISHLIST
+	     WHERE MEMBER_NO = #{memberNo}
+	       AND FLIGHT_OFFER_ID = #{flightOfferId}
+	</delete>
+	
+  </mapper>

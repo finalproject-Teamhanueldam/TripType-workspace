@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "mybatis-3-mapper.dtd">
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="airline">
 
-  <!-- carrierCode(KE, OZ 등) → AIRLINE_ID -->
+  <!--
+      carrierCode(KE, OZ 등) → AIRLINE_ID 조회
+
+      ✅ 수정 포인트
+        1) jdbcType 명시 (Oracle에서 공백/NULL 안전)
+        2) 대소문자 혼입 대비 UPPER 처리
+        3) 단건 조회 보장
+  -->
   <select id="selectAirlineIdByIataCode"
           parameterType="string"
           resultType="int">
     SELECT AIRLINE_ID
     FROM TB_AIRLINE
-    WHERE AIRLINE_IATA_CODE = #{value}
+    WHERE UPPER(AIRLINE_IATA_CODE) = UPPER(#{value, jdbcType=VARCHAR})
   </select>
 
 </mapper>

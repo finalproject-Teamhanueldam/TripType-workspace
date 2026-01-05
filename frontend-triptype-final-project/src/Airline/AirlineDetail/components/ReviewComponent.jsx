@@ -1,119 +1,238 @@
-import { FaStar, FaRegStar, FaEllipsisV, FaTrashAlt, FaPen } from 'react-icons/fa';
+import { FaTrashAlt, FaPen } from 'react-icons/fa';
 import "../css/ReviewComponent.css";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
-// 별점 렌더링 함수
-// const renderStars = (rating) => {
-//     const stars = [];
-//     for (let i = 1; i <= 5; i++) {
-//         if (i <= rating) {
-//             stars.push(<FaStar key={i} className="star-filled" />);
-//         } else {
-//             stars.push(<FaRegStar key={i} className="star-empty" />);
-//         }
-//     }
-//     return <div className="rating-stars">{stars}</div>;
-// };
+const ReviewComponent = ({ outbound }) => {
 
-// 리뷰 데이터 구조를 미리 정의 (디자인 목적으로만 사용하며, 실제 데이터는 넣지 않습니다.)
-const dummyReviews = [
-    {
-        id: 1,
-        initial: 'T',
-        user: 'Traveler_Kim',
-        date: '2023-10-15',
-        rating: 5,
-        text: '좌석이 매우 편안하고 승무원분들이 친절했습니다. 기내식도 맛있었어요!',
-        canEdit: false
-    },
-    {
-        id: 2,
-        initial: 'S',
-        user: 'SkyWalker',
-        date: '2023-10-20',
-        rating: 4,
-        text: '가격 대비 무난했지만, 출발이 30분 지연되어 아쉬웠습니다.',
-        canEdit: true // 편집/삭제 아이콘을 보여주기 위한 설정
-    },
-    {
-        id: 3,
-        initial: 'H',
-        user: 'HappyFly',
-        date: '2023-11-01',
-        rating: 3,
-        text: '좌석이라 편하게 왔습니다. 영화 종류가 더 많았으면 좋겠어요.',
-        canEdit: false
-    },
-];
+  // textArea text
+  const [text, setText] = useState("");
 
-const ReviewComponent = () => {
-    // 임시 데이터의 평균 별점 계산 (4.0)
-    const averageRating = 4.0;
-    const filledStarsCount = Math.round(averageRating);
+  // 리뷰 묶음
+  const [reviews, setReviews] = useState([]);
 
-    return (
-        <div className="review-container">
-            {/* 헤더 섹션 */}
-            <div className="review-header">
-                <span className="review-header-title">자유 댓글</span>
-                <span className="review-header-count">3</span>
-                {/* <div className="average-rating">
-                    <span className="rating-score">{averageRating.toFixed(1)}</span>
-                    <span className="total-score">/ 5.0</span>
-                    <div className="header-stars">
-                        {renderStars(filledStarsCount)}
-                    </div>
-                </div> */}
-            </div>
+  // 회원 번호
+  const [loginMemberNo, setLoginMemberNo] = useState(null);
 
-            {/* 리뷰 작성 섹션 */}
-            <div className="write-review-section">
-                {/* <div className="write-rating-area">
-                    {renderStars(5)}
-                </div> */}
-                <div className="write-input-area">
-                    <textarea
-                        placeholder="이 항공편에 대한 자유 댓글을 달아주세요..."
-                        rows="4"
-                        className="review-textarea"
-                    ></textarea>
-                    <button className="register-button">등록하기</button>
-                </div>
-            </div>
+  // reviewNo
+  const [editingReviewNo, setEditingReviewNo] = useState(null);
+  
+  // edit-reviewContent
+  const [editingText, setEditingText] = useState("");
 
-            {/* 리뷰 목록 섹션 */}
-            <div className="review-list">
-                {dummyReviews.map((review) => (
-                    <div key={review.id} className="review-item">
-                        <div className="review-user-info">
-                            <div className={`user-initial-circle user-initial-${review.initial}`}>
-                                {review.initial}
-                            </div>
-                            <div className="user-details">
-                                {/* 유저명 */}
-                                <span className="user-name">{review.user}</span>
-                                
-                                {/* 작성일 */}
-                                <span className="review-date">{review.date}</span>
-                                {/* <div className="review-stars-row">
-                                    {renderStars(review.rating)}
-                                </div> */}
-                            </div>
-                            {review.canEdit && (
-                                <div className="review-actions">
-                                    {/* 작성 아이콘 */}
-                                    <FaPen className="action-icon edit-icon" />
+  reviews.map((item) => {
+    console.log(item);
+  });
 
-                                    {/* 삭제 아이콘 */}
-                                    <FaTrashAlt className="action-icon delete-icon" />
-                                </div>
-                            )}
-                        </div>
-                        <p className="review-text">{review.text}</p>
-                    </div>
-                ))}
-            </div>
+// 리뷰 수정 시작
+const startEditing = (review) => {
+  setEditingReviewNo(review.reviewNo);
+  setEditingText(review.reviewContent);
+};
+
+
+
+// 수정 취소
+const cancelEdit = () => {
+  setEditingReviewNo(null);
+  setEditingText("");
+};
+
+  // 로그인된 회원 정보 가져오기
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      (async () => {
+        const { jwtDecode } = await import("jwt-decode");
+        const payload = jwtDecode(token);
+        console.log("JWT payload:", payload);
+        setLoginMemberNo(payload.sub);
+      })();
+    }
+  }, []);
+
+  // 리뷰 조회
+  const fetchReviews = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8001/triptype/airline/review/select",
+        { params: { flightOfferId: outbound.flightOfferId } }
+      );
+      setReviews(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews();
+  }, [outbound]);
+
+  // 리뷰 작성
+  const uploadReview = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    if(token == null){
+       toast.info("먼저 로그인을 진행해주세요.");
+       return;
+    }
+
+    if (!text.trim()) {
+      toast.info("리뷰 내용을 입력해주세요");
+      return;
+    }
+    try {
+      await axios.post(
+        "http://localhost:8001/triptype/airline/review",
+        { reviewContent: text, flightOfferId: outbound.flightOfferId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setText("");
+      fetchReviews();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // 리뷰 수정
+  const confirmEdit = async (reviewNo) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await axios({
+        url: "http://localhost:8001/triptype/airline/review/update",
+        method: "post",
+        headers: { Authorization: `Bearer ${token}` },
+        data: { 
+          reviewNo: reviewNo, 
+          reviewContent: editingText,
+          flightOfferId: outbound.flightOfferId
+        }
+      });
+
+      toast.info(response.data);
+      setEditingReviewNo(null);
+      setEditingText("");
+      fetchReviews();
+    } catch (error) {
+      console.error(error);
+      toast.error("수정 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 리뷰 삭제
+  const deleteReview = async (reviewNo) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const url ="http://localhost:8001/triptype/airline/review/delete";
+      const method="post";
+
+      const response = await axios({
+        url,
+        method,
+        headers : { Authorization: `Bearer ${token}` },
+        data: { 
+          reviewNo: reviewNo, 
+          flightOfferId: outbound.flightOfferId
+        }
+      })
+
+      toast.info(response.data);
+      fetchReviews();
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // 이니셜
+  const getInitial = (name) => (!name ? "?" : name.charAt(0).toUpperCase());
+
+  return (
+    <div className="review-container">
+      {/* 헤더 */}
+      <div className="review-header">
+        <span className="review-header-title">자유 댓글</span>
+        <span className="review-header-count">{reviews.length}</span>
+      </div>
+
+      {/* 리뷰 작성 섹션 */}
+      <div className="write-review-section">
+        <div className="write-input-area">
+          <textarea
+            placeholder="이 항공편에 대한 자유 댓글을 달아주세요..."
+            rows="4"
+            className="review-textarea"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <button className="register-button" onClick={uploadReview}>
+            등록하기
+          </button>
         </div>
-    );
+      </div>
+
+      {/* 리뷰 목록 */}
+      <div className="review-list">
+        {reviews.map((review) => (
+          <div key={review.reviewNo} className="review-item">
+            <div className="review-user-info">
+              <div className="user-initial-circle">{getInitial(review.memberName)}</div>
+              <div className="user-details">
+                <span className="user-name">{review.memberName}</span>
+                <span className="review-date">
+                  {review.reviewCreateDate
+                    ? new Date(review.reviewCreateDate).toLocaleDateString()
+                    : ""}
+                </span>
+              </div>
+
+              {/* 로그인 회원 && 본인 댓글일 경우 수정/삭제 버튼 */}
+              {loginMemberNo && loginMemberNo == review.memberNo && (
+                <div className="review-actions">
+                  {editingReviewNo === review.reviewNo ? (
+                    <>
+                      <button
+                        className="edit-confirm-button"
+                        onClick={() => confirmEdit(review.reviewNo)}
+                      >
+                        완료
+                      </button>
+                      <button className="edit-cancel-button" onClick={cancelEdit}>
+                        취소
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <FaPen
+                        className="action-icon edit-icon"
+                        onClick={() => startEditing(review)}
+                      />
+                      <FaTrashAlt
+                        className="action-icon delete-icon"
+                        onClick={() => deleteReview(review.reviewNo)}
+                      />
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* 리뷰 내용 또는 편집 textarea */}
+            {editingReviewNo === review.reviewNo ? (
+              <textarea
+                className="review-textarea edit-textarea"
+                value={editingText}
+                onChange={(e) => setEditingText(e.target.value)}
+              />
+            ) : (
+              <p className="review-text">{review.reviewContent}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default ReviewComponent;

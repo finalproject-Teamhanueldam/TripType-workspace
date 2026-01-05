@@ -72,6 +72,13 @@ public class MemberDao {
             memberNo
         );
     }
+    
+    public Member findByMemberNo(int memberNo) {
+        return sqlSession.selectOne(
+            NAMESPACE + "findByMemberNo",
+            memberNo
+        );
+    }
 
     // 마지막 로그인 시간 갱신
     public int updateLastLogin(int memberNo) {
@@ -130,6 +137,14 @@ public class MemberDao {
         return sqlSession.update(
             NAMESPACE + "unlockMember",
             memberNo
+        );
+    }
+    
+    // 소셜 회원가입
+    public int insertSocialMember(Member member) {
+        return sqlSession.insert(
+            NAMESPACE + "insertSocialMember",
+            member
         );
     }
 }

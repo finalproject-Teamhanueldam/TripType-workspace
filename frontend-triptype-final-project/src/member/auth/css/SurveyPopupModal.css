@@ -1,0 +1,284 @@
+/* member/auth/css/SurveyPopupModal.css */
+/* ✅ SurveyPopupModal 전용 네임스페이스 (다른 CSS 덮임 방지) */
+
+/* ---------- Overlay / Container ---------- */
+/* .tts-survey-overlay { */
+  /* fullscreen-overlay가 이미 배경을 깔고 있다면 여기선 건드리지 않아도 됨 */
+/* } */
+
+/* .tts-survey-content { */
+  /* overlay-content가 이미 width/center를 잡고 있다면 여기선 최소만 */
+  /* max-width: 880px;
+  width: 100%;
+} */
+
+/* .tts-survey-body { */
+  /* overlay-body 기본 padding이 있다면 덮지 말고 추가만 */
+/* } */
+
+/* ---------- Header ---------- */
+.tts-survey-header {
+  margin-bottom: 14px;
+}
+
+.tts-survey-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.tts-survey-subtitle {
+  margin: 6px 0 0 0;
+  opacity: 0.8;
+  font-size: 15px;
+}
+
+/* progress */
+.tts-survey-progressTrack {
+  margin-top: 10px;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.tts-survey-progressFill {
+  height: 100%;
+  border-radius: 999px;
+  /* 기존 브랜드 색이 있으면 여기만 바꾸면 됨 */
+  background: rgba(110, 191, 228, 1);
+}
+
+/* ---------- Section ---------- */
+.tts-survey-section {
+  margin-top: 10px;
+}
+
+.tts-survey-introText {
+  margin-bottom: 16px;
+  opacity: 0.9;
+  font-size: 15px;
+}
+
+/* ---------- Buttons (Scoped) ---------- */
+.tts-survey-actionRow {
+  display: flex;
+  gap: 10px;
+  align-items: stretch; /* ✅ 높이 맞추기 핵심 */
+}
+
+.tts-survey-actionRow--end {
+  justify-content: flex-end;
+}
+
+.tts-survey-actionRow--between {
+  justify-content: space-between;
+  margin-top: 18px;
+}
+
+/* 공통 버튼 베이스 */
+.tts-survey-btn {
+  height: 52px;             /* ✅ 버튼 높이 통일 */
+  padding: 0 18px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  transition: transform 0.05s ease, box-shadow 0.15s ease, border-color 0.15s ease,
+background 0.15s ease, opacity 0.15s ease;
+}
+
+.tts-survey-btn:active {
+  transform: translateY(1px);
+}
+
+/* Ghost */
+.tts-survey-btn--ghost {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.16);
+  color: rgba(0, 0, 0, 0.75);
+  white-space: nowrap; /* ✅ "나중에 할게요" 줄바꿈 방지 */
+}
+
+.tts-survey-btn--ghost:hover {
+  border-color: rgba(2, 48, 89, 0.35);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* Primary */
+.tts-survey-btn--primary {
+  flex: 1; /* ✅ 오른쪽 버튼 길게 */
+  background: rgba(110, 191, 228, 1);
+  border-color: rgba(110, 191, 228, 1);
+  color: rgba(0, 0, 0, 0.82);
+}
+
+.tts-survey-btn--primary:hover {
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+}
+
+.tts-survey-btn--primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ---------- Question ---------- */
+.tts-survey-question {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  letter-spacing: -0.2px;
+}
+
+/* options wrapper */
+.tts-survey-options {
+  display: grid;
+  gap: 10px;
+}
+
+/* option button */
+.tts-survey-optionBtn {
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+  position: relative;
+}
+
+.tts-survey-optionBtn:hover {
+  border-color: rgba(2, 48, 89, 0.35);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.tts-survey-optionBtn:active {
+  transform: translateY(1px);
+}
+
+/* ✅ 선택됨 표시 */
+.tts-survey-optionBtn.is-selected {
+  border-color: #023059;
+  box-shadow: 0 0 0 3px rgba(110, 191, 228, 0.35);
+  font-weight: 800;
+}
+
+/* ✅ 선택됨 체크 */
+.tts-survey-optionBtn.is-selected::before {
+  content: "✓";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  margin-right: 10px;
+  font-weight: 900;
+  background: rgba(110, 191, 228, 0.25);
+  color: #023059;
+}
+
+/* ---------- Result ---------- */
+.tts-survey-resultHead {
+  margin-bottom: 12px;
+}
+
+.tts-survey-resultBadge {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.tts-survey-resultTitle {
+  margin-top: 4px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+}
+
+.tts-survey-resultDesc {
+  margin-top: 6px;
+  opacity: 0.85;
+  font-size: 15px;
+}
+
+/* bars */
+.tts-survey-bars {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.tts-survey-barRow {
+  display: grid;
+  gap: 6px;
+}
+
+.tts-survey-barTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.tts-survey-barLabel {
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.tts-survey-barValue {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 700;
+}
+
+.tts-survey-barSub {
+  opacity: 0.7;
+  font-weight: 600;
+}
+
+.tts-survey-barTrack {
+  height: 10px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.tts-survey-barFill {
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(110, 191, 228, 1);
+}
+
+/* ---------- Close button (scoped) ---------- */
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .tts-survey-title {
+    font-size: 22px;
+  }
+
+  .tts-survey-actionRow--between {
+    flex-direction: column;
+  }
+
+  .tts-survey-btn--primary {
+    flex: unset;
+    width: 100%;
+  }
+
+  .tts-survey-btn--ghost {
+    width: 100%;
+  }
+}

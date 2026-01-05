@@ -72,4 +72,33 @@ public class EmailAuthController {
             return ResponseEntity.status(404).body(Map.of("message", e.getMessage()));
         }
     }
+    
+    /**
+     * 계정 잠금 해제용 인증번호 발송
+     * POST /mail/auth/unlock/send
+     */
+    @PostMapping("/unlock/send")
+    public ResponseEntity<Map<String, String>> sendUnlockAuthMail(
+            @RequestBody Map<String, String> req
+    ) {
+        String name = req.get("memberName");
+        String email = req.get("memberId");
+
+        if (name == null || name.isBlank() || email == null || email.isBlank()) {
+            return ResponseEntity
+                .badRequest()
+                .body(Map.of("message", "이름과 이메일을 입력해주세요."));
+        }
+
+        try {
+            emailAuthService.sendUnlockAuthMail(name, email);
+            return ResponseEntity.ok(
+                Map.of("message", "인증번호가 발송되었습니다.")
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                .status(404)
+                .body(Map.of("message", e.getMessage()));
+        }
+    }
 }

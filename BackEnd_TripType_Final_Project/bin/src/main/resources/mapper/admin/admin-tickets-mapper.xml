@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="adminTicketMapper">
+  <resultMap id="Ticket" type="tickets">
+
+    <!-- PK -->
+	    <id column="FLIGHT_OFFER_ID" property="flightOfferId"/>
+	
+	    <!-- 항공권 공통 -->
+	    <result column="FLIGHT_OFFER_ONE_WAY" property="oneWayYn"/>
+	    <result column="AIRLINE_URL" property="sellingAirlineUrl"/>
+		<result column="AIRLINE_AIRLINE_NAME" property="sellingAirlineName"/>
+	    <!-- 출발편 정보 -->
+	    <result column="DEPART_AIRPORT" property="departAirport"/>
+	    <result column="DEST_AIRPORT" property="arriveAirport"/>
+	    <result column="FLIGHT_DEPART_DATE" property="departDateTime"/>
+	    <result column="FLIGHT_ARRIVE_DATE" property="arriveDateTime"/>
+	    <result column="DEPART_DURATION" property="departDuration"/>
+		<result column="FLIGHT_OFFER_PRICE_TOTAL" property="priceTotal"/>
+		<result column="FLIGHT_OFFER_CURRENCY" property="currency"/>
+	    <!-- 가격 조회 기준 -->
+	    <result column="FLIGHT_OFFER_API_QUERY_DATE" property="apiQueryDate"/>
+
+</resultMap>
+  
+    <select id="selectTickets" resultMap="Ticket">
+	SELECT *
+		FROM (
+		    SELECT
+		        fo.FLIGHT_OFFER_ID,
+		        a.AIRLINE_AIRLINE_NAME,
+		        fo.FLIGHT_OFFER_ONE_WAY,
+		        f.FLIGHT_DIRECTION,
+		        f.FLIGHT_DEPART_DATE,
+		        f.FLIGHT_ARRIVE_DATE,
+		        f.DEPART_AIRPORT,
+		        f.DEST_AIRPORT,
+		        ph.FLIGHT_OFFER_API_QUERY_DATE,
+		        ph.FLIGHT_OFFER_PRICE_TOTAL,
+		        ph.FLIGHT_OFFER_CURRENCY,
+		
+		        ROW_NUMBER() OVER (
+		            PARTITION BY
+		                a.AIRLINE_AIRLINE_NAME,
+		                f.DEPART_AIRPORT,
+		                f.DEST_AIRPORT,         
+		                f.FLIGHT_DEPART_DATE
+		            ORDER BY
+		                ph.FLIGHT_OFFER_PRICE_TOTAL ASC,
+		                ph.FLIGHT_OFFER_API_QUERY_DATE DESC
+		        ) AS RN
+		    FROM TB_FLIGHT_OFFER fo
+		    JOIN TB_FLIGHT f
+		        ON f.FLIGHT_OFFER_ID = fo.FLIGHT_OFFER_ID
+		    JOIN TB_FLIGHT_PRICE_HISTORY ph
+		        ON ph.FLIGHT_OFFER_ID = fo.FLIGHT_OFFER_ID
+		    JOIN TB_AIRLINE a
+		        ON a.AIRLINE_ID = f.SELLING_AIRLINE_ID
+	        WHERE f.FLIGHT_IS_DEL = 'N'
+	        AND fo.FLIGHT_OFFER_IS_DEL = 'N'
+		)
+		WHERE RN = 1
+		ORDER BY
+		    FLIGHT_DEPART_DATE ASC,
+		    FLIGHT_OFFER_PRICE_TOTAL ASC,
+		    FLIGHT_OFFER_API_QUERY_DATE DESC
+	
+		    
+	</select>
+	
+
+</mapper>
