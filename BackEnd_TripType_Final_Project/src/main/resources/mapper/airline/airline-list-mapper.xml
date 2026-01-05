@@ -1,366 +1,403 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
-  <mapper namespace="airlineList">
-	<resultMap id="AirlineListResultMap" type="AirlineListVo">
-	    <id property="flightNumber" column="FLIGHT_NUMBER"/>
-	    <result property="airlineName" column="AIRLINE_AIRLINE_NAME"/>
-	
-	    <result property="departDate" column="FLIGHT_DEPART_DATE"/>
-	    <result property="departCity" column="DEPART_CITY"/>
-	    <result property="departAirportCode" column="DEPART_CODE"/>
-	
-	    <result property="flightDuration" column="FLIGHT_DURATION"/>
-	    <result property="tripType" column="FLIGHT_OFFER_ONE_WAY"/>
-	
-	    <result property="arriveDate" column="FLIGHT_ARRIVE_DATE"/>
-	    <result property="arriveCity" column="ARRIVE_CITY"/>
-	    <result property="arriveAirportCode" column="ARRIVE_CODE"/>
-	
-	    <result property="extraSeat" column="SEAT"/>
-	    <result property="flightOfferId" column="FLIGHT_OFFER_ID"/>
-	    <result property="totalPrice" column="FLIGHT_OFFER_PRICE_TOTAL"/>
-	    <result property="flightSegmentNo" column="FLIGHT_SEGMENT_NO"/>
-	</resultMap>
-	
-	<resultMap id="WeeklyPriceResultMap" type="WeeklyPrice">
-		<id column="DEPART_DATE" property="offerDepartDay"/>
-		<result column="TOTAL_PRICE" property="offerPriceTotal"/>
-	</resultMap>
-	
-	<resultMap id="ReviewResultMap" type="Review">
-		<id column="REVIEW_NO" property="reviewNo"/>
-		<result column="REVIEW_CONTENT" property="reviewContent"/>
-		<result column="REVIEW_CREATE_DATE" property="reviewCreateDate"/>
-		<result column="REVIEW_MODIFY_DATE" property="reviewModifyDate"/>
-		<result column="REVIEW_STATUS" property="reviewStatus"/>
-		<result column="MEMBER_NO" property="memberNo"/>
-		<result column="FLIGHT_OFFER_ID" property="flightOfferId"/>
-		<result column="MEMBER_NAME" property="memberName"/>
-	</resultMap>
-	
-	<!-- 가격 조회 -->
-	<resultMap id="PriceChangeResultMap" type="PriceChange">
-		<id column="FLIGHT_OFFER_DEPART_DATE" property="departDate"/>
-		<result column="DEPART_IATA_CODE" property="depart"/>
-		<result column="ARRIVE_IATA_CODE" property="arrive"/>
-		<result column="FLIGHT_OFFER_PRICE_TOTAL" property="price"/>
-	</resultMap>
+<mapper namespace="airlineList">
 
-  	
-	<select id="selectAirlineListPrice" parameterType="AirlineFilter" resultMap="AirlineListResultMap">
-	    /* 1. 가는 편 */
-	     SELECT
-	        al.AIRLINE_AIRLINE_NAME,
-	        f.FLIGHT_DEPART_DATE,
-	        f.FLIGHT_ARRIVE_DATE,
-	        f.FLIGHT_DURATION,
-	        f.FLIGHT_OFFER_ID,
-	        f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
-	        f.FLIGHT_SEGMENT_NO,
-	        dep.AIRPORT_CITY AS DEPART_CITY,
-	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
-	        arr.AIRPORT_CITY AS ARRIVE_CITY,
-	        arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
-	        offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
-	        offer.FLIGHT_OFFER_ONE_WAY,
-            offer.FLIGHT_OFFER_EXTRA_SEAT,
-            history.FLIGHT_OFFER_PRICE_TOTAL
-	    FROM TB_FLIGHT f
-	    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
-	    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
-	    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
-        JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	    WHERE f.DEPART_AIRPORT = #{depart}
-	      AND f.DEST_AIRPORT = #{arrive}
-	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{departDate}, 'YYYY-MM-DD')
-	      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
-	      AND f.FLIGHT_IS_DEL = 'N'
-	
-	
-	    UNION ALL
-	
-	
-	    /* 2. 오는 편 (나리타 -> 인천, 1/17) */
-	    SELECT
-	        al.AIRLINE_AIRLINE_NAME,
-	        f.FLIGHT_DEPART_DATE,
-	        f.FLIGHT_ARRIVE_DATE,
-	        f.FLIGHT_DURATION,
-	        f.FLIGHT_OFFER_ID,
-	        f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
-	        f.FLIGHT_SEGMENT_NO,
-	        dep.AIRPORT_CITY AS DEPART_CITY,
-	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
-	        arr.AIRPORT_CITY AS ARRIVE_CITY,
-	        arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
-	        offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
-	        offer.FLIGHT_OFFER_ONE_WAY,
-            offer.FLIGHT_OFFER_EXTRA_SEAT,
-            history.FLIGHT_OFFER_PRICE_TOTAL
-	    FROM TB_FLIGHT f
-	    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
-	    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
-	    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
-        JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	    WHERE f.DEPART_AIRPORT = #{arrive}   /* 출발/도착 반전 */
-	      AND f.DEST_AIRPORT = #{depart}    /* 출발/도착 반전 */
-	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{returnDate}, 'YYYY-MM-DD')
-	      AND f.FLIGHT_IS_DEL = 'N'
-	      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
-	    ORDER BY FLIGHT_OFFER_PRICE_TOTAL asc
-	</select>
-	
-	
-	<!-- 비행시간순 정렬 -->
-	<select id="selectAirlineListDuration" parameterType="AirlineFilter" resultMap="AirlineListResultMap">
-	    SELECT * FROM (
-	        /* 1. 가는 편 */
-	        SELECT
-	            al.AIRLINE_AIRLINE_NAME,
-	            f.FLIGHT_DEPART_DATE,
-	            f.FLIGHT_ARRIVE_DATE,
-	            f.FLIGHT_DURATION,
-	            f.FLIGHT_OFFER_ID,
-	            f.FLIGHT_SEGMENT_NO,
-	            dep.AIRPORT_CITY AS DEPART_CITY,
-	            dep.AIRPORT_IATA_CODE AS DEPART_CODE,
-	            arr.AIRPORT_CITY AS ARRIVE_CITY,
-	            arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
-	            offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
-	            offer.FLIGHT_OFFER_ONE_WAY,
-	            history.FLIGHT_OFFER_PRICE_TOTAL
-	        FROM TB_FLIGHT f
-	        JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
-	        JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
-	        JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	        JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
-	        JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	        WHERE f.DEPART_AIRPORT = #{depart}
-	          AND f.DEST_AIRPORT = #{arrive}
-	          AND TRUNC(f.FLIGHT_DEPART_DATE) = #{departDate}
-	          AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
-	          AND f.FLIGHT_IS_DEL = 'N'
-	
-	        UNION ALL
-	
-	        /* 2. 오는 편 */
-	        SELECT
-	            al.AIRLINE_AIRLINE_NAME,
-	            f.FLIGHT_DEPART_DATE,
-	            f.FLIGHT_ARRIVE_DATE,
-	            f.FLIGHT_DURATION,
-	            f.FLIGHT_OFFER_ID,
-	            f.FLIGHT_SEGMENT_NO,
-	            dep.AIRPORT_CITY AS DEPART_CITY,
-	            dep.AIRPORT_IATA_CODE AS DEPART_CODE,
-	            arr.AIRPORT_CITY AS ARRIVE_CITY,
-	            arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
-	            offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
-	            offer.FLIGHT_OFFER_ONE_WAY,
-	            history.FLIGHT_OFFER_PRICE_TOTAL
-	        FROM TB_FLIGHT f
-	        JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
-	        JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
-	        JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	        JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
-	        JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	        WHERE f.DEPART_AIRPORT = #{arrive}
-	          AND f.DEST_AIRPORT = #{depart}
-	          AND TRUNC(f.FLIGHT_DEPART_DATE) = #{returnDate}
-	          AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
-	          AND f.FLIGHT_IS_DEL = 'N'
-	    )
-	    ORDER BY
-	        /* ISO 8601 Duration(PT2H20M)을 숫자로 변환하여 정렬 */
-	        TO_NUMBER(NVL(REGEXP_SUBSTR(FLIGHT_DURATION, '(\d+)H', 1, 1, 'i', 1), 0)) * 60 +
-	        TO_NUMBER(NVL(REGEXP_SUBSTR(FLIGHT_DURATION, '(\d+)M', 1, 1, 'i', 1), 0)) ASC
-	</select>
-	
-	<!-- 늦은 출발순 -->
-	<select id="selectAirlineListLate" parameterType="AirlineFilter" resultMap="AirlineListResultMap">
-	    /* 1. 가는 편 */
-	     SELECT
-	        al.AIRLINE_AIRLINE_NAME,
-	        f.FLIGHT_DEPART_DATE,
-	        f.FLIGHT_ARRIVE_DATE,
-	        f.FLIGHT_DURATION,
-	        f.FLIGHT_OFFER_ID,
-	        f.FLIGHT_SEGMENT_NO,
-	        dep.AIRPORT_CITY AS DEPART_CITY,
-	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
-	        arr.AIRPORT_CITY AS ARRIVE_CITY,
-	        arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
-	        offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
-	        offer.FLIGHT_OFFER_ONE_WAY,
-            offer.FLIGHT_OFFER_EXTRA_SEAT,
-            history.FLIGHT_OFFER_PRICE_TOTAL
-	    FROM TB_FLIGHT f
-	    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
-	    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
-	    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
-        JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	    WHERE f.DEPART_AIRPORT = #{depart}
-	      AND f.DEST_AIRPORT = #{arrive}
-	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{departDate}, 'YYYY-MM-DD')
-	      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
-	      AND f.FLIGHT_IS_DEL = 'N'
-	
-	
-	    UNION ALL
-	
-	
-	    /* 2. 오는 편 (나리타 -> 인천, 1/17) */
-	    SELECT
-	        al.AIRLINE_AIRLINE_NAME,
-	        f.FLIGHT_DEPART_DATE,
-	        f.FLIGHT_ARRIVE_DATE,
-	        f.FLIGHT_DURATION,
-	        f.FLIGHT_OFFER_ID,
-	        f.FLIGHT_SEGMENT_NO,
-	        dep.AIRPORT_CITY AS DEPART_CITY,
-	        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
-	        arr.AIRPORT_CITY AS ARRIVE_CITY,
-	        arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
-	        offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
-	        offer.FLIGHT_OFFER_ONE_WAY,
-            offer.FLIGHT_OFFER_EXTRA_SEAT,
-            history.FLIGHT_OFFER_PRICE_TOTAL
-	    FROM TB_FLIGHT f
-	    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
-	    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
-	    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
-        JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	    WHERE f.DEPART_AIRPORT = #{arrive}   /* 출발/도착 반전 */
-	      AND f.DEST_AIRPORT = #{depart}    /* 출발/도착 반전 */
-	      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{returnDate}, 'YYYY-MM-DD')
-	      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
-	      AND f.FLIGHT_IS_DEL = 'N'
-	    ORDER BY FLIGHT_DEPART_DATE DESC
-	</select>
-	
-	
-	<!-- 주간 가격 정보 -->
-	<select id="selectWeeklyPrice" parameterType="AirlineFilter" resultMap="WeeklyPriceResultMap">
-	  SELECT
-	       TO_CHAR(FLIGHT_OFFER_DEPART_DATE, 'YYYY-MM-DD') AS DEPART_DATE,
-	       MIN(FLIGHT_OFFER_PRICE_TOTAL) AS TOTAL_PRICE
-	  FROM
-	       TB_FLIGHT_PRICE_HISTORY history
-	       JOIN TB_FLIGHT f ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
-	  WHERE FLIGHT_OFFER_ONE_WAY = #{tripType}
-	    AND DEPART_IATA_CODE = #{depart}
-	    AND ARRIVE_IATA_CODE = #{arrive}
-	    AND f.FLIGHT_IS_DEL = 'N'
-	    AND FLIGHT_OFFER_DEPART_DATE BETWEEN TO_DATE(#{departDate}, 'YYYY-MM-DD') -3
-	                                     AND TO_DATE(#{departDate}, 'YYYY-MM-DD') +4
-	  GROUP BY FLIGHT_OFFER_DEPART_DATE
-	</select>
-	
-	<!-- 리뷰 작성 -->
-	<insert id="writeReview" parameterType="Review">
-	    INSERT INTO TB_REVIEW (
-	        REVIEW_NO,
-	        REVIEW_CONTENT,
-	        REVIEW_CREATE_DATE,
-	        REVIEW_MODIFY_DATE,
-	        REVIEW_STATUS,
-	        MEMBER_NO,
-	        AIRLINE_ID
-	    ) VALUES (
-	        TB_REVIEW_SEQ.NEXTVAL,
-	        #{reviewContent},
-	        SYSDATE,
-	        SYSDATE,
-	        'N',
-	        #{memberNo},
-	        #{flightOfferId}
-	    )
-	</insert>
-	
-	<!-- 리뷰 조회 -->
-	<select id="selectReview" parameterType="_int" resultMap="ReviewResultMap">
-	    SELECT
-	        R.REVIEW_NO,
-	        R.REVIEW_CONTENT,
-	        R.REVIEW_CREATE_DATE,
-	        R.MEMBER_NO,
-	        M.MEMBER_NAME,
-	        offer.FLIGHT_OFFER_ID
-	    FROM TB_REVIEW R
-	    JOIN TB_MEMBER M ON R.MEMBER_NO = M.MEMBER_NO
-	    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = R.AIRLINE_ID
-	    WHERE R.AIRLINE_ID = #{flightOfferId}
-	      AND offer.FLIGHT_OFFER_IS_DEL = 'N'
-	      AND R.REVIEW_STATUS = 'N'
-    </select>
+  <resultMap id="AirlineListResultMap" type="AirlineListVo">
+    <id property="flightNumber" column="FLIGHT_NUMBER"/>
+    <result property="airlineName" column="AIRLINE_AIRLINE_NAME"/>
 
-	<!-- 리뷰 수정 -->
-	<update id="updateReview" parameterType="Review">
-		UPDATE TB_REVIEW
-		   SET REVIEW_CONTENT = #{reviewContent}
-		     , REVIEW_MODIFY_DATE = SYSDATE
-		 WHERE MEMBER_NO = #{memberNo}
-		   AND REVIEW_NO = #{reviewNo}
-		   AND AIRLINE_ID = #{flightOfferId}
-		   AND REVIEW_STATUS = 'N'
-	</update>
-	
-	<!-- 리뷰 삭제 -->
-	<update id="deleteReview" parameterType="Review">
-		UPDATE TB_REVIEW
-		   SET REVIEW_STATUS = 'Y'
-		 WHERE MEMBER_NO = #{memberNo}
-		   AND REVIEW_NO = #{reviewNo}
-		   AND AIRLINE_ID = #{flightOfferId}
-	</update>
+    <result property="departDate" column="FLIGHT_DEPART_DATE"/>
+    <result property="departCity" column="DEPART_CITY"/>
+    <result property="departAirportCode" column="DEPART_CODE"/>
 
-	<!-- 찜 여부 확인 -->
-	<select id="checkWish" parameterType="com.kh.triptype.airline.model.vo.WishList" resultType="int">
-	    SELECT COUNT(*)
-	      FROM TB_WISHLIST
-	     WHERE MEMBER_NO = #{memberNo}
-	       AND FLIGHT_OFFER_ID = #{flightOfferId}
-	</select>
-	
-	<!-- 찜 추가 -->
-	<insert id="insertWish" parameterType="com.kh.triptype.airline.model.vo.WishList">
-	    INSERT INTO TB_WISHLIST (
-	        MEMBER_NO,
-	        FLIGHT_OFFER_ID
-	    ) VALUES (
-	        #{memberNo},
-	        #{flightOfferId}
-	    )
-	</insert>
-	
-	<!-- 찜 삭제 -->
-	<delete id="deleteWish" parameterType="com.kh.triptype.airline.model.vo.WishList">
-	    DELETE
-	      FROM TB_WISHLIST
-	     WHERE MEMBER_NO = #{memberNo}
-	       AND FLIGHT_OFFER_ID = #{flightOfferId}
-	</delete>
-	
-	<!-- 가격 조회 -->
-	<select id="selectPrice" parameterType="PriceChange" resultMap="PriceChangeResultMap">
-		SELECT 
-		    FLIGHT_OFFER_DEPART_DATE AS FLIGHT_OFFER_DEPART_DATE,
-		    DEPART_IATA_CODE AS DEPART_IATA_CODE,
-		    ARRIVE_IATA_CODE AS ARRIVE_IATA_CODE,
-		    MIN(FLIGHT_OFFER_PRICE_TOTAL) AS FLIGHT_OFFER_PRICE_TOTAL
-		  FROM TB_FLIGHT_PRICE_HISTORY
-		 WHERE TRUNC(FLIGHT_OFFER_DEPART_DATE) BETWEEN 
-		        TO_DATE(#{departDate}, 'YYYY-MM-DD') - 3
-		        AND TO_DATE(#{departDate}, 'YYYY-MM-DD') + 4
-		        AND DEPART_IATA_CODE = #{depart}
-		        AND ARRIVE_IATA_CODE = #{arrive}
-                AND FLIGHT_OFFER_ONE_WAY = #{tripType}
-		 GROUP BY FLIGHT_OFFER_DEPART_DATE, DEPART_IATA_CODE, ARRIVE_IATA_CODE
-	</select>
-	
-  </mapper>
+    <result property="flightDuration" column="FLIGHT_DURATION"/>
+    <result property="tripType" column="FLIGHT_OFFER_ONE_WAY"/>
+
+    <result property="arriveDate" column="FLIGHT_ARRIVE_DATE"/>
+    <result property="arriveCity" column="ARRIVE_CITY"/>
+    <result property="arriveAirportCode" column="ARRIVE_CODE"/>
+
+    <result property="extraSeat" column="SEAT"/>
+    <result property="flightOfferId" column="FLIGHT_OFFER_ID"/>
+    <result property="totalPrice" column="FLIGHT_OFFER_PRICE_TOTAL"/>
+    <result property="flightSegmentNo" column="FLIGHT_SEGMENT_NO"/>
+  </resultMap>
+
+  <resultMap id="WeeklyPriceResultMap" type="WeeklyPrice">
+    <id column="DEPART_DATE" property="offerDepartDay"/>
+    <result column="TOTAL_PRICE" property="offerPriceTotal"/>
+  </resultMap>
+
+  <resultMap id="ReviewResultMap" type="Review">
+    <id column="REVIEW_NO" property="reviewNo"/>
+    <result column="REVIEW_CONTENT" property="reviewContent"/>
+    <result column="REVIEW_CREATE_DATE" property="reviewCreateDate"/>
+    <result column="REVIEW_MODIFY_DATE" property="reviewModifyDate"/>
+    <result column="REVIEW_STATUS" property="reviewStatus"/>
+    <result column="MEMBER_NO" property="memberNo"/>
+    <result column="FLIGHT_OFFER_ID" property="flightOfferId"/>
+    <result column="MEMBER_NAME" property="memberName"/>
+  </resultMap>
+
+  <!-- 가격 조회 -->
+  <resultMap id="PriceChangeResultMap" type="PriceChange">
+    <id column="FLIGHT_OFFER_DEPART_DATE" property="departDate"/>
+    <result column="DEPART_IATA_CODE" property="depart"/>
+    <result column="ARRIVE_IATA_CODE" property="arrive"/>
+    <result column="FLIGHT_OFFER_PRICE_TOTAL" property="price"/>
+  </resultMap>
+
+  <!-- =========================================================
+       ✅ (추가) offerId 상세 조회용
+       - AirlineDetail 새로고침/직접접근 fallback
+       - AirlineList(MULTI/ONEWAY)에서 segments 묶음 보여주기에도 사용 가능
+  ========================================================== -->
+
+  <!-- offerId에 속한 세그먼트(항공편) 전체 조회 (시간순 정렬) -->
+  <select id="selectOfferSegments" parameterType="_long" resultMap="AirlineListResultMap">
+    SELECT
+      al.AIRLINE_AIRLINE_NAME,
+      f.FLIGHT_DEPART_DATE,
+      f.FLIGHT_ARRIVE_DATE,
+      f.FLIGHT_DURATION,
+      f.FLIGHT_OFFER_ID,
+      f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
+      f.FLIGHT_SEGMENT_NO,
+      dep.AIRPORT_CITY AS DEPART_CITY,
+      dep.AIRPORT_IATA_CODE AS DEPART_CODE,
+      arr.AIRPORT_CITY AS ARRIVE_CITY,
+      arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
+      offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
+      offer.FLIGHT_OFFER_ONE_WAY,
+      history.FLIGHT_OFFER_PRICE_TOTAL
+    FROM TB_FLIGHT f
+    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
+    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
+    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
+    JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    WHERE f.FLIGHT_OFFER_ID = #{value}
+      AND f.FLIGHT_IS_DEL = 'N'
+    ORDER BY f.FLIGHT_DEPART_DATE ASC, f.FLIGHT_SEGMENT_NO ASC
+  </select>
+
+  <!-- offerId의 tripType(ONE_WAY) 조회: Y/N -->
+  <select id="selectOfferTripType" parameterType="_long" resultType="string">
+    SELECT offer.FLIGHT_OFFER_ONE_WAY
+      FROM TB_FLIGHT_OFFER offer
+     WHERE offer.FLIGHT_OFFER_ID = #{value}
+  </select>
+
+  <!-- =========================================================
+       기존 목록/정렬
+  ========================================================== -->
+
+  <select id="selectAirlineListPrice" parameterType="AirlineFilter" resultMap="AirlineListResultMap">
+    /* 1. 가는 편 */
+    SELECT
+      al.AIRLINE_AIRLINE_NAME,
+      f.FLIGHT_DEPART_DATE,
+      f.FLIGHT_ARRIVE_DATE,
+      f.FLIGHT_DURATION,
+      f.FLIGHT_OFFER_ID,
+      f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
+      f.FLIGHT_SEGMENT_NO,
+      dep.AIRPORT_CITY AS DEPART_CITY,
+      dep.AIRPORT_IATA_CODE AS DEPART_CODE,
+      arr.AIRPORT_CITY AS ARRIVE_CITY,
+      arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
+      offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
+      offer.FLIGHT_OFFER_ONE_WAY,
+      offer.FLIGHT_OFFER_EXTRA_SEAT,
+      history.FLIGHT_OFFER_PRICE_TOTAL
+    FROM TB_FLIGHT f
+    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
+    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
+    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
+    JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    WHERE f.DEPART_AIRPORT = #{depart}
+      AND f.DEST_AIRPORT = #{arrive}
+      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{departDate}, 'YYYY-MM-DD')
+      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
+      AND f.FLIGHT_IS_DEL = 'N'
+
+    UNION ALL
+
+    /* 2. 오는 편 */
+    SELECT
+      al.AIRLINE_AIRLINE_NAME,
+      f.FLIGHT_DEPART_DATE,
+      f.FLIGHT_ARRIVE_DATE,
+      f.FLIGHT_DURATION,
+      f.FLIGHT_OFFER_ID,
+      f.FLIGHT_NUMBER AS FLIGHT_NUMBER,
+      f.FLIGHT_SEGMENT_NO,
+      dep.AIRPORT_CITY AS DEPART_CITY,
+      dep.AIRPORT_IATA_CODE AS DEPART_CODE,
+      arr.AIRPORT_CITY AS ARRIVE_CITY,
+      arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
+      offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
+      offer.FLIGHT_OFFER_ONE_WAY,
+      offer.FLIGHT_OFFER_EXTRA_SEAT,
+      history.FLIGHT_OFFER_PRICE_TOTAL
+    FROM TB_FLIGHT f
+    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
+    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
+    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
+    JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    WHERE f.DEPART_AIRPORT = #{arrive}
+      AND f.DEST_AIRPORT = #{depart}
+      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{returnDate}, 'YYYY-MM-DD')
+      AND f.FLIGHT_IS_DEL = 'N'
+      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
+    ORDER BY FLIGHT_OFFER_PRICE_TOTAL ASC
+  </select>
+
+  <!-- 비행시간순 정렬 -->
+  <select id="selectAirlineListDuration" parameterType="AirlineFilter" resultMap="AirlineListResultMap">
+    SELECT * FROM (
+      /* 1. 가는 편 */
+      SELECT
+        al.AIRLINE_AIRLINE_NAME,
+        f.FLIGHT_DEPART_DATE,
+        f.FLIGHT_ARRIVE_DATE,
+        f.FLIGHT_DURATION,
+        f.FLIGHT_OFFER_ID,
+        f.FLIGHT_SEGMENT_NO,
+        dep.AIRPORT_CITY AS DEPART_CITY,
+        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
+        arr.AIRPORT_CITY AS ARRIVE_CITY,
+        arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
+        offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
+        offer.FLIGHT_OFFER_ONE_WAY,
+        history.FLIGHT_OFFER_PRICE_TOTAL
+      FROM TB_FLIGHT f
+      JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
+      JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
+      JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+      JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
+      JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+      WHERE f.DEPART_AIRPORT = #{depart}
+        AND f.DEST_AIRPORT = #{arrive}
+        AND TRUNC(f.FLIGHT_DEPART_DATE) = #{departDate}
+        AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
+        AND f.FLIGHT_IS_DEL = 'N'
+
+      UNION ALL
+
+      /* 2. 오는 편 */
+      SELECT
+        al.AIRLINE_AIRLINE_NAME,
+        f.FLIGHT_DEPART_DATE,
+        f.FLIGHT_ARRIVE_DATE,
+        f.FLIGHT_DURATION,
+        f.FLIGHT_OFFER_ID,
+        f.FLIGHT_SEGMENT_NO,
+        dep.AIRPORT_CITY AS DEPART_CITY,
+        dep.AIRPORT_IATA_CODE AS DEPART_CODE,
+        arr.AIRPORT_CITY AS ARRIVE_CITY,
+        arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
+        offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
+        offer.FLIGHT_OFFER_ONE_WAY,
+        history.FLIGHT_OFFER_PRICE_TOTAL
+      FROM TB_FLIGHT f
+      JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
+      JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
+      JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+      JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
+      JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+      WHERE f.DEPART_AIRPORT = #{arrive}
+        AND f.DEST_AIRPORT = #{depart}
+        AND TRUNC(f.FLIGHT_DEPART_DATE) = #{returnDate}
+        AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
+        AND f.FLIGHT_IS_DEL = 'N'
+    )
+    ORDER BY
+      TO_NUMBER(NVL(REGEXP_SUBSTR(FLIGHT_DURATION, '(\d+)H', 1, 1, 'i', 1), 0)) * 60 +
+      TO_NUMBER(NVL(REGEXP_SUBSTR(FLIGHT_DURATION, '(\d+)M', 1, 1, 'i', 1), 0)) ASC
+  </select>
+
+  <!-- 늦은 출발순 -->
+  <select id="selectAirlineListLate" parameterType="AirlineFilter" resultMap="AirlineListResultMap">
+    /* 1. 가는 편 */
+    SELECT
+      al.AIRLINE_AIRLINE_NAME,
+      f.FLIGHT_DEPART_DATE,
+      f.FLIGHT_ARRIVE_DATE,
+      f.FLIGHT_DURATION,
+      f.FLIGHT_OFFER_ID,
+      f.FLIGHT_SEGMENT_NO,
+      dep.AIRPORT_CITY AS DEPART_CITY,
+      dep.AIRPORT_IATA_CODE AS DEPART_CODE,
+      arr.AIRPORT_CITY AS ARRIVE_CITY,
+      arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
+      offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
+      offer.FLIGHT_OFFER_ONE_WAY,
+      offer.FLIGHT_OFFER_EXTRA_SEAT,
+      history.FLIGHT_OFFER_PRICE_TOTAL
+    FROM TB_FLIGHT f
+    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
+    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
+    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
+    JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    WHERE f.DEPART_AIRPORT = #{depart}
+      AND f.DEST_AIRPORT = #{arrive}
+      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{departDate}, 'YYYY-MM-DD')
+      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
+      AND f.FLIGHT_IS_DEL = 'N'
+
+    UNION ALL
+
+    /* 2. 오는 편 */
+    SELECT
+      al.AIRLINE_AIRLINE_NAME,
+      f.FLIGHT_DEPART_DATE,
+      f.FLIGHT_ARRIVE_DATE,
+      f.FLIGHT_DURATION,
+      f.FLIGHT_OFFER_ID,
+      f.FLIGHT_SEGMENT_NO,
+      dep.AIRPORT_CITY AS DEPART_CITY,
+      dep.AIRPORT_IATA_CODE AS DEPART_CODE,
+      arr.AIRPORT_CITY AS ARRIVE_CITY,
+      arr.AIRPORT_IATA_CODE AS ARRIVE_CODE,
+      offer.FLIGHT_OFFER_EXTRA_SEAT AS SEAT,
+      offer.FLIGHT_OFFER_ONE_WAY,
+      offer.FLIGHT_OFFER_EXTRA_SEAT,
+      history.FLIGHT_OFFER_PRICE_TOTAL
+    FROM TB_FLIGHT f
+    JOIN TB_AIRPORT dep ON f.DEPART_AIRPORT = dep.AIRPORT_IATA_CODE
+    JOIN TB_AIRPORT arr ON f.DEST_AIRPORT = arr.AIRPORT_IATA_CODE
+    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    JOIN TB_AIRLINE al ON al.AIRLINE_ID = f.OPER_AIRLINE_ID
+    JOIN TB_FLIGHT_PRICE_HISTORY history ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    WHERE f.DEPART_AIRPORT = #{arrive}
+      AND f.DEST_AIRPORT = #{depart}
+      AND TRUNC(f.FLIGHT_DEPART_DATE) = TO_DATE(#{returnDate}, 'YYYY-MM-DD')
+      AND offer.FLIGHT_OFFER_ONE_WAY = #{tripType}
+      AND f.FLIGHT_IS_DEL = 'N'
+    ORDER BY FLIGHT_DEPART_DATE DESC
+  </select>
+
+  <!-- 주간 가격 정보 -->
+  <select id="selectWeeklyPrice" parameterType="AirlineFilter" resultMap="WeeklyPriceResultMap">
+    SELECT
+      TO_CHAR(FLIGHT_OFFER_DEPART_DATE, 'YYYY-MM-DD') AS DEPART_DATE,
+      MIN(FLIGHT_OFFER_PRICE_TOTAL) AS TOTAL_PRICE
+    FROM TB_FLIGHT_PRICE_HISTORY history
+    JOIN TB_FLIGHT f ON history.FLIGHT_OFFER_ID = f.FLIGHT_OFFER_ID
+    WHERE FLIGHT_OFFER_ONE_WAY = #{tripType}
+      AND DEPART_IATA_CODE = #{depart}
+      AND ARRIVE_IATA_CODE = #{arrive}
+      AND f.FLIGHT_IS_DEL = 'N'
+      AND FLIGHT_OFFER_DEPART_DATE BETWEEN TO_DATE(#{departDate}, 'YYYY-MM-DD') - 3
+                                      AND TO_DATE(#{departDate}, 'YYYY-MM-DD') + 4
+    GROUP BY FLIGHT_OFFER_DEPART_DATE
+  </select>
+
+  <!-- 리뷰 작성 -->
+  <insert id="writeReview" parameterType="Review">
+    INSERT INTO TB_REVIEW (
+      REVIEW_NO,
+      REVIEW_CONTENT,
+      REVIEW_CREATE_DATE,
+      REVIEW_MODIFY_DATE,
+      REVIEW_STATUS,
+      MEMBER_NO,
+      AIRLINE_ID
+    ) VALUES (
+      TB_REVIEW_SEQ.NEXTVAL,
+      #{reviewContent},
+      SYSDATE,
+      SYSDATE,
+      'N',
+      #{memberNo},
+      #{flightOfferId}
+    )
+  </insert>
+
+  <!-- 리뷰 조회 -->
+  <select id="selectReview" parameterType="_int" resultMap="ReviewResultMap">
+    SELECT
+      R.REVIEW_NO,
+      R.REVIEW_CONTENT,
+      R.REVIEW_CREATE_DATE,
+      R.MEMBER_NO,
+      M.MEMBER_NAME,
+      offer.FLIGHT_OFFER_ID
+    FROM TB_REVIEW R
+    JOIN TB_MEMBER M ON R.MEMBER_NO = M.MEMBER_NO
+    JOIN TB_FLIGHT_OFFER offer ON offer.FLIGHT_OFFER_ID = R.AIRLINE_ID
+    WHERE R.AIRLINE_ID = #{flightOfferId}
+      AND offer.FLIGHT_OFFER_IS_DEL = 'N'
+      AND R.REVIEW_STATUS = 'N'
+  </select>
+
+  <!-- 리뷰 수정 -->
+  <update id="updateReview" parameterType="Review">
+    UPDATE TB_REVIEW
+       SET REVIEW_CONTENT = #{reviewContent},
+           REVIEW_MODIFY_DATE = SYSDATE
+     WHERE MEMBER_NO = #{memberNo}
+       AND REVIEW_NO = #{reviewNo}
+       AND AIRLINE_ID = #{flightOfferId}
+       AND REVIEW_STATUS = 'N'
+  </update>
+
+  <!-- 리뷰 삭제 -->
+  <update id="deleteReview" parameterType="Review">
+    UPDATE TB_REVIEW
+       SET REVIEW_STATUS = 'Y'
+     WHERE MEMBER_NO = #{memberNo}
+       AND REVIEW_NO = #{reviewNo}
+       AND AIRLINE_ID = #{flightOfferId}
+  </update>
+
+  <!-- 찜 여부 확인 -->
+  <select id="checkWish" parameterType="com.kh.triptype.airline.model.vo.WishList" resultType="int">
+    SELECT COUNT(*)
+      FROM TB_WISHLIST
+     WHERE MEMBER_NO = #{memberNo}
+       AND FLIGHT_OFFER_ID = #{flightOfferId}
+  </select>
+
+  <!-- 찜 추가 -->
+  <insert id="insertWish" parameterType="com.kh.triptype.airline.model.vo.WishList">
+    INSERT INTO TB_WISHLIST (
+      MEMBER_NO,
+      FLIGHT_OFFER_ID
+    ) VALUES (
+      #{memberNo},
+      #{flightOfferId}
+    )
+  </insert>
+
+  <!-- 찜 삭제 -->
+  <delete id="deleteWish" parameterType="com.kh.triptype.airline.model.vo.WishList">
+    DELETE
+      FROM TB_WISHLIST
+     WHERE MEMBER_NO = #{memberNo}
+       AND FLIGHT_OFFER_ID = #{flightOfferId}
+  </delete>
+
+  <!-- 가격 조회 -->
+  <select id="selectPrice" parameterType="PriceChange" resultMap="PriceChangeResultMap">
+    SELECT
+      TRUNC(FLIGHT_OFFER_DEPART_DATE) AS FLIGHT_OFFER_DEPART_DATE,
+      DEPART_IATA_CODE AS DEPART_IATA_CODE,
+      ARRIVE_IATA_CODE AS ARRIVE_IATA_CODE,
+      MIN(FLIGHT_OFFER_PRICE_TOTAL) AS FLIGHT_OFFER_PRICE_TOTAL
+    FROM TB_FLIGHT_PRICE_HISTORY
+    WHERE TRUNC(FLIGHT_OFFER_DEPART_DATE) BETWEEN
+          TO_DATE(#{departDate}, 'YYYY-MM-DD') - 3
+          AND TO_DATE(#{departDate}, 'YYYY-MM-DD') + 4
+      AND DEPART_IATA_CODE = #{depart}
+      AND ARRIVE_IATA_CODE = #{arrive}
+      AND FLIGHT_OFFER_ONE_WAY = #{tripType}
+    GROUP BY TRUNC(FLIGHT_OFFER_DEPART_DATE), DEPART_IATA_CODE, ARRIVE_IATA_CODE
+  </select>
+
+</mapper>

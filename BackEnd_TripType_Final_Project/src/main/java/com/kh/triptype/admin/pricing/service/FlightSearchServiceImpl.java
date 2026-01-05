@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -108,29 +109,52 @@ public class FlightSearchServiceImpl implements FlightSearchService {
 
         validateRequest(request);
 
-        // searchId 생성
         String searchId = UUID.randomUUID().toString();
         SearchJob job = new SearchJob();
         jobStore.put(searchId, job);
 
-        // 백그라운드 실행 (Spring @Async 없이도 동작)
+        System.out.println("🟦[startSearchAsync] CREATED searchId=" + searchId
+                + " tripType=" + request.getTripType()
+                + " depart=" + request.getDepart()
+                + " arrive=" + request.getArrive()
+                + " departDate=" + request.getDepartDate()
+                + " returnDate=" + request.getReturnDate()
+                + " adults=" + request.getAdultCount()
+                + " minors=" + request.getMinorCount());
+
         java.util.concurrent.CompletableFuture.runAsync(() -> {
+            long t0 = System.currentTimeMillis();
+            System.out.println("🟨[JOB START] searchId=" + searchId
+                    + " thread=" + Thread.currentThread().getName());
+
             try {
                 List<AirlineListVo> list = searchFlightsForList(request);
+
                 job.result = (list == null) ? new ArrayList<>() : list;
                 job.status = JobStatus.DONE;
+
+                System.out.println("🟩[JOB DONE] searchId=" + searchId
+                        + " ms=" + (System.currentTimeMillis() - t0)
+                        + " resultSize=" + job.result.size());
+
             } catch (Exception e) {
-                job.errorMessage = e.getMessage();
+                job.errorMessage = e.getClass().getSimpleName() + ": " + e.getMessage();
                 job.status = JobStatus.ERROR;
+
+                System.out.println("🟥[JOB ERROR] searchId=" + searchId
+                        + " ms=" + (System.currentTimeMillis() - t0)
+                        + " msg=" + job.errorMessage);
+
                 e.printStackTrace();
             }
         });
 
-        // 오래된 job 정리 (간단 정리: 30분 초과 삭제)
         cleanupOldJobs(30 * 60 * 1000L);
 
+        System.out.println("🟦[startSearchAsync] RETURN searchId=" + searchId);
         return searchId;
     }
+
 
     /**
      * ✅ 신규: searchId로 결과 조회
@@ -147,21 +171,23 @@ public class FlightSearchServiceImpl implements FlightSearchService {
 
         SearchJob job = jobStore.get(searchId);
 
-        // ✅✅ [수정] invalid라도 예외 던지지 말고 PENDING 취급
         if (job == null) {
-            return null; // 컨트롤러가 202(PENDING)로 응답하게 됨
+            System.out.println("❗[getSearchResult] jobStore MISS searchId=" + searchId
+                    + " (서버 재시작/만료/유실이면 무한 PENDING 원인)");
+            return null;
         }
 
-        if (job.status == JobStatus.PENDING) {
-            return null; // 아직 준비 안 됨
-        }
+        System.out.println("🔎[getSearchResult] searchId=" + searchId
+                + " status=" + job.status
+                + " resultSize=" + (job.result == null ? -1 : job.result.size())
+                + " err=" + job.errorMessage);
 
-        if (job.status == JobStatus.ERROR) {
-            throw new IllegalStateException("Search failed: " + job.errorMessage);
-        }
+        if (job.status == JobStatus.PENDING) return null;
+        if (job.status == JobStatus.ERROR) throw new IllegalStateException("Search failed: " + job.errorMessage);
 
         return job.result == null ? new ArrayList<>() : job.result;
     }
+
 
     private void cleanupOldJobs(long ttlMillis) {
         long now = System.currentTimeMillis();
@@ -320,6 +346,7 @@ public class FlightSearchServiceImpl implements FlightSearchService {
 
         Long memberNo = resolveMemberNo(request);
 
+        System.out.println("✅ STEP1 BEFORE: insertSearchHistory");
         flightSearchHistoryDao.insertSearchHistory(
                 sqlSession,
                 FlightSearchHistoryVo.builder()
@@ -342,19 +369,114 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                         .memberNo(memberNo)
                         .build()
         );
+        System.out.println("✅ STEP1 AFTER: insertSearchHistory");
 
         if ("MULTI".equals(request.getTripType())) {
-            System.out.println("⚠️ MULTI 요청: 현재 searchFlightsForList는 단일/왕복 렌더 기준");
-            try {
-                searchFlights(request);
-            } catch (Exception e) {
-                System.out.println("❌ MULTI fallback(searchFlights) 실패: " + e.getMessage());
+
+            System.out.println("✅ MULTI 요청: 렌더 리스트를 legs별이 아니라 '여정' 단위로 생성");
+
+            List<AirlineListVo> renderList = new ArrayList<>();
+            String token = issueAccessToken();
+
+            if (request.getSegments() == null || request.getSegments().isEmpty()) {
+                System.out.println("❌ MULTI인데 segments가 비어있음");
+                return new ArrayList<>();
             }
-            return new ArrayList<>();
+
+            // 1) 각 leg의 offers를 미리 모은다
+            List<List<AmadeusFlightOfferDto>> offersByLeg = new ArrayList<>();
+
+            for (FlightSegmentDto seg : request.getSegments()) {
+                FlightSearchRequestDto legReq = buildLegRequest(request, seg);
+
+                List<AmadeusFlightOfferDto> offers = callSingleFlightApi(token, legReq);
+                if (offers == null) offers = new ArrayList<>();
+
+                offersByLeg.add(offers);
+            }
+
+            // 2) leg들 중 가장 적은 offers 개수까지만 묶어서 '여정' 만든다 (조합 폭발 방지)
+            int minOffers = offersByLeg.stream().mapToInt(List::size).min().orElse(0);
+
+            // offers가 하나도 없으면 빈 결과
+            if (minOffers == 0) {
+                System.out.println("❌ MULTI: 묶을 offers가 없음");
+                return new ArrayList<>();
+            }
+
+            // 3) i번째 offer끼리 묶어서 여정 생성
+            for (int i = 0; i < minOffers; i++) {
+
+                // synthetic offerId (프론트 grouping용) - 음수로 만들어 DB offerId와 충돌 방지
+                int syntheticOfferId = -(i + 1);
+
+                List<FlightVo> journeyFlights = new ArrayList<>();
+                BigDecimal journeyTotal = BigDecimal.ZERO;
+
+                for (int legIndex = 0; legIndex < offersByLeg.size(); legIndex++) {
+
+                    FlightSegmentDto seg = request.getSegments().get(legIndex);
+                    FlightSearchRequestDto legReq = buildLegRequest(request, seg);
+
+                    AmadeusFlightOfferDto offer = offersByLeg.get(legIndex).get(i);
+
+                    ParsedOfferDto parsed = parseOfferToFlights(offer);
+                    if (parsed.getFlights() == null || parsed.getFlights().isEmpty()) continue;
+
+                    // price 합산
+                    if (parsed.getTotalPrice() != null) {
+                        journeyTotal = journeyTotal.add(parsed.getTotalPrice());
+                    }
+
+                    // ✅ 중요: 같은 여정으로 묶이게 flightOfferId 강제 세팅
+                    for (FlightVo f : parsed.getFlights()) {
+                        f.setFlightOfferId(syntheticOfferId);
+                    }
+
+                    journeyFlights.addAll(parsed.getFlights());
+                }
+
+                // 여정 flights가 비었으면 스킵
+                if (journeyFlights.isEmpty()) continue;
+
+                // 4) 렌더용 rows 생성 (totalPrice는 합계로 덮어씀)
+                ParsedOfferDto fakeParsed = ParsedOfferDto.builder()
+                        .flights(journeyFlights)
+                        .totalPrice(journeyTotal)
+                        .currency("KRW") // 필요 시 실제 currency 처리
+                        .build();
+
+                // legReq는 의미 없으니 request로 넣되 tripType만 MULTI 유지
+                List<AirlineListVo> rows = toAirlineListRows(journeyFlights, fakeParsed, request);
+
+                // ✅ rows에도 동일 offerId/합계 가격이 들어가야 grouping이 됨
+                for (AirlineListVo r : rows) {
+                    r.setFlightOfferId(syntheticOfferId);
+                    r.setTotalPrice(journeyTotal.doubleValue());
+                    r.setTripType("MULTI");
+                }
+
+                renderList.addAll(rows);
+            }
+
+            // DB 적재는 기존대로 (원하면 유지)
+            try {
+                System.out.println("👉 MULTI DB 적재(searchFlights) 시작");
+                searchFlights(request);
+                System.out.println("👉 MULTI DB 적재(searchFlights) 완료");
+            } catch (Exception e) {
+                System.out.println("❌ MULTI DB 적재(searchFlights) 실패: " + e.getMessage());
+            }
+
+            System.out.println("✅ MULTI renderList count=" + renderList.size());
+            return renderList;
         }
 
+
+        System.out.println("✅ STEP2 BEFORE: selectRecentSearchCache");
         List<FlightSearchCacheVo> cached =
                 flightPriceHistoryDao.selectRecentSearchCache(sqlSession, request);
+        System.out.println("✅ STEP2 AFTER: selectRecentSearchCache size=" + (cached == null ? -1 : cached.size()));
 
         if (cached != null && !cached.isEmpty()) {
 
@@ -387,8 +509,13 @@ public class FlightSearchServiceImpl implements FlightSearchService {
             return list;
         }
 
+        System.out.println("✅ STEP3 BEFORE: issueAccessToken");
         String token = issueAccessToken();
+        System.out.println("✅ STEP3 AFTER: issueAccessToken tokenLen=" + (token == null ? -1 : token.length()));
+
+        System.out.println("✅ STEP4 BEFORE: callSingleFlightApi");
         List<AmadeusFlightOfferDto> offers = callSingleFlightApi(token, request);
+        System.out.println("✅ STEP4 AFTER: callSingleFlightApi offers=" + (offers == null ? -1 : offers.size()));
 
         if (offers == null || offers.isEmpty()) {
             System.out.println("✅ API 결과 없음");
@@ -479,13 +606,29 @@ public class FlightSearchServiceImpl implements FlightSearchService {
                 continue;
             }
 
-            List<AmadeusFlightOfferDto> offers =
-                    callSingleFlightApi(token, legReq);
+            List<AmadeusFlightOfferDto> offers;
+
+            try {
+                offers = callSingleFlightApi(token, legReq);
+            } catch (Exception e) {
+                System.out.println("❌ [MULTI LEG FAIL] "
+                        + legReq.getDepart() + "->" + legReq.getArrive()
+                        + " date=" + legReq.getDepartDate()
+                        + " msg=" + e.getMessage());
+                continue; // ✅ 이 leg는 스킵하고 다음 leg로
+            }
+
+            if (offers == null || offers.isEmpty()) {
+                System.out.println("⚠️ [MULTI LEG EMPTY] "
+                        + legReq.getDepart() + "->" + legReq.getArrive()
+                        + " date=" + legReq.getDepartDate());
+                continue;
+            }
 
             for (AmadeusFlightOfferDto offer : offers) {
 
                 ParsedOfferDto parsed = parseOfferToFlights(offer);
-                if (parsed.getFlights().isEmpty()) continue;
+                if (parsed.getFlights() == null || parsed.getFlights().isEmpty()) continue;
 
                 int repAirlineId = resolveRepresentativeAirlineId(parsed.getFlights());
 
@@ -567,13 +710,16 @@ public class FlightSearchServiceImpl implements FlightSearchService {
             String accessToken,
             FlightSearchRequestDto request) {
 
+        String origin = request.getDepart() == null ? null : request.getDepart().trim().toUpperCase();
+        String dest   = request.getArrive() == null ? null : request.getArrive().trim().toUpperCase();
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
         UriComponentsBuilder uri =
                 UriComponentsBuilder.fromUriString(AMADEUS_FLIGHT_OFFERS_URL)
-                        .queryParam("originLocationCode", request.getDepart())
-                        .queryParam("destinationLocationCode", request.getArrive())
+                        .queryParam("originLocationCode", origin)
+                        .queryParam("destinationLocationCode", dest)
                         .queryParam("departureDate", request.getDepartDate())
                         .queryParam("adults", request.getAdultCount())
                         .queryParam("max", 20);
@@ -582,19 +728,40 @@ public class FlightSearchServiceImpl implements FlightSearchService {
             uri.queryParam("returnDate", request.getReturnDate());
         }
 
-        ResponseEntity<Map> response =
-                restTemplate.exchange(
-                        uri.toUriString(),
-                        HttpMethod.GET,
-                        new HttpEntity<>(headers),
-                        Map.class
-                );
+        String url = uri.toUriString();
+        System.out.println("🌐[AMADEUS REQ] " + url);
 
-        return objectMapper.convertValue(
-                response.getBody().get("data"),
-                new TypeReference<List<AmadeusFlightOfferDto>>() {}
-        );
+        try {
+            ResponseEntity<Map> response =
+                    restTemplate.exchange(
+                            url,
+                            HttpMethod.GET,
+                            new HttpEntity<>(headers),
+                            Map.class
+                    );
+
+            System.out.println("🌐[AMADEUS RES] status=" + response.getStatusCode());
+
+            Object data = response.getBody() == null ? null : response.getBody().get("data");
+            if (data == null) {
+                System.out.println("🌐[AMADEUS RES] data is null, bodyKeys="
+                        + (response.getBody() == null ? "null" : response.getBody().keySet()));
+                return new ArrayList<>();
+            }
+
+            List<AmadeusFlightOfferDto> list =
+                    objectMapper.convertValue(data, new TypeReference<List<AmadeusFlightOfferDto>>() {});
+            System.out.println("🌐[AMADEUS RES] offers=" + (list == null ? -1 : list.size()));
+
+            return list == null ? new ArrayList<>() : list;
+
+        } catch (RestClientResponseException e) {
+            System.out.println("🟥[AMADEUS ERROR] status=" + e.getRawStatusCode());
+            System.out.println("🟥[AMADEUS ERROR] body=" + e.getResponseBodyAsString());
+            throw e;
+        }
     }
+
 
     /* ===================== 파싱 / util ===================== */
 
@@ -754,7 +921,8 @@ public class FlightSearchServiceImpl implements FlightSearchService {
             row.setArriveCity(null);
 
             row.setExtraSeat(safeInt(request.getAdultCount()) + safeInt(request.getMinorCount()));
-            row.setFlightOfferId(f.getFlightOfferId());
+            Integer offerId = f.getFlightOfferId(); // null 가능
+            row.setFlightOfferId(offerId);          // AirlineListVo가 Integer면 OK
             row.setTotalPrice(totalPrice);
 
             rows.add(row);

@@ -4,13 +4,12 @@ import AlertChartListComponent from "./AlertChartListComponent.jsx";
 import AirlineModalComponent from "./AirlineModalComponent.jsx";
 import WeekPriceList from "./WeekPriceListComponent.jsx";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const AirlineListComponent = () => {
-
   const navigate = useNavigate();
   const locationState = useLocation().state || {};
   const { searchParams, res, searchId } = locationState;
@@ -18,14 +17,17 @@ const AirlineListComponent = () => {
   // State
   const [selectedPair, setSelectedPair] = useState(null);
   const [open, setOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState(0); 
+  const [activeFilter, setActiveFilter] = useState(0);
   const [activeTransit, setActiveTransit] = useState([]);
   const [departureTime, setDepartureTime] = useState(1440);
-  const [airlineStatus, setAirlineStatus] = useState(null); // 선택된 항공사 명
-  const [outboundList, setOutboundList] = useState([]);
+  const [airlineStatus, setAirlineStatus] = useState(null);
+  const [outboundList, setOutboundList] = useState([]); // ONEWAY + MULTI (outbound=첫 구간)
   const [roundList, setRoundList] = useState([]);
   const [result, setResult] = useState(0);
-  const [airline, setAirline] = useState([]); // 항공사 버튼 목록용
+  const [airline, setAirline] = useState([]);
+
+  // ✅ 추천/인기노선처럼 searchId 없이 들어온 경우 대비
+  const [runtimeSearchId, setRuntimeSearchId] = useState(searchId || null);
 
   // Ref (Polling 관리)
   const pollTimerRef = useRef(null);
@@ -34,32 +36,54 @@ const AirlineListComponent = () => {
   // 상수 데이터
   const filterList = ["최저가", "비행시간순", "늦은출발"];
   const transitList = ["직항", "1회 경유", "2회 이상"];
-  const sortType = activeFilter === 0 ? "PRICE" : activeFilter === 1 ? "DURATION" : "LATE";
+  const sortType =
+    activeFilter === 0 ? "PRICE" : activeFilter === 1 ? "DURATION" : "LATE";
 
   // 모달 열기 함수
-  const handleOpenModal = (pair) => {
-    setSelectedPair(pair);
+  const handleOpenModal = (item) => {
+    const normalized = {
+      outbound: item?.outbound || item?.segments?.[0] || null,
+      inbound: item?.inbound || null,
+      segments: item?.segments || null,
+      // ✅ 0도 유효하므로 || 체인은 위험 -> nullish 병합으로 처리
+      flightOfferId:
+        item?.flightOfferId ??
+        item?.outbound?.flightOfferId ??
+        item?.inbound?.flightOfferId ??
+        null,
+      tripType: searchParams?.tripType,
+    };
+    setSelectedPair(normalized);
     setOpen(true);
   };
 
-
-
-  const matchTransit = (segment) => {
-    if (!segment || segment.flightSegmentNo === undefined) return false;
-
-    // 아무 것도 선택 안 했으면 전체 허용 (초기 상태)
+  // ✅ MULTI도 경유 필터가 말이 되게 item.segments 길이를 우선 사용
+  const matchTransit = (itemOrSegment) => {
+    // 아무 것도 선택 안 했으면 전체 허용
     if (activeTransit.length === 0) return true;
 
-    const count = segment.flightSegmentNo;
-    const selected = activeTransit[0]; // 어차피 하나만 들어있음
+    const selected = activeTransit[0];
 
+    // MULTI(또는 segments가 있는 경우): stops = segments.length - 1
+    const segs = itemOrSegment?.segments;
+    if (Array.isArray(segs) && segs.length > 0) {
+      const stops = Math.max(segs.length - 1, 0);
+      if (selected === "직항") return stops === 0;
+      if (selected === "1회 경유") return stops === 1;
+      if (selected === "2회 이상") return stops >= 2;
+      return true;
+    }
+
+    // 기존: segment.flightSegmentNo를 경유 횟수로 쓰는 케이스
+    const segment = itemOrSegment;
+    if (!segment || segment.flightSegmentNo === undefined) return false;
+
+    const count = segment.flightSegmentNo;
     if (selected === "직항") return count === 0;
     if (selected === "1회 경유") return count === 1;
     if (selected === "2회 이상") return count >= 2;
-
     return true;
   };
-
 
   const getDepartMinutes = (dateString) => {
     if (!dateString) return 0;
@@ -67,106 +91,251 @@ const AirlineListComponent = () => {
     return date.getHours() * 60 + date.getMinutes();
   };
 
-
-
-
-
   /* =========================================================
       ✅ 데이터 가공 및 상태 업데이트
+      - ROUND: {outbound, inbound}
+      - ONEWAY: {outbound, segments?} (경유면 segments > 1 가능)
+      - MULTI: {outbound(첫구간), segments[]}
   ========================================================= */
-  const applyFlights = (allFlights) => {
-    console.log("✅ applyFlights 데이터 수신:", allFlights?.length, "건");
+  const applyFlights = useCallback(
+    (allFlights) => {
+      console.log("✅ applyFlights 데이터 수신:", allFlights?.length, "건");
 
-    if (!Array.isArray(allFlights) || allFlights.length === 0) {
-      setAirline([]);
-      setResult(0);
-      return;
-    }
-
-    // 1. 항공사 목록 추출 (과거 코드 방식 + 방어 로직)
-    // 항공사 목록 업데이트
-    const airlines = Array.from(
-      new Set(allFlights.map((f) => f.airlineName).filter(Boolean))
-    );
-    setAirline(airlines);
-
-    // 2. 왕복 데이터를 위한 그룹화
-    const pairedMap = new Map();
-    allFlights.forEach((flight) => {
-      const id = flight.flightOfferId;
-      if (!pairedMap.has(id)) {
-        pairedMap.set(id, { outbound: null, inbound: null });
+      if (!Array.isArray(allFlights) || allFlights.length === 0) {
+        setAirline([]);
+        setResult(0);
+        setRoundList([]);
+        setOutboundList([]);
+        return;
       }
 
-      const current = pairedMap.get(id);
-      if (flight.departAirportCode === searchParams?.depart) {
-        current.outbound = flight;
-      } else {
-        current.inbound = flight;
+      // 1) 항공사 목록
+      const airlines = Array.from(
+        new Set(allFlights.map((f) => f.airlineName).filter(Boolean))
+      );
+      setAirline(airlines);
+
+      // 2) offerId로 그룹 (✅ 0은 유효, null/undefined만 제외)
+      const offerMap = new Map();
+      allFlights.forEach((f) => {
+        const id = f.flightOfferId;
+
+        // ✅ 핵심 수정: 0은 버리면 안 됨
+        if (id === null || id === undefined) return;
+
+        if (!offerMap.has(id)) offerMap.set(id, []);
+        offerMap.get(id).push(f);
+      });
+
+      const sortByDepartAsc = (arr) =>
+        arr
+          .slice()
+          .sort((a, b) => new Date(a.departDate) - new Date(b.departDate));
+
+      const parseISOToMin = (iso) => {
+        if (!iso) return 0;
+        const h = iso.match(/(\d+)H/) ? parseInt(iso.match(/(\d+)H/)[1]) : 0;
+        const m = iso.match(/(\d+)M/) ? parseInt(iso.match(/(\d+)M/)[1]) : 0;
+        return h * 60 + m;
+      };
+
+      // 3) tripType별 가공
+      if (searchParams?.tripType === "ROUND") {
+        const pairedArray = [];
+
+        offerMap.forEach((flights, offerId) => {
+          const sorted = sortByDepartAsc(flights);
+
+          let outbound = null;
+          let inbound = null;
+
+          sorted.forEach((flight) => {
+            if (flight.departAirportCode === searchParams?.depart) outbound = flight;
+            else inbound = flight;
+          });
+
+          pairedArray.push({ outbound, inbound, flightOfferId: offerId });
+        });
+
+        // 정렬
+        if (sortType === "DURATION") {
+          pairedArray.sort(
+            (a, b) =>
+              parseISOToMin(a.outbound?.flightDuration) -
+              parseISOToMin(b.outbound?.flightDuration)
+          );
+        } else if (sortType === "LATE") {
+          pairedArray.sort(
+            (a, b) =>
+              new Date(b.outbound?.departDate) - new Date(a.outbound?.departDate)
+          );
+        }
+
+        setRoundList(pairedArray);
+        setOutboundList([]);
+        setResult(pairedArray.length);
+        return;
       }
-    });
 
-    let pairedArray = Array.from(pairedMap.values());
+      // ✅ MULTI / ONEWAY: outbound=첫 구간, segments=전체 구간(오름차순)
+      const list = [];
+      offerMap.forEach((flights, offerId) => {
+        const segments = sortByDepartAsc(flights);
+        const outbound = segments[0] || null;
 
-    // 3. 정렬 로직
-    const parseISOToMin = (iso) => {
-      if (!iso) return 0;
-      const hours = iso.match(/(\d+)H/) ? parseInt(iso.match(/(\d+)H/)[1]) : 0;
-      const minutes = iso.match(/(\d+)M/) ? parseInt(iso.match(/(\d+)M/)[1]) : 0;
-      return hours * 60 + minutes;
-    };
+        list.push({
+          outbound,
+          inbound: null,
+          segments,
+          flightOfferId: offerId,
+        });
+      });
 
-    if (sortType === "DURATION") {
-      pairedArray.sort((a, b) => 
-        parseISOToMin(a.outbound?.flightDuration) - parseISOToMin(b.outbound?.flightDuration)
-      );
-    } else if (sortType === "LATE") {
-      pairedArray.sort((a, b) => 
-        new Date(b.outbound?.departDate) - new Date(a.outbound?.departDate)
-      );
-    }
+      if (sortType === "DURATION") {
+        list.sort(
+          (a, b) =>
+            parseISOToMin(a.outbound?.flightDuration) -
+            parseISOToMin(b.outbound?.flightDuration)
+        );
+      } else if (sortType === "LATE") {
+        list.sort(
+          (a, b) =>
+            new Date(b.outbound?.departDate) - new Date(a.outbound?.departDate)
+        );
+      }
 
-    // 4. 상태 저장
-    if (searchParams?.tripType === "ROUND") {
-      setRoundList(pairedArray);
-    } else {
-      setOutboundList(pairedArray);
-    }
-    setResult(pairedArray.length);
-  };
+      setOutboundList(list);
+      setRoundList([]);
+      setResult(list.length);
+    },
+    [searchParams?.depart, searchParams?.tripType, sortType]
+  );
 
   /* =========================================================
       ✅ Polling 함수
   ========================================================= */
-  const pollSearchResult = async () => {
-    if (!searchId || isPollingRef.current) return;
-    isPollingRef.current = true;
+  const pollSearchResult = useCallback(
+    async (id) => {
+      const sid = id || runtimeSearchId;
+      if (!sid || isPollingRef.current) return;
 
-    const url = `http://localhost:8001/triptype/api/flights/search/${searchId}`;
+      isPollingRef.current = true;
 
-    const poll = async () => {
-      try {
-        const response = await axios.get(url);
-        if (response.status === 202 || !Array.isArray(response.data)) {
-          console.log("⏳ 데이터 로딩 중 (PENDING)...");
-          pollTimerRef.current = setTimeout(poll, 1000); // 1초 간격 재시도
-          return;
+      const url = `http://localhost:8001/triptype/api/flights/search/${sid}`;
+      console.log("[POLL START] sid =", sid, "url =", url);
+
+      // ✅ 무한 폴링 방지: 최대 60회(=60초) 시도
+      let attempt = 0;
+      const MAX_ATTEMPT = 60;
+
+      const poll = async () => {
+        attempt += 1;
+
+        try {
+          const response = await axios.get(url);
+
+          // ✅ 핵심 로그 (이 3개는 반드시)
+          console.log("[POLL]", "attempt =", attempt, "status =", response.status);
+          console.log("[POLL]", "isArray =", Array.isArray(response.data));
+          console.log("[POLL]", "data =", response.data);
+
+          // ✅ 1) 최대 횟수 초과 시 종료
+          if (attempt >= MAX_ATTEMPT) {
+            console.error("❌ POLL TIMEOUT: 최대 시도 초과", { sid, url });
+            toast.error("검색 결과를 불러오지 못했습니다. (시간 초과)");
+            isPollingRef.current = false;
+            if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+            return;
+          }
+
+          // ✅ 2) 202면 pending
+          if (response.status === 202) {
+            pollTimerRef.current = setTimeout(poll, 1000);
+            return;
+          }
+
+          // ✅ 3) 200인데 배열이 아니면: 서버가 에러/상태 객체를 준 것
+          if (!Array.isArray(response.data)) {
+            const msg =
+              response?.data?.message ||
+              response?.data?.error ||
+              "서버 응답 형식이 예상과 다릅니다.";
+            console.error("❌ POLL INVALID RESPONSE (not array):", response.data);
+            toast.error(msg);
+
+            isPollingRef.current = false;
+            if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+            return;
+          }
+
+          // ✅ 4) 정상 데이터 수신(배열)
+          console.log("✅ polling 결과 수신:", response.data.length);
+          applyFlights(response.data);
+
+          isPollingRef.current = false;
+          if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+        } catch (error) {
+          console.error("❌ Polling 실패:", error);
+          console.error("❌ status:", error?.response?.status);
+          console.error("❌ response.data:", error?.response?.data);
+
+          toast.error("검색 결과 조회 중 오류가 발생했습니다.");
+          isPollingRef.current = false;
+          if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
         }
+      };
 
-        console.log("결과 ㅇㅇ : ", response.data);
+      poll();
+    },
+    [applyFlights, runtimeSearchId]
+  );
 
-        applyFlights(response.data);
-        console.log("alllll", response.data);
-        isPollingRef.current = false;
-        if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
-      } catch (error) {
-        console.error("❌ Polling 실패:", error);
-        isPollingRef.current = false;
-      }
-    };
-    poll();
-  };
+  /* =========================================================
+      ✅ searchId 동기화
+  ========================================================= */
+  useEffect(() => {
+    if (searchId) setRuntimeSearchId(searchId);
+  }, [searchId]);
 
+  /* =========================================================
+      ✅ (추천/인기노선) searchParams만 있을 때: 여기서 search 생성 후 polling
+  ========================================================= */
+  const createSearchAndPoll = useCallback(async () => {
+    if (!searchParams) return null;
+
+    console.log("[POST /api/flights/search] request searchParams =", searchParams);
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const { data } = await axios.post(
+        "http://localhost:8001/triptype/api/flights/search",
+        searchParams,
+        { headers }
+      );
+
+      console.log("[POST /api/flights/search] response data =", data);
+      console.log("[POST /api/flights/search] searchId =", data?.searchId);
+
+      const sid = data?.searchId;
+      if (!sid) throw new Error("searchId가 없습니다.");
+
+      setRuntimeSearchId(sid);
+      pollSearchResult(sid);
+      return sid;
+    } catch (e) {
+      console.error("❌ 검색 생성 실패:", e);
+      console.error("❌ status:", e?.response?.status);
+      console.error("❌ response.data:", e?.response?.data);
+      toast.error("검색 생성에 실패했습니다.");
+      return null;
+    }
+  }, [pollSearchResult, searchParams]);
+
+  /* =========================================================
+      ✅ 최초 렌더/필터 변경 시 로딩 흐름
+  ========================================================= */
   useEffect(() => {
     if (!searchParams) {
       toast.info("검색 조건이 없습니다. 메인으로 이동합니다.");
@@ -174,91 +343,116 @@ const AirlineListComponent = () => {
       return;
     }
 
-    const renderCall = async () => {
+    const run = async () => {
+      // 1) 즉시 렌더 데이터
       if (Array.isArray(res) && res.length > 0) {
         applyFlights(res);
         return;
       }
-      if (searchId) {
-        pollSearchResult();
+
+      // 2) searchId로 polling
+      if (runtimeSearchId) {
+        pollSearchResult(runtimeSearchId);
         return;
       }
+
+      // 3) 추천/인기노선: searchParams만 온 경우 → 여기서 search 생성
+      const created = await createSearchAndPoll();
+      if (created) return;
+
+      // 4) fallback
       try {
-        const response = await axios.get("http://localhost:8001/triptype/airline/list", {
-          params: { ...searchParams, sortType },
-        });
+        const response = await axios.get(
+          "http://localhost:8001/triptype/airline/list",
+          { params: { ...searchParams, sortType } }
+        );
         applyFlights(response.data);
       } catch (error) {
         console.error("데이터 로딩 오류:", error);
       }
     };
 
-    renderCall();
+    run();
 
     return () => {
       if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
       isPollingRef.current = false;
     };
-  }, [activeFilter, searchParams, sortType, res, searchId, navigate]);
+  }, [
+    activeFilter,
+    searchParams,
+    sortType,
+    res,
+    runtimeSearchId,
+    navigate,
+    applyFlights,
+    pollSearchResult,
+    createSearchAndPoll,
+  ]);
 
   // 핸들러 함수들
   const changeFilter = (index) => setActiveFilter(index);
   const changeTransit = (index) => {
     const target = transitList[index];
-    setActiveTransit([target]); // 기존 데이터를 지우고 새 선택값만 배열에 담음
+    setActiveTransit([target]);
   };
 
   const changeTime = (value) => setDepartureTime(Number(value));
-  
-  // 항공사 필터 선택/해제 로직 강화
   const changeAirline = (name) => {
-    setAirlineStatus(prev => prev === name ? null : name);
+    setAirlineStatus((prev) => (prev === name ? null : name));
   };
 
   const hour = String(Math.floor(departureTime / 60)).padStart(2, "0");
   const minute = String(departureTime % 60).padStart(2, "0");
 
-  const goDetail = (pair) => {
-    const flightOfferId = pair.outbound?.flightOfferId || pair.inbound?.flightOfferId;
-    if (!flightOfferId) return toast.info("존재하지 않는 항공권입니다.");
+  const goDetail = (item) => {
+    // ✅ 0도 유효하므로 || 체인은 위험 -> nullish 병합으로 처리
+    const flightOfferId =
+      item?.flightOfferId ??
+      item?.outbound?.flightOfferId ??
+      item?.inbound?.flightOfferId;
+
+    // ✅ 핵심 수정: null/undefined만 차단
+    if (flightOfferId === null || flightOfferId === undefined) {
+      return toast.info("존재하지 않는 항공권입니다.");
+    }
+
     navigate(`/airline/detail/${flightOfferId}`, {
       state: {
-        outbound: pair.outbound,
-        inbound: pair.inbound,
         tripType: searchParams?.tripType,
+        outbound: item?.outbound || null,
+        inbound: searchParams?.tripType === "ROUND" ? item?.inbound || null : null,
+        segments: item?.segments || null, // ✅ MULTI/경유(편도) 대비
       },
     });
   };
 
+  const getFilteredList = () => {
+    const baseList = searchParams?.tripType === "ROUND" ? roundList : outboundList;
 
-const getFilteredList = () => {
-  const baseList =
-    searchParams?.tripType === "ROUND" ? roundList : outboundList;
+    return baseList.filter((item) => {
+      const outbound = item?.outbound;
+      if (!outbound) return false;
 
-  return baseList.filter(pair => {
-    const outbound = pair.outbound;
-    if (!outbound) return false;
+      // 항공사 필터
+      if (airlineStatus && outbound.airlineName !== airlineStatus) return false;
 
-    // 항공사 필터
-    if (airlineStatus && outbound.airlineName !== airlineStatus) return false;
+      // ✅ 경유 필터: MULTI면 item.segments 기준, 아니면 outbound 기준
+      if (searchParams?.tripType === "MULTI") {
+        if (!matchTransit(item)) return false;
+      } else {
+        if (!matchTransit(outbound)) return false;
+      }
 
-    // 경유 필터
-    if (!matchTransit(outbound)) return false;
+      // 출발 시간대 필터
+      const departMinutes = getDepartMinutes(outbound.departDate);
+      if (departMinutes > departureTime) return false;
 
-    // 출발 시간대 필터
-    const departMinutes = getDepartMinutes(outbound.departDate);
-    if (departMinutes > departureTime) return false;
-
-    return true;
-  });
-};
-
-
-
+      return true;
+    });
+  };
 
   const filteredData = getFilteredList();
-
-  console.log("트립 타입", searchParams.tripType);
 
   return (
     <div className="airline-list-wrapper">
@@ -273,15 +467,29 @@ const getFilteredList = () => {
               <strong>경유</strong>
               {transitList.map((item, index) => (
                 <label key={index}>
-                  <input type="radio" name="segment-option" value={item} onChange={() => changeTransit(index)} />{item}
+                  <input
+                    type="radio"
+                    name="segment-option"
+                    value={item}
+                    onChange={() => changeTransit(index)}
+                  />
+                  {item}
                 </label>
               ))}
             </div>
 
             <div className="filter-section">
               <strong>출발 시간대</strong>
-              <p>오전 00:00 - 오후 {hour}:{minute}</p>
-              <input type="range" min="0" max="1440" step="5" onChange={(e) => changeTime(e.target.value)} />
+              <p>
+                오전 00:00 - 오후 {hour}:{minute}
+              </p>
+              <input
+                type="range"
+                min="0"
+                max="1440"
+                step="5"
+                onChange={(e) => changeTime(e.target.value)}
+              />
             </div>
 
             <div className="filter-section">
@@ -293,6 +501,7 @@ const getFilteredList = () => {
                 >
                   모두
                 </button>
+
                 {airline.length > 0 ? (
                   airline.map((item, index) => (
                     <button
@@ -304,86 +513,80 @@ const getFilteredList = () => {
                     </button>
                   ))
                 ) : (
-                  <p style={{fontSize: '12px', color: '#999'}}>항공사 정보를 불러오는 중...</p>
+                  <p style={{ fontSize: "12px", color: "#999" }}>
+                    항공사 정보를 불러오는 중...
+                  </p>
                 )}
               </div>
             </div>
           </div>
         </aside>
 
-        <AirlineModalComponent 
-          open={open} 
-          onClose={() => { setOpen(false); setSelectedPair(null); }} 
-          pair={selectedPair} 
+        <AirlineModalComponent
+          open={open}
+          onClose={() => {
+            setOpen(false);
+            setSelectedPair(null);
+          }}
+          pair={selectedPair}
         />
 
         <main>
           <div className="airline-ticket-sort">
             <div className="sort-tabs">
-              <span className={activeFilter === 0 ? "active" : ""} onClick={() => changeFilter(0)}>최저가</span>
-              <span className={activeFilter === 1 ? "active" : ""} onClick={() => changeFilter(1)}>비행시간순</span>
+              <span
+                className={activeFilter === 0 ? "active" : ""}
+                onClick={() => changeFilter(0)}
+              >
+                최저가
+              </span>
+              <span
+                className={activeFilter === 1 ? "active" : ""}
+                onClick={() => changeFilter(1)}
+              >
+                비행시간순
+              </span>
             </div>
-            <select value={activeFilter} onChange={(e) => setActiveFilter(Number(e.target.value))}>
-              {filterList.map((item, index) => <option key={index} value={index}>{item}</option>)}
+
+            <select
+              value={activeFilter}
+              onChange={(e) => setActiveFilter(Number(e.target.value))}
+            >
+              {filterList.map((item, index) => (
+                <option key={index} value={index}>
+                  {item}
+                </option>
+              ))}
             </select>
           </div>
 
           <p className="result-count">
-            {filteredData.length}개의 검색 결과 · 
-            <span className="price-check" onClick={() => navigate("/airline/list/price", { state : { searchParams : searchParams } })}> 가격변동 조회</span>
+            {filteredData.length}개의 검색 결과 ·
+            <span
+              className="price-check"
+              onClick={() => navigate("/airline/list/price", { state: { searchParams } })}
+            >
+              {" "}
+              가격변동 조회
+            </span>
           </p>
-          {
-            filteredData.map((pair, index) => (
-              <TicketBoxComponent
-                key={index}
-                segment={pair.outbound}
-                returnSegment={
-                  searchParams?.tripType === "ROUND" ? pair.inbound : null
-                }
-                tripType={searchParams?.tripType}
-                setOpen={() => handleOpenModal(pair)}
-                showPlus={searchParams?.tripType === "ROUND"}
-                onClick={() => goDetail(pair)}
-              />
-            ))
-          }
 
-
-          {/* {
-            searchParams?.tripType === "ROUND" ? (
-              roundList.map((pair, index) => (
-                <TicketBoxComponent
-                  key={index}
-                  segment={pair.outbound}          // 가는 편
-                  returnSegment={pair.inbound}     // 오는 편
-                  tripType={searchParams.tripType} // ⭐ 검색 기준으로 고정
-                  setOpen={() => handleOpenModal(pair)}
-                  showPlus={true}                  // 왕복이면 항상 +
-                  onClick={() => goDetail(pair)}   // pair 그대로 전달
-                />
-              ))
-            ) : searchParams?.tripType === "ONEWAY" ? (
-              outboundList
-                .filter(pair => pair.outbound)    // 방어
-                .map((pair, index) => (
-                  <TicketBoxComponent
-                    key={index}
-                    segment={pair.outbound}
-                    returnSegment={null}           // ⭐ 편도는 inbound 없음
-                    tripType={searchParams.tripType}
-                    setOpen={() => handleOpenModal(pair)}
-                    showPlus={false}
-                    onClick={() => goDetail(pair)}
-                  />
-                ))
-            ) : null
-          } */}
-
+          {filteredData.map((item, index) => (
+            <TicketBoxComponent
+              key={index}
+              segment={item.outbound}
+              returnSegment={searchParams?.tripType === "ROUND" ? item.inbound : null}
+              tripType={searchParams?.tripType}
+              setOpen={() => handleOpenModal(item)}
+              showPlus={searchParams?.tripType === "ROUND"}
+              onClick={() => goDetail(item)}
+              segments={item.segments} // ✅ MULTI/경유(편도) 표시용
+            />
+          ))}
         </main>
 
         <aside className="side-2">
-          <AlertChartListComponent 
-          />
+          <AlertChartListComponent />
         </aside>
       </div>
     </div>

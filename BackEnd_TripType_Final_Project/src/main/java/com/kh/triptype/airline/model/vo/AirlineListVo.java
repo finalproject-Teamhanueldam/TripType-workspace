@@ -1,6 +1,5 @@
 package com.kh.triptype.airline.model.vo;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 import org.apache.ibatis.type.Alias;
@@ -64,15 +63,15 @@ public class AirlineListVo {
     /* ================= 부가 정보 ================= */
 
     // 잔여 좌석 수
-    private int extraSeat;                 // FLIGHT_OFFER_EXTRA_SEAT
+    private Integer extraSeat;                 // FLIGHT_OFFER_EXTRA_SEAT
     
     // 오퍼 번호
-    private int flightOfferId;
+    private Integer flightOfferId;
     
     // 가격
     private Double totalPrice;
     
     // 경유 횟수
-    private int flightSegmentNo;
+    private Integer flightSegmentNo;
 }
 

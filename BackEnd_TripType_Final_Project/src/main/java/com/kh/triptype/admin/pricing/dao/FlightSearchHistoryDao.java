@@ -17,26 +17,35 @@ import com.kh.triptype.admin.pricing.model.vo.FlightSearchHistoryVo;
 @Repository
 public class FlightSearchHistoryDao {
 
-    /**
-     * 항공권 검색 기록 저장
-     *
-     * @param sqlSession MyBatis SqlSessionTemplate
-     * @param historyVo  검색 기록 VO
-     * @return insert 결과 (1 성공 / 0 실패)
-     */
     public int insertSearchHistory(
             SqlSessionTemplate sqlSession,
             FlightSearchHistoryVo historyVo
     ) {
 
-        // ✅ 방어 코드: null 요청 시 DB 접근 자체를 막음
         if (historyVo == null) {
+            System.out.println("🟥 [insertSearchHistory] historyVo is null -> skip");
             return 0;
         }
 
-        return sqlSession.insert(
-                "flightSearchHistoryMapper.insertSearchHistory",
-                historyVo
-        );
+        long t0 = System.currentTimeMillis();
+        System.out.println("🟦 [insertSearchHistory] START t=" + t0);
+        System.out.println("🟦 [insertSearchHistory] vo=" + historyVo);
+
+        try {
+            int r = sqlSession.insert(
+                    "flightSearchHistoryMapper.insertSearchHistory",
+                    historyVo
+            );
+            long t1 = System.currentTimeMillis();
+            System.out.println("🟩 [insertSearchHistory] END r=" + r + " elapsed=" + (t1 - t0) + "ms");
+            return r;
+
+        } catch (Exception e) {
+            long t1 = System.currentTimeMillis();
+            System.out.println("🟥 [insertSearchHistory] ERROR elapsed=" + (t1 - t0) + "ms msg=" + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 }
+

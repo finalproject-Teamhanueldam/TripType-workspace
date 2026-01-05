@@ -19,10 +19,10 @@ import com.kh.triptype.airline.model.vo.WishList;
 
 @Service
 public class AirlineListServiceImpl implements AirlineListService {
-	
+
 	@Autowired
 	private AirlineListDao airlineListDao;
-	
+
 	@Autowired
 	private SqlSessionTemplate sqlSession;
 
@@ -31,7 +31,7 @@ public class AirlineListServiceImpl implements AirlineListService {
 	public ArrayList<AirlineListVo> selectAirlineListPrice(AirlineFilter airlineFilter) {
 		return airlineListDao.selectAirlineListPrice(sqlSession, airlineFilter);
 	}
-	
+
 	// 비행시간 순 정렬
 	@Override
 	public ArrayList<AirlineListVo> selectAirlineListDuration(AirlineFilter airlineFilter) {
@@ -55,16 +55,16 @@ public class AirlineListServiceImpl implements AirlineListService {
 	@Override
 	public int writeReview(int memberNo, ReviewRequestDto dto) {
 
-	    Review review = new Review();
+		Review review = new Review();
 
-	    review.setReviewContent(dto.getReviewContent());
-	    review.setFlightOfferId(dto.getFlightOfferId());
-	    review.setMemberNo(memberNo);
-	    review.setReviewStatus("N"); // 기본값
-	    
-	    System.out.println(review);
+		review.setReviewContent(dto.getReviewContent());
+		review.setFlightOfferId(dto.getFlightOfferId());
+		review.setMemberNo(memberNo);
+		review.setReviewStatus("N"); // 기본값
 
-	    return airlineListDao.writeReview(sqlSession, review);
+		System.out.println(review);
+
+		return airlineListDao.writeReview(sqlSession, review);
 	}
 
 	// 리뷰 조회
@@ -77,62 +77,60 @@ public class AirlineListServiceImpl implements AirlineListService {
 	@Transactional
 	@Override
 	public int updateReview(int memberNo, ReviewRequestDto dto) {
-	    Review review = new Review();
+		Review review = new Review();
 
-	    review.setReviewNo(dto.getReviewNo());
-	    review.setReviewContent(dto.getReviewContent());
-	    review.setFlightOfferId(dto.getFlightOfferId());
-	    review.setMemberNo(memberNo);
+		review.setReviewNo(dto.getReviewNo());
+		review.setReviewContent(dto.getReviewContent());
+		review.setFlightOfferId(dto.getFlightOfferId());
+		review.setMemberNo(memberNo);
 
-	    return airlineListDao.updateReview(sqlSession, review);
+		return airlineListDao.updateReview(sqlSession, review);
 	}
 
 	@Override
 	public int deleteReview(int memberNo, ReviewRequestDto dto) {
-	    Review review = new Review();
+		Review review = new Review();
 
-	    review.setReviewNo(dto.getReviewNo());
-	    review.setFlightOfferId(dto.getFlightOfferId());
-	    review.setMemberNo(memberNo);
-	    
-	    return airlineListDao.deleteReview(sqlSession, review);
+		review.setReviewNo(dto.getReviewNo());
+		review.setFlightOfferId(dto.getFlightOfferId());
+		review.setMemberNo(memberNo);
+
+		return airlineListDao.deleteReview(sqlSession, review);
 	}
 
+	// 찜 토글
+	@Override
+	public boolean toggleWish(int memberNo, long flightOfferId) {
 
-    // 찜 토글
-    @Override
-    public boolean toggleWish(int memberNo, long flightOfferId) {
+		WishList wish = new WishList();
+		wish.setMemberNo(memberNo);
+		wish.setFlightOfferId(flightOfferId);
 
-        WishList wish = new WishList();
-        wish.setMemberNo(memberNo);
-        wish.setFlightOfferId(flightOfferId);
+		int count = airlineListDao.checkWish(sqlSession, wish);
 
-        int count = airlineListDao.checkWish(sqlSession, wish);
+		// 이미 찜 → 삭제
+		if (count > 0) {
+			airlineListDao.deleteWish(sqlSession, wish);
+			return false;
+		}
+		// 찜 안됨 → 추가
+		else {
+			airlineListDao.insertWish(sqlSession, wish);
+			return true;
+		}
+	}
 
-        // 이미 찜 → 삭제
-        if (count > 0) {
-            airlineListDao.deleteWish(sqlSession, wish);
-            return false;
-        }
-        // 찜 안됨 → 추가
-        else {
-            airlineListDao.insertWish(sqlSession, wish);
-            return true;
-        }
-    }
+	// 찜 여부 확인
+	@Override
+	public boolean checkWish(int memberNo, long flightOfferId) {
 
+		WishList wish = new WishList();
+		wish.setMemberNo(memberNo);
+		wish.setFlightOfferId(flightOfferId);
 
-    // 찜 여부 확인
-    @Override
-    public boolean checkWish(int memberNo, long flightOfferId) {
-
-        WishList wish = new WishList();
-        wish.setMemberNo(memberNo);
-        wish.setFlightOfferId(flightOfferId);
-
-        int count = airlineListDao.checkWish(sqlSession, wish);
-        return count > 0;
-    }
+		int count = airlineListDao.checkWish(sqlSession, wish);
+		return count > 0;
+	}
 
 	@Override
 	public ArrayList<PriceChange> selectPrice(PriceChangeDto priceChangeDto) {
@@ -141,10 +139,26 @@ public class AirlineListServiceImpl implements AirlineListService {
 		priceChange.setArrive(priceChangeDto.getArrive());
 		priceChange.setDepart(priceChangeDto.getDepart());
 		priceChange.setTripType(priceChangeDto.getTripType());
-		
+
 		return airlineListDao.selectPrice(sqlSession, priceChange);
 	}
 
+	/* =========================================================
+	   ✅ (추가) offerId 상세 조회용
+	   - Controller: GET /airline/offer/{flightOfferId}
+	   - Detail 새로고침/직접접근 fallback을 위해 필요
+	========================================================= */
 
+	// offerId에 속한 세그먼트(항공편) 리스트 조회
+	@Override
+	public ArrayList<AirlineListVo> selectOfferSegments(long flightOfferId) {
+		return airlineListDao.selectOfferSegments(sqlSession, flightOfferId);
+	}
+
+	// offerId의 tripType 조회 (DB에 없으면 null 반환해도 됨)
+	@Override
+	public String selectOfferTripType(long flightOfferId) {
+		return airlineListDao.selectOfferTripType(sqlSession, flightOfferId);
+	}
 
 }
