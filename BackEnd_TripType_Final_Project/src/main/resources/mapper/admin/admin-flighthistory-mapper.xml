@@ -36,6 +36,16 @@
         )
 
     </insert>
+    
+    <update id="updateFlightHistoryIsDelByOfferId" parameterType="list">
+	    UPDATE TB_FLIGHT_HISTORY
+	    SET FLIGHT_HISTORY_IS_DEL = 'Y'
+	    WHERE FLIGHT_OFFER_ID IN
+	    <foreach collection="list" item="id" open="(" close=")" separator=",">
+	        #{id}
+	    </foreach>
+	</update>
+
 
 
 </mapper>

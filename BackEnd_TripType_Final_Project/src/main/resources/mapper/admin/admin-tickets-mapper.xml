@@ -3,72 +3,149 @@
 
 
 <mapper namespace="adminTicketMapper">
-  <resultMap id="Ticket" type="tickets">
+ <resultMap id="Ticket" type="AdminTicketOfferDto">
 
-    <!-- PK -->
-	    <id column="FLIGHT_OFFER_ID" property="flightOfferId"/>
-	
-	    <!-- 항공권 공통 -->
-	    <result column="FLIGHT_OFFER_ONE_WAY" property="oneWayYn"/>
-	    <result column="AIRLINE_URL" property="sellingAirlineUrl"/>
-		<result column="AIRLINE_AIRLINE_NAME" property="sellingAirlineName"/>
-	    <!-- 출발편 정보 -->
-	    <result column="DEPART_AIRPORT" property="departAirport"/>
-	    <result column="DEST_AIRPORT" property="arriveAirport"/>
-	    <result column="FLIGHT_DEPART_DATE" property="departDateTime"/>
-	    <result column="FLIGHT_ARRIVE_DATE" property="arriveDateTime"/>
-	    <result column="DEPART_DURATION" property="departDuration"/>
-		<result column="FLIGHT_OFFER_PRICE_TOTAL" property="priceTotal"/>
-		<result column="FLIGHT_OFFER_CURRENCY" property="currency"/>
-	    <!-- 가격 조회 기준 -->
-	    <result column="FLIGHT_OFFER_API_QUERY_DATE" property="apiQueryDate"/>
+    <!-- ===============================
+         1. 기본 Offer 정보
+         =============================== -->
+    <id property="flightOfferId" column="FLIGHT_OFFER_ID"/>
+
+    <result property="oneWayYn" column="FLIGHT_OFFER_ONE_WAY"/>
+    <result property="airlineName" column="AIRLINE_AIRLINE_NAME"/>
+
+    <result property="priceTotal" column="FLIGHT_OFFER_PRICE_TOTAL"/>
+    <result property="currency" column="FLIGHT_OFFER_CURRENCY"/>
+    <result property="apiQueryDate" column="FLIGHT_OFFER_API_QUERY_DATE"/>
+
+
+    <!-- ===============================
+         2. 가는 편 (OUTBOUND)
+         - 편도 / 왕복 공통
+         =============================== -->
+    <association property="outbound"
+                 javaType="com.kh.triptype.admin.flight.model.dto.AdminFlightSegmentDto">
+
+        <result property="departDateTime" column="OUT_DEPART_DATE"/>
+        <result property="arriveDateTime" column="OUT_ARRIVE_DATE"/>
+
+        <result property="departAirport" column="OUT_DEPART"/>
+        <result property="arriveAirport" column="OUT_ARRIVE"/>
+
+        <result property="duration" column="OUT_DURATION"/>
+
+    </association>
+
+
+    <!-- ===============================
+         3. 오는 편 (INBOUND)
+         - 편도일 경우 모든 컬럼 NULL → 자동으로 null 객체
+         =============================== -->
+    <association property="inbound"
+                 javaType="com.kh.triptype.admin.flight.model.dto.AdminFlightSegmentDto"
+                 notNullColumn="IN_DEPART_DATE">
+
+        <result property="departDateTime" column="IN_DEPART_DATE"/>
+        <result property="arriveDateTime" column="IN_ARRIVE_DATE"/>
+
+        <result property="departAirport" column="IN_DEPART"/>
+        <result property="arriveAirport" column="IN_ARRIVE"/>
+
+        <result property="duration" column="IN_DURATION"/>
+
+    </association>
 
 </resultMap>
+
   
-    <select id="selectTickets" resultMap="Ticket">
-	SELECT *
-		FROM (
-		    SELECT
-		        fo.FLIGHT_OFFER_ID,
-		        a.AIRLINE_AIRLINE_NAME,
-		        fo.FLIGHT_OFFER_ONE_WAY,
-		        f.FLIGHT_DIRECTION,
-		        f.FLIGHT_DEPART_DATE,
-		        f.FLIGHT_ARRIVE_DATE,
-		        f.DEPART_AIRPORT,
-		        f.DEST_AIRPORT,
-		        ph.FLIGHT_OFFER_API_QUERY_DATE,
-		        ph.FLIGHT_OFFER_PRICE_TOTAL,
-		        ph.FLIGHT_OFFER_CURRENCY,
-		
-		        ROW_NUMBER() OVER (
-		            PARTITION BY
-		                a.AIRLINE_AIRLINE_NAME,
-		                f.DEPART_AIRPORT,
-		                f.DEST_AIRPORT,         
-		                f.FLIGHT_DEPART_DATE
-		            ORDER BY
-		                ph.FLIGHT_OFFER_PRICE_TOTAL ASC,
-		                ph.FLIGHT_OFFER_API_QUERY_DATE DESC
-		        ) AS RN
-		    FROM TB_FLIGHT_OFFER fo
-		    JOIN TB_FLIGHT f
-		        ON f.FLIGHT_OFFER_ID = fo.FLIGHT_OFFER_ID
-		    JOIN TB_FLIGHT_PRICE_HISTORY ph
-		        ON ph.FLIGHT_OFFER_ID = fo.FLIGHT_OFFER_ID
-		    JOIN TB_AIRLINE a
-		        ON a.AIRLINE_ID = f.SELLING_AIRLINE_ID
-	        WHERE f.FLIGHT_IS_DEL = 'N'
-	        AND fo.FLIGHT_OFFER_IS_DEL = 'N'
-		)
-		WHERE RN = 1
-		ORDER BY
-		    FLIGHT_DEPART_DATE ASC,
-		    FLIGHT_OFFER_PRICE_TOTAL ASC,
-		    FLIGHT_OFFER_API_QUERY_DATE DESC
-	
-		    
-	</select>
+<select id="selectTickets" resultMap="Ticket">
+    SELECT 
+        MAIN.*
+    FROM (
+        SELECT
+            fo.FLIGHT_OFFER_ID,
+            fo.FLIGHT_OFFER_ONE_WAY,
+            a.AIRLINE_AIRLINE_NAME,
+
+            /* OUTBOUND (가는 편) */
+            f_out.OUT_DEPART_DATE,
+            f_out.OUT_ARRIVE_DATE,
+            f_out.OUT_DEPART,
+            f_out.OUT_ARRIVE,
+            f_out.OUT_DURATION,
+
+            /* INBOUND (오는 편) */
+            f_in.IN_DEPART_DATE,
+            f_in.IN_ARRIVE_DATE,
+            f_in.IN_DEPART,
+            f_in.IN_ARRIVE,
+            f_in.IN_DURATION,
+
+            ph.FLIGHT_OFFER_PRICE_TOTAL,
+            ph.FLIGHT_OFFER_CURRENCY,
+            ph.FLIGHT_OFFER_API_QUERY_DATE,
+
+            /* 중복 제거 핵심 로직:
+               항공사 + 출발지/도착지 + 가는날 시간 + 오는날 시간이 모두 같으면 동일한 스케줄로 간주.
+               그 중 가장 최근 조회된(API_QUERY_DATE DESC) 데이터에만 1번을 부여.
+            */
+            ROW_NUMBER() OVER (
+                PARTITION BY 
+                    a.AIRLINE_AIRLINE_NAME,
+                    f_out.OUT_DEPART, f_out.OUT_ARRIVE,
+                    f_out.OUT_DEPART_DATE, f_out.OUT_ARRIVE_DATE,
+                    f_in.IN_DEPART, f_in.IN_ARRIVE,
+                    f_in.IN_DEPART_DATE, f_in.IN_ARRIVE_DATE
+                ORDER BY ph.FLIGHT_OFFER_API_QUERY_DATE DESC
+            ) AS RN_UNIQUE
+
+        FROM TB_FLIGHT_OFFER fo
+        
+        /* 가는 편 대표 (1개만) */
+        INNER JOIN (
+            SELECT * FROM (
+                SELECT 
+                    FLIGHT_OFFER_ID, SELLING_AIRLINE_ID,
+                    FLIGHT_DEPART_DATE AS OUT_DEPART_DATE,
+                    FLIGHT_ARRIVE_DATE AS OUT_ARRIVE_DATE,
+                    DEPART_AIRPORT     AS OUT_DEPART,
+                    DEST_AIRPORT       AS OUT_ARRIVE,
+                    FLIGHT_DURATION    AS OUT_DURATION,
+                    ROW_NUMBER() OVER(PARTITION BY FLIGHT_OFFER_ID ORDER BY FLIGHT_ID ASC) as RN
+                FROM TB_FLIGHT
+                WHERE FLIGHT_DIRECTION = 'D' AND FLIGHT_IS_DEL = 'N'
+            ) WHERE RN = 1
+        ) f_out ON fo.FLIGHT_OFFER_ID = f_out.FLIGHT_OFFER_ID
+
+        /* 오는 편 대표 (1개만) */
+        LEFT JOIN (
+            SELECT * FROM (
+                SELECT 
+                    FLIGHT_OFFER_ID,
+                    FLIGHT_DEPART_DATE AS IN_DEPART_DATE,
+                    FLIGHT_ARRIVE_DATE AS IN_ARRIVE_DATE,
+                    DEPART_AIRPORT     AS IN_DEPART,
+                    DEST_AIRPORT       AS IN_ARRIVE,
+                    FLIGHT_DURATION    AS IN_DURATION,
+                    ROW_NUMBER() OVER(PARTITION BY FLIGHT_OFFER_ID ORDER BY FLIGHT_ID ASC) as RN
+                FROM TB_FLIGHT
+                WHERE FLIGHT_DIRECTION = 'R' AND FLIGHT_IS_DEL = 'N'
+            ) WHERE RN = 1
+        ) f_in ON fo.FLIGHT_OFFER_ID = f_in.FLIGHT_OFFER_ID
+
+        /* 가격 이력 */
+        JOIN TB_FLIGHT_PRICE_HISTORY ph 
+          ON ph.FLIGHT_OFFER_ID = fo.FLIGHT_OFFER_ID
+
+        /* 항공사 */
+        JOIN TB_AIRLINE a 
+          ON a.AIRLINE_ID = f_out.SELLING_AIRLINE_ID
+
+        WHERE fo.FLIGHT_OFFER_IS_DEL = 'N'
+    ) MAIN
+    WHERE MAIN.RN_UNIQUE = 1
+    ORDER BY MAIN.OUT_DEPART_DATE ASC, MAIN.FLIGHT_OFFER_API_QUERY_DATE DESC
+</select>
+
 	
 
 </mapper>

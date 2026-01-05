@@ -19,18 +19,82 @@
 	</resultMap>
 	
 	<select id="selectAirlineReview" resultMap="airlineReview">
-	 	SELECT
-		    a.AIRLINE_ID,
-		    a.AIRLINE_AIRLINE_NAME AS AIRLINE_NAME,
-		    ROUND(AVG(r.REVIEW_RATING), 2) AS AVG_RATING,
-		    COUNT(r.REVIEW_NO) AS REVIEW_COUNT
-		FROM TB_AIRLINE a
-		LEFT JOIN TB_REVIEW r
-		    ON a.AIRLINE_ID = r.AIRLINE_ID
-		GROUP BY
-		    a.AIRLINE_ID,
-		    a.AIRLINE_AIRLINE_NAME
-		ORDER BY REVIEW_COUNT DESC
+	    SELECT
+	        a.AIRLINE_ID,
+	        a.AIRLINE_AIRLINE_NAME AS AIRLINE_NAME,
+	
+	        /* 리뷰 상태 Y 인 것만 평균 */
+	        ROUND(
+	            AVG(
+	                CASE
+	                    WHEN r.REVIEW_STATUS = 'Y' THEN r.REVIEW_RATING
+	                    ELSE NULL
+	                END
+	            ),
+	            2
+	        ) AS AVG_RATING,
+	
+	        /* 리뷰 상태 Y 인 것만 카운트 */
+	        COUNT(
+	            CASE
+	                WHEN r.REVIEW_STATUS = 'Y' THEN 1
+	                ELSE NULL
+	            END
+	        ) AS REVIEW_COUNT
+	
+	    FROM TB_AIRLINE a
+	    LEFT JOIN TB_REVIEW r
+	        ON a.AIRLINE_ID = r.AIRLINE_ID
+	
+	    GROUP BY
+	        a.AIRLINE_ID,
+	        a.AIRLINE_AIRLINE_NAME
+	
+	    /* 항공사 이름 가나다순 */
+	    ORDER BY a.AIRLINE_AIRLINE_NAME ASC
+	</select>
 
-    </select>
+
+    
+   <select id="selectAirlineReviewList" resultMap="airlineReview">
+
+	    SELECT
+	        R.REVIEW_NO,
+	        R.REVIEW_CONTENT,
+	        R.REVIEW_RATING,
+	        R.REVIEW_CREATE_DATE,
+	        R.REVIEW_MODIFY_DATE,
+	        R.REVIEW_STATUS,
+	        R.MEMBER_NO,
+	        A.AIRLINE_ID,
+	        A.AIRLINE_AIRLINE_NAME AS AIRLINE_NAME,
+	
+	        /* 항공사 기준 리뷰 수 */
+	        COUNT(*) OVER (PARTITION BY A.AIRLINE_ID) AS REVIEW_COUNT,
+	
+	        /* 항공사 기준 평균 평점 */
+	        ROUND(AVG(R.REVIEW_RATING) OVER (PARTITION BY A.AIRLINE_ID), 1) AS AVG_RATING
+	
+	    FROM TB_REVIEW R
+	    JOIN TB_AIRLINE A
+	      ON R.AIRLINE_ID = A.AIRLINE_ID
+	
+	    WHERE R.AIRLINE_ID = #{airlineId}
+	      AND R.REVIEW_STATUS = #{status}
+	
+	    ORDER BY R.REVIEW_CREATE_DATE DESC
+
+	</select>
+	<update id="toggleReviewStatus" parameterType="int">
+	    UPDATE TB_REVIEW
+	    SET REVIEW_STATUS =
+	        CASE
+	            WHEN REVIEW_STATUS = 'Y' THEN 'N'
+	            ELSE 'Y'
+	        END
+	    WHERE REVIEW_NO = #{reviewNo}
+	</update>
+
+
+
 </mapper>

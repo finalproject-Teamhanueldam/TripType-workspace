@@ -24,10 +24,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.kh.triptype.admin.flight.dao.AdminFlightDao;
+import com.kh.triptype.admin.flight.model.dto.AdminTicketOfferDto;
 import com.kh.triptype.admin.flight.model.dto.FlightHistoryInsertDto;
 import com.kh.triptype.admin.flight.model.dto.FlightInsertDto;
 import com.kh.triptype.admin.flight.model.dto.FlightOfferInsertDto;
-import com.kh.triptype.admin.flight.model.dto.FlightSelectTicketsDto;
 import com.kh.triptype.admin.statistics.service.StatisticsService;
 
 import lombok.RequiredArgsConstructor;
@@ -178,7 +178,7 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 				.queryParam("returnDate", flightReturnDate)
 				.queryParam("adults", adultCount)
 				.queryParam("currencyCode", "KRW")
-				.queryParam("max", 250);
+				.queryParam("max", 20);
 		// > 요청 시 1 ~ 250번째 데이터를 조회해달라
 		
 		// GET 요청은 보통 바디가 없으므로 Void
@@ -198,6 +198,7 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 				);
 		List<Map<String, Object>> result = (List<Map<String, Object>>) response.getBody().get("data");
 		
+		System.out.println(result);
 		
 		saveAdminFlightOffers(result);
 		
@@ -287,7 +288,24 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 					((Map<String, Object>) firstSeg.get("departure")).get("at").toString()
 					)
 			);
+	// 출발 공항
+	String departIata =
+	    ((Map<String, Object>) firstSeg.get("departure"))
+	        .get("iataCode").toString();
 	
+	dto.setDepartAirport(departIata);
+	
+	// 도착 공항 (마지막 세그먼트)
+	List<Map<String, Object>> segments =
+	    (List<Map<String, Object>>) itineraries.get(0).get("segments");
+
+	Map<String, Object> lastSeg =
+	    segments.get(segments.size() - 1);
+
+	String arriveIata =
+	    ((Map<String, Object>) lastSeg.get("arrival"))
+	        .get("iataCode").toString();
+	dto.setArriveAirport(arriveIata);
 	if (itineraries.size() > 1) {
 		Map<String, Object> returnSeg =
 				(Map<String, Object>) ((List<Map<String, Object>>) itineraries.get(1).get("segments")).get(0);
@@ -520,10 +538,31 @@ public class AdminFlightServiceImpl implements AdminFlightService {
 		}
 		
 		
-		public List<Object> selectTickets() {
+		public List<AdminTicketOfferDto> selectTickets() {
 			
 			return adminFlightDao.selectTickets(sqlSession);
 		}
+		
+		// 삭제 기능
+		@Transactional
+	    public void deleteFlightOffers(AdminTicketOfferDto dto) {
+
+	        List<Long> offerIds = dto.getFlightOfferIds();
+
+	        if (offerIds == null || offerIds.isEmpty()) {
+	            return;
+	        }
+
+	        // 히스토리 논리 삭제
+	        //adminFlightDao.updateFlightHistoryIsDelByOfferId(sqlSession, offerIds);
+
+	        // 플라이트 논리 삭제
+	        adminFlightDao.updateFlightIsDelByOfferId(sqlSession, offerIds);
+
+	        // 오퍼 논리 삭제
+	        adminFlightDao.updateFlightOfferIsDel(sqlSession, offerIds);
+	    }
+
 
 
 }
