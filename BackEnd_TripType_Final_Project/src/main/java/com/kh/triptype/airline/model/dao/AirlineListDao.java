@@ -72,6 +72,8 @@ public class AirlineListDao {
 
 	// 가격 조회
 	public ArrayList<PriceChange> selectPrice(SqlSessionTemplate sqlSession, PriceChange priceChange) {
+		ArrayList<PriceChange> result = (ArrayList) sqlSession.selectList("airlineList.selectPrice", priceChange);
+		System.out.println("result : " + result);
 		return (ArrayList) sqlSession.selectList("airlineList.selectPrice", priceChange);
 	}
 

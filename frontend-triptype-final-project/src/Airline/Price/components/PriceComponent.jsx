@@ -54,6 +54,8 @@ const PriceComponent = () => {
 
   const priceInfo = price(sortedPriceData);
 
+  
+
   const data = [
     ["Week", "가격"],
     ...sortedPriceData,
