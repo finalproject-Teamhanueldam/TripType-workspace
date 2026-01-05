@@ -3,7 +3,7 @@
 ================================ */
 .comment-section {
   width: 90%;
-  max-width: 1400px;
+  max-width: none;
   margin: 100px auto 0;
 }
 
@@ -140,4 +140,28 @@
 .comment-card:hover .comment-arrow {
   transform: translateX(4px);
   opacity: 1;
+}
+
+/* ===============================
+   FAQ 래퍼 (그리드 영향 제거)
+================================ */
+/* ✅ page-wrap 같은 부모 max-width를 뚫고 viewport 기준으로 넓히기 */
+.faq-fullbleed {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 실제 내용 폭(원하는 만큼) */
+.faq-wrapper {
+  width: min(1400px, 100%);  /* 여기 숫자로 조절 */
+  margin: 0 auto;
+}
+
+/* 혹시 내부 .faq-page가 좁게 고정돼있으면 같이 덮기 */
+.faq-wrapper .faq-page {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
