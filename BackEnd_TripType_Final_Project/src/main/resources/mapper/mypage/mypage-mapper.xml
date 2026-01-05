@@ -69,5 +69,60 @@
 		ORDER BY SEARCH_LOG_DATE DESC
 	</select>
 	
+	<select id="selectWishlist"
+	        parameterType="int"
+	        resultType="WishItemDto">
 	
+	    SELECT
+	        w.FLIGHT_OFFER_ID AS flightOfferId,
+	        f.DEPART_AIRPORT AS departAirportCode,
+	        f.DEST_AIRPORT   AS arriveAirportCode,
+	        CASE
+	            WHEN o.FLIGHT_OFFER_ONE_WAY = 'Y' THEN 'ONEWAY'
+	            ELSE 'ROUND'
+	        END AS tripType,
+	        TO_CHAR(o.FLIGHT_OFFER_DEPART_DATE, 'YYYY-MM-DD') AS departDate,
+	        TO_CHAR(o.FLIGHT_OFFER_RETURN_DATE, 'YYYY-MM-DD') AS returnDate,
+	        ph.FLIGHT_OFFER_PRICE_TOTAL AS totalPrice
+	    FROM TB_WISHLIST w
+	    JOIN TB_FLIGHT_OFFER o
+	      ON w.FLIGHT_OFFER_ID = o.FLIGHT_OFFER_ID
+
+	    LEFT JOIN (
+	        SELECT
+	            FLIGHT_OFFER_ID,
+	            MIN(FLIGHT_SEGMENT_NO) AS FLIGHT_SEGMENT_NO
+	        FROM TB_FLIGHT
+	        GROUP BY FLIGHT_OFFER_ID
+	    ) fm
+	      ON fm.FLIGHT_OFFER_ID = o.FLIGHT_OFFER_ID
+	
+	    LEFT JOIN TB_FLIGHT f
+	      ON f.FLIGHT_OFFER_ID = fm.FLIGHT_OFFER_ID
+	     AND f.FLIGHT_SEGMENT_NO = fm.FLIGHT_SEGMENT_NO
+	
+	    LEFT JOIN (
+	        SELECT
+	            FLIGHT_OFFER_ID,
+	            FLIGHT_OFFER_PRICE_TOTAL
+	        FROM (
+	            SELECT
+	                FLIGHT_OFFER_ID,
+	                FLIGHT_OFFER_PRICE_TOTAL,
+	                ROW_NUMBER() OVER (
+	                    PARTITION BY FLIGHT_OFFER_ID
+	                    ORDER BY FLIGHT_OFFER_API_QUERY_DATE DESC
+	                ) rn
+	            FROM TB_FLIGHT_PRICE_HISTORY
+	        )
+	        WHERE rn = 1
+	    ) ph
+	      ON ph.FLIGHT_OFFER_ID = o.FLIGHT_OFFER_ID
+	
+	    WHERE w.MEMBER_NO = #{memberNo}
+	    ORDER BY o.FLIGHT_OFFER_DEPART_DATE DESC
+	
+	</select>
+
+
 </mapper>

@@ -13,6 +13,7 @@ import com.kh.triptype.mypage.model.dto.MyPasswordChangeReq;
 import com.kh.triptype.mypage.model.dto.MyProfileRes;
 import com.kh.triptype.mypage.model.dto.MyProfileUpdateReq;
 import com.kh.triptype.mypage.model.dto.SearchHistoryDto;
+import com.kh.triptype.mypage.model.dto.WishItemDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -99,5 +100,10 @@ public class MyPageServiceImpl implements MyPageService {
         }
 
         socialAccountDao.deleteSocialAccount(memberNo, provider);
+    }
+    
+    @Override
+    public List<WishItemDto> fetchWishlist(int memberNo) {
+        return myPageDao.selectWishlist(memberNo);
     }
 }

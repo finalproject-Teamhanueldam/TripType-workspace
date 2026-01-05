@@ -19,6 +19,7 @@ import com.kh.triptype.mypage.model.dto.MyPasswordChangeReq;
 import com.kh.triptype.mypage.model.dto.MyProfileRes;
 import com.kh.triptype.mypage.model.dto.MyProfileUpdateReq;
 import com.kh.triptype.mypage.model.dto.SearchHistoryDto;
+import com.kh.triptype.mypage.model.dto.WishItemDto;
 import com.kh.triptype.mypage.service.MyPageService;
 
 import lombok.RequiredArgsConstructor;
@@ -77,7 +78,7 @@ public class MyPageController {
         return ResponseEntity.ok().build();
     }
 
-    // 🔹 검색 기록
+    // 검색 기록
     @GetMapping("/searchHistory")
     public ResponseEntity<List<SearchHistoryDto>> fetchSearchHistory(
             Authentication authentication
@@ -88,7 +89,7 @@ public class MyPageController {
         );
     }
 
-    // 🔹 소셜 연동 해제
+    // 소셜 연동 해제
     @DeleteMapping("/social/{provider}")
     public ResponseEntity<Void> unlinkSocial(
             Authentication authentication,
@@ -97,5 +98,16 @@ public class MyPageController {
         AuthUser authUser = (AuthUser) authentication.getPrincipal();
         myPageService.unlinkSocial(authUser.getMemberNo(), provider.toUpperCase());
         return ResponseEntity.noContent().build();
+    }
+    
+    // 찜 목록
+    @GetMapping("/wishlist")
+    public ResponseEntity<List<WishItemDto>> fetchWishlist(
+            Authentication authentication
+    ) {
+        AuthUser authUser = (AuthUser) authentication.getPrincipal();
+        return ResponseEntity.ok(
+            myPageService.fetchWishlist(authUser.getMemberNo())
+        );
     }
 }
