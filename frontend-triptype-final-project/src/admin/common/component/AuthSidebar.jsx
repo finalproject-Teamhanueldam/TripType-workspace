@@ -7,7 +7,6 @@ const AuthSidebar = ({ isOpen, onClose }) => {
 
   const move = (path) => {
     navigate(path);
-    onClose();
   };
 
   const LOGO_URL = `${import.meta.env.VITE_API_BASE_URL}/logo_image/TripType_logo.png`;
