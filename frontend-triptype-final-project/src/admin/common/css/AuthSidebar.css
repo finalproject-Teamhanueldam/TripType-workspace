@@ -40,12 +40,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin : 0px 30px 0px 0px; 
+  margin : 40px 30px 50px 0px; 
   font-family: 'Verdana', sans-serif;
 }
 
 .admin-logo > img {
-  width : 200px;
+  width : 140px;
 }
 
 .admin-sidebar table {

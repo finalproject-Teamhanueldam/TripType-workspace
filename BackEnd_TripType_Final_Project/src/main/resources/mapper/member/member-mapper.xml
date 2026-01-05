@@ -96,7 +96,6 @@
 	        MEMBER_UNLOCK_TIME
 	      FROM TB_MEMBER
 	     WHERE MEMBER_ID = #{memberId}
-	       AND MEMBER_IS_ACTIVE = 'Y'
 	</select>
 	
 	<update id="increaseLoginFailCount">

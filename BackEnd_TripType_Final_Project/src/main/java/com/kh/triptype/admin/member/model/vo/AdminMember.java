@@ -24,4 +24,9 @@ public class AdminMember {
 
     private LocalDateTime memberCreateAt;
     private LocalDateTime memberLastLoginAt;
+    
+    /* ===== 소셜 로그인 관련 ===== */
+    private String socialProviders;   // "KAKAO, NAVER"
+    private String isSocial;           // Y / N
+    private String hasPassword;      // Y / N (일반 로그인 가능 여부)
 }

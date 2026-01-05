@@ -1,42 +1,37 @@
 import "../css/AuthSidebar.css";
+import { useNavigate } from "react-router-dom";
 
-import logo from "../../../images/logo.png"
+const AuthSidebar = ({ isOpen, onClose }) => {
 
-import {useNavigate} from "react-router-dom";
+  const navigate = useNavigate();
 
-const AuthSidebar =({ isOpen, onClose }) => {
+  const move = (path) => {
+    navigate(path);
+  };
 
-    const navigate = useNavigate();
+  const LOGO_URL = `${import.meta.env.VITE_API_BASE_URL}/logo_image/TripType_logo.png`;
 
-    // 메뉴 이동 + 사이드바 달기
-    const move = (path) => {
-        navigate(path);
-        onClose();
-    }
+  return (
+    <div className={`admin-sidebar ${isOpen ? "open" : ""}`}>
 
-    return (
-        <div className={`admin-sidebar ${isOpen ? "open" : ""}`}>
+      <button className="close-btn" onClick={onClose}>✕</button>
 
-            <button className="close-btn" onClick={onClose}>✕</button>
-            
-            <div className="admin-logo" onClick ={ ()=> {navigate("/");}}><img src={logo} alt="logo"/></div> 
-                <table>
-                    <tbody>
-                        <tr onClick ={ ()=> {navigate("/admin/statistics"); }}><td>통계</td></tr> 
-                        <tr onClick = { () => {navigate("/admin/flight");}}><td>항공권 관리</td></tr> 
-                        <tr onClick ={ () => {navigate("/admin/airlinereview")}}><td>리뷰 관리</td></tr> 
-                        <tr onClick={() => navigate("/admin/member")}><td>회원 관리</td></tr>
-                        {/* 관리자 공지 연결 추가 (김동윤) */}
-                        {/* 관리자 공지댓글 연결 수정 (12.17 김동윤) */}
-                        <tr onClick ={ ()=> {navigate("/admin/notice"); }}><td>공지사항 관리</td></tr> 
-                        {/* <tr onClick ={ ()=> {navigate("/admin/notice/comment"); }}><td>공지사항 댓글 관리</td></tr>  */}
+      <div className="admin-logo" onClick={() => navigate("/")}>
+        <img src={LOGO_URL} alt="logo" />
+      </div>
 
-                    </tbody>
-                </table>
-            
-        </div>
+      <table>
+        <tbody>
+          <tr onClick={() => move("/admin/statistics")}><td>통계</td></tr>
+          <tr onClick={() => move("/admin/flight")}><td>항공권 관리</td></tr>
+          <tr onClick={() => move("/admin/airlinereview")}><td>리뷰 관리</td></tr>
+          <tr onClick={() => move("/admin/member")}><td>회원 관리</td></tr>
+          <tr onClick={() => move("/admin/notice")}><td>공지사항 관리</td></tr>
+        </tbody>
+      </table>
 
-    ); 
-
+    </div>
+  );
 };
+
 export default AuthSidebar;

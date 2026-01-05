@@ -73,6 +73,11 @@ function LoginTab() {
         case "INVALID_CREDENTIALS":
           message = "이메일 또는 비밀번호가 올바르지 않습니다.";
           break;
+        case "INACTIVE_ACCOUNT":
+          message =
+            "관리자에 의해 비활성화된 계정입니다.\n" +
+            "오픈카카오톡 1:1 상담을 이용해주세요.";
+          break;
       }
 
       setLoginError({

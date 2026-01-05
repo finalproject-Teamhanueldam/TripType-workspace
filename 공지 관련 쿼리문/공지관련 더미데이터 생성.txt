@@ -1,0 +1,106 @@
+-- 공지사항 20개 (중요공지 5개)
+INSERT INTO TB_NOTICE (
+  NOTICE_ID,
+  NOTICE_TITLE,
+  NOTICE_CONTENT,
+  NOTICE_CREATED_AT,
+  NOTICE_UPDATED_AT,
+  NOTICE_VIEWS,
+  NOTICE_IS_IMPORTANT,
+  NOTICE_IS_DEL
+)
+SELECT
+  TB_NOTICE_SEQ.NEXTVAL,
+  title,
+  content,
+  SYSDATE - (21 - rn),
+  SYSDATE - (21 - rn),
+  TRUNC(DBMS_RANDOM.VALUE(20, 300)),
+  CASE
+    WHEN rn BETWEEN 16 AND 20 THEN 'Y'
+    ELSE 'N'
+  END,
+  'N'
+FROM (
+  SELECT 1 rn, 'TripType 신규 서비스 오픈 안내' title, 'TripType 항공권 가격 비교 서비스가 정식 오픈되었습니다.' content FROM DUAL UNION ALL
+  SELECT 2, '항공권 가격 알림 기능 출시', '원하는 가격 도달 시 알림을 받아보세요.' FROM DUAL UNION ALL
+  SELECT 3, '마이페이지 기능 개선 안내', '사용자 편의성을 위해 마이페이지 UI를 개선했습니다.' FROM DUAL UNION ALL
+  SELECT 4, '항공권 검색 필터 기능 업데이트', '출발 시간, 경유 횟수 필터가 추가되었습니다.' FROM DUAL UNION ALL
+  SELECT 5, '모바일 웹 UI 개선 안내', '모바일 환경에서 더 편리하게 이용하세요.' FROM DUAL UNION ALL
+  SELECT 6, '항공권 즐겨찾기 기능 추가', '자주 찾는 항공권을 저장할 수 있습니다.' FROM DUAL UNION ALL
+  SELECT 7, '카드사 제휴 할인 이벤트 안내', '제휴 카드 결제 시 할인 혜택을 제공합니다.' FROM DUAL UNION ALL
+  SELECT 8, '항공권 가격 비교 정확도 개선', '가격 반영 속도를 개선했습니다.' FROM DUAL UNION ALL
+  SELECT 9, '항공권 검색 속도 향상 안내', '검색 응답 속도가 대폭 개선되었습니다.' FROM DUAL UNION ALL
+  SELECT 10, '항공권 정렬 기준 안내', '최저가, 추천순 정렬 기준을 안내드립니다.' FROM DUAL UNION ALL
+  SELECT 11, '공항 코드 검색 기능 추가', '공항 코드로 빠르게 검색하세요.' FROM DUAL UNION ALL
+  SELECT 12, '고객센터 운영 시간 변경 안내', '운영 시간이 일부 변경됩니다.' FROM DUAL UNION ALL
+  SELECT 13, 'FAQ 페이지 개편 안내', '자주 묻는 질문을 정리했습니다.' FROM DUAL UNION ALL
+  SELECT 14, '항공권 검색 기록 저장 기능 추가', '최근 검색 기록을 확인할 수 있습니다.' FROM DUAL UNION ALL
+  SELECT 15, 'TripType 서비스 이용 가이드', '서비스 이용 방법을 안내드립니다.' FROM DUAL UNION ALL
+  SELECT 16, '항공권 검색 지연 현상 안내', '일부 항공권 검색이 지연되고 있습니다.' FROM DUAL UNION ALL
+  SELECT 17, '일부 항공사 요금 미반영 안내', '요금 반영 지연 현상이 발생 중입니다.' FROM DUAL UNION ALL
+  SELECT 18, '시스템 점검 안내', '안정적인 서비스를 위해 점검을 진행합니다.' FROM DUAL UNION ALL
+  SELECT 19, '국제선 항공권 환불 정책 변경 안내', '환불 정책이 일부 변경되었습니다.' FROM DUAL UNION ALL
+  SELECT 20, '개인정보 처리방침 개정 안내', '개인정보 처리방침이 개정됩니다.' FROM DUAL
+);
+
+
+-- 중요공지(16~20) 첨부파일 5개
+INSERT INTO TB_NOTICE_ATTACHMENT (
+  NOTICE_ATTACHMENT_ID,
+  NOTICE_ATTACHMENT_NAME,
+  NOTICE_ATTACHMENT_UPDATE,
+  NOTICE_ATTACHMENT_URL,
+  NOTICE_ATTACHMENT_UPLOADED_AT,
+  NOTICE_ATTACHMENT_IS_DEL,
+  NOTICE_ID
+)
+SELECT
+  TB_NOTICE_ATTACHMENT_SEQ.NEXTVAL,
+  'important_notice_file_' || NOTICE_ID || '.pdf',
+  '중요 공지 첨부파일',
+  '/upload/notice/important_notice_' || NOTICE_ID || '.pdf',
+  SYSDATE,
+  'N',
+  NOTICE_ID
+FROM TB_NOTICE
+WHERE NOTICE_IS_IMPORTANT = 'Y';
+
+-- 3개 계정 사용 (1,2,3 번 회원이 반드시 있어야함)
+INSERT INTO TB_NOTICE_COMMENT (
+  NOTICE_COMMENT_ID,
+  NOTICE_COMMENT_CONTENT,
+  NOTICE_COMMENT_CREATED_AT,
+  NOTICE_COMMENT_UPDATED_AT,
+  NOTICE_COMMENT_IS_DEL,
+  NOTICE_ID,
+  MEMBER_NO
+)
+SELECT
+  TB_NOTICE_COMMENT_SEQ.NEXTVAL,
+  '좋은 공지 감사합니다.',
+  SYSDATE,
+  SYSDATE,
+  'N',
+  n.NOTICE_ID,
+  CASE MOD(lv, 2)
+    WHEN 1 THEN 2
+    ELSE 3
+  END
+FROM (
+  SELECT NOTICE_ID
+  FROM (
+    SELECT NOTICE_ID
+    FROM TB_NOTICE
+    WHERE NOTICE_IS_IMPORTANT = 'Y'
+    ORDER BY NOTICE_CREATED_AT DESC
+  )
+  WHERE ROWNUM <= 3
+) n
+JOIN (
+  SELECT LEVEL lv
+  FROM DUAL
+  CONNECT BY LEVEL <= 2
+) l
+ON 1 = 1;
+

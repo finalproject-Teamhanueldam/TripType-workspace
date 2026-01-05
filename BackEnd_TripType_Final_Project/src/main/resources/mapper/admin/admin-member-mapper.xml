@@ -8,58 +8,120 @@
   <!-- =========================
        관리자 회원 목록
   ========================= -->
-  <select id="selectMemberList"
-          resultType="AdminMember">
-
-    SELECT
-      MEMBER_NO            AS memberNo,
-      MEMBER_ID            AS memberId,
-      MEMBER_NAME          AS memberName,
-      MEMBER_BIRTH_DATE    AS memberBirthDate,
-      MEMBER_PHONE         AS memberPhone,
-      MEMBER_ROLE          AS memberRole,
-      MEMBER_IS_ACTIVE     AS memberIsActive,
-      MEMBER_IS_LOCKED     AS memberIsLocked,
-      MEMBER_CREATE_AT    AS memberCreateAt,
-      MEMBER_LAST_LOGIN_AT AS memberLastLoginAt
-    FROM TB_MEMBER
-    WHERE 1=1
-
-    <if test="keyword != null and keyword != ''">
-      AND (
-        MEMBER_ID LIKE '%' || #{keyword} || '%'
-        OR MEMBER_NAME LIKE '%' || #{keyword} || '%'
-      )
-    </if>
-
-    <if test="showInactive == false">
-	  AND MEMBER_IS_ACTIVE = 'Y'
-	</if>
-
-    ORDER BY MEMBER_CREATE_AT DESC
-  </select>
+	<select id="selectMemberList"
+	        resultType="AdminMember">
+	
+	  SELECT
+	    m.MEMBER_NO            AS memberNo,
+	    m.MEMBER_ID            AS memberId,
+	    m.MEMBER_NAME          AS memberName,
+	    m.MEMBER_BIRTH_DATE    AS memberBirthDate,
+	    m.MEMBER_PHONE         AS memberPhone,
+	    m.MEMBER_ROLE          AS memberRole,
+	    m.MEMBER_IS_ACTIVE     AS memberIsActive,
+	    m.MEMBER_IS_LOCKED     AS memberIsLocked,
+	    m.MEMBER_CREATE_AT    AS memberCreateAt,
+	    m.MEMBER_LAST_LOGIN_AT AS memberLastLoginAt,
+	
+	    CASE
+	      WHEN COUNT(sa.SOCIAL_ACCOUNT_NO) > 0 THEN 'Y'
+	      ELSE 'N'
+	    END AS isSocial,
+	
+	    CASE
+	      WHEN m.MEMBER_PASSWORD IS NOT NULL THEN 'Y'
+	      ELSE 'N'
+	    END AS hasPassword,	
+	    	
+	    LISTAGG(sa.SOCIAL_PROVIDER, ', ')
+	      WITHIN GROUP (ORDER BY sa.SOCIAL_PROVIDER)
+	      AS socialProviders
+	
+	  FROM TB_MEMBER m
+	  LEFT JOIN TB_SOCIAL_ACCOUNT sa
+	    ON m.MEMBER_NO = sa.MEMBER_NO
+	
+	  WHERE 1=1
+	
+	  <if test="keyword != null and keyword != ''">
+	    AND (
+	      m.MEMBER_ID LIKE '%' || #{keyword} || '%'
+	      OR m.MEMBER_NAME LIKE '%' || #{keyword} || '%'
+	    )
+	  </if>
+	
+	  <if test="showInactive == false">
+	    AND m.MEMBER_IS_ACTIVE = 'Y'
+	  </if>
+	
+	  GROUP BY
+	    m.MEMBER_NO,
+	    m.MEMBER_ID,
+	    m.MEMBER_NAME,
+	    m.MEMBER_BIRTH_DATE,
+	    m.MEMBER_PHONE,
+	    m.MEMBER_ROLE,
+	    m.MEMBER_IS_ACTIVE,
+	    m.MEMBER_IS_LOCKED,
+	    m.MEMBER_CREATE_AT,
+	    m.MEMBER_LAST_LOGIN_AT,
+	    m.MEMBER_PASSWORD
+	
+	  ORDER BY m.MEMBER_CREATE_AT DESC
+	</select>
 
   <!-- =========================
        관리자 회원 상세
   ========================= -->
-  <select id="selectMemberDetail"
-          parameterType="int"
-          resultType="AdminMember">
-
-    SELECT
-      MEMBER_NO            AS memberNo,
-      MEMBER_ID            AS memberId,
-      MEMBER_NAME          AS memberName,
-      MEMBER_BIRTH_DATE    AS memberBirthDate,
-      MEMBER_PHONE         AS memberPhone,
-      MEMBER_ROLE          AS memberRole,
-      MEMBER_IS_ACTIVE     AS memberIsActive,
-      MEMBER_IS_LOCKED     AS memberIsLocked,
-      MEMBER_CREATE_AT    AS memberCreateAt,
-      MEMBER_LAST_LOGIN_AT AS memberLastLoginAt
-    FROM TB_MEMBER
-    WHERE MEMBER_NO = #{memberNo}
-  </select>
+	<select id="selectMemberDetail"
+	        parameterType="int"
+	        resultType="AdminMember">
+	
+	  SELECT
+	    m.MEMBER_NO            AS memberNo,
+	    m.MEMBER_ID            AS memberId,
+	    m.MEMBER_NAME          AS memberName,
+	    m.MEMBER_BIRTH_DATE    AS memberBirthDate,
+	    m.MEMBER_PHONE         AS memberPhone,
+	    m.MEMBER_ROLE          AS memberRole,
+	    m.MEMBER_IS_ACTIVE     AS memberIsActive,
+	    m.MEMBER_IS_LOCKED     AS memberIsLocked,
+	    m.MEMBER_CREATE_AT    AS memberCreateAt,
+	    m.MEMBER_LAST_LOGIN_AT AS memberLastLoginAt,
+		
+	    CASE
+	      WHEN COUNT(sa.SOCIAL_ACCOUNT_NO) > 0 THEN 'Y'
+	      ELSE 'N'
+	    END AS isSocial,
+	    
+	    CASE
+	      WHEN m.MEMBER_PASSWORD IS NOT NULL THEN 'Y'
+	      ELSE 'N'
+	    END AS hasPassword,
+	
+	    LISTAGG(sa.SOCIAL_PROVIDER, ', ')
+	      WITHIN GROUP (ORDER BY sa.SOCIAL_PROVIDER)
+	      AS socialProviders
+	
+	  FROM TB_MEMBER m
+	  LEFT JOIN TB_SOCIAL_ACCOUNT sa
+	    ON m.MEMBER_NO = sa.MEMBER_NO
+	
+	  WHERE m.MEMBER_NO = #{memberNo}
+	
+	  GROUP BY
+	    m.MEMBER_NO,
+	    m.MEMBER_ID,
+	    m.MEMBER_NAME,
+	    m.MEMBER_BIRTH_DATE,
+	    m.MEMBER_PHONE,
+	    m.MEMBER_ROLE,
+	    m.MEMBER_IS_ACTIVE,
+	    m.MEMBER_IS_LOCKED,
+	    m.MEMBER_CREATE_AT,
+	    m.MEMBER_LAST_LOGIN_AT,
+	    m.MEMBER_PASSWORD
+	</select>
 
   <!-- =========================
        잠금 해제
