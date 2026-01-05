@@ -3,6 +3,9 @@ import "../../css/AuthContainer.css";
 import axios from "axios";
 
 function FindPasswordTab() {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const [form, setForm] = useState({
     memberName: "",
     memberId: "",
@@ -59,7 +62,7 @@ function FindPasswordTab() {
       setAuthMsg(null);
 
       await axios.post(
-        "http://localhost:8001/triptype/mail/auth/reset/send",
+        `${API_BASE_URL}/mail/auth/reset/send`,
         {
           memberName: form.memberName,
           memberId: form.memberId
@@ -95,7 +98,7 @@ function FindPasswordTab() {
 
     try {
       await axios.post(
-        "http://localhost:8001/triptype/mail/auth/verify",
+        `${API_BASE_URL}/mail/auth/verify`,
         {
           email: form.memberId,
           authCode: form.authCode
@@ -143,7 +146,7 @@ function FindPasswordTab() {
       setResetMsg(null);
 
       await axios.post(
-        "http://localhost:8001/triptype/member/password/reset",
+        `${API_BASE_URL}/member/password/reset`,
         {
           memberName: form.memberName,
           memberId: form.memberId,

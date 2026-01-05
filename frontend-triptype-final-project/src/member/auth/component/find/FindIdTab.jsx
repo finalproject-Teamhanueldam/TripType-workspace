@@ -7,6 +7,9 @@ import AuthDateInput from "../../../../common/component/AuthDateInput";
 import axios from "axios";
 
 function FindIdTab() {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const [info, setInfo] = useState({ name: "", birth: null });
   const [resultId, setResultId] = useState(null); // 찾은 아이디 저장
   const [error, setError] = useState("");
@@ -18,7 +21,7 @@ function FindIdTab() {
 
     try {
       const res = await axios.post(
-        "http://localhost:8001/triptype/member/id/find",
+        `${API_BASE_URL}/member/id/find`,
         {
           memberName: info.name,
           memberBirthDate: `${yyyy}-${mm}-${dd}`

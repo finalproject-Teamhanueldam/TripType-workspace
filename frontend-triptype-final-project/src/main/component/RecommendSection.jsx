@@ -18,6 +18,9 @@ const DEFAULT_DESTINATION_IDS = [1, 2, 3, 4, 5];
 const PERSONALIZED_COUNT = 5;
 
 const RecommendSection = () => {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  
   const navigate = useNavigate();
 
   // null=로딩중, true=설문있음, false=설문없음
@@ -298,7 +301,7 @@ const RecommendSection = () => {
                   onError={(e) => {
                     e.currentTarget.onerror = null; // ✅ 무한루프 방지
                     e.currentTarget.src =
-                      "http://localhost:8001/triptype/logo_image/TripType_logo.png";
+                      `${API_BASE_URL}/logo_image/TripType_logo.png`;
                     e.currentTarget.classList.add("is-fallback-logo");
                   }}
                 />
