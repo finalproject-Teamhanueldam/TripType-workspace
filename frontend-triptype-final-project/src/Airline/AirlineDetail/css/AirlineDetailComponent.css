@@ -1,9 +1,10 @@
 /* 전체 레이아웃 */
 .airline-detail-container {
   width: 1200px;
-  height: 2000px;
+  height: auto;
   margin: auto;
   padding-top: 40px;
+
 }
 
 /* ------------------------------------------- */

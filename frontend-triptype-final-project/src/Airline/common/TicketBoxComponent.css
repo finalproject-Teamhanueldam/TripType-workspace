@@ -202,3 +202,27 @@
     margin-top: -2px;
 }
 
+
+
+/* 항공사 웹사이트 버튼 */
+.airline-link {
+    display: inline-block;
+    margin-left: 8px; /* 항공사 이름과 약간 간격 */
+    padding: 4px 10px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.airline-link:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.airline-link:active {
+    transform: translateY(0);
+}
