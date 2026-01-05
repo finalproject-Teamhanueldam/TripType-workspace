@@ -41,7 +41,7 @@ public class AdminFlightController {
     public ResponseEntity<List<AdminTicketOfferDto>> SelectTickets() {
     	
     	List<AdminTicketOfferDto> list = adminFlightService.selectTickets();
-    	
+    	System.out.println(list);
     	return ResponseEntity.ok(list);
     }
     

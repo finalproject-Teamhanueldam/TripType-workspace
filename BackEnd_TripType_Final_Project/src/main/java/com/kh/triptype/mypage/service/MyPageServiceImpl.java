@@ -1,5 +1,8 @@
 package com.kh.triptype.mypage.service;
 
+import java.util.List;
+
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -9,6 +12,7 @@ import com.kh.triptype.mypage.dao.MyPageDao;
 import com.kh.triptype.mypage.model.dto.MyPasswordChangeReq;
 import com.kh.triptype.mypage.model.dto.MyProfileRes;
 import com.kh.triptype.mypage.model.dto.MyProfileUpdateReq;
+import com.kh.triptype.mypage.model.dto.SearchHistoryDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +22,8 @@ public class MyPageServiceImpl implements MyPageService {
 
     private final MyPageDao myPageDao;
     private final PasswordEncoder passwordEncoder;
+    
+    private final SqlSessionTemplate sqlSession;
 
     @Override
     public MyProfileRes getMyProfile(int memberNo) {
@@ -73,4 +79,11 @@ public class MyPageServiceImpl implements MyPageService {
 
         myPageDao.withdrawMember(memberNo);
     }
+
+	@Override
+	public List<SearchHistoryDto> fetchSearchHistory(int memberNo) {
+		
+		return myPageDao.fetchSearchHistory(sqlSession, memberNo);
+	
+	}
 }

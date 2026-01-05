@@ -30,7 +30,7 @@ public class AdminReviewController {
 	public List<AirlineReviewVo> SelectAdminAirlineReview() {
 		
 		List list =  adminReviewService.SelectAdminAirlineReview();
-	
+		System.out.println(list);
 		return list;
 	}
 	

@@ -1,8 +1,11 @@
 package com.kh.triptype.mypage.service;
 
+import java.util.List;
+
 import com.kh.triptype.mypage.model.dto.MyPasswordChangeReq;
 import com.kh.triptype.mypage.model.dto.MyProfileRes;
 import com.kh.triptype.mypage.model.dto.MyProfileUpdateReq;
+import com.kh.triptype.mypage.model.dto.SearchHistoryDto;
 
 public interface MyPageService {
 
@@ -13,4 +16,6 @@ public interface MyPageService {
     void changePassword(int memberNo, MyPasswordChangeReq req);
     
     void withdraw(int memberNo, String password);
+
+	List<SearchHistoryDto> fetchSearchHistory(int memberNo);
 }

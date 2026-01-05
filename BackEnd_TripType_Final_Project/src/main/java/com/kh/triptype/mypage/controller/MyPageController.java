@@ -1,10 +1,12 @@
 package com.kh.triptype.mypage.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +17,7 @@ import com.kh.triptype.auth.model.vo.AuthUser;
 import com.kh.triptype.mypage.model.dto.MyPasswordChangeReq;
 import com.kh.triptype.mypage.model.dto.MyProfileRes;
 import com.kh.triptype.mypage.model.dto.MyProfileUpdateReq;
+import com.kh.triptype.mypage.model.dto.SearchHistoryDto;
 import com.kh.triptype.mypage.service.MyPageService;
 
 import lombok.RequiredArgsConstructor;
@@ -77,5 +80,19 @@ public class MyPageController {
 
         myPageService.withdraw(authUser.getMemberNo(), password);
         return ResponseEntity.ok().build();
+    }
+    
+    
+    @GetMapping("/searchHistory")
+    public ResponseEntity<List<SearchHistoryDto>> fetchSearchHistory(
+            Authentication authentication
+    ) {
+        AuthUser authUser = (AuthUser) authentication.getPrincipal();
+        
+        List<SearchHistoryDto> list =
+            myPageService.fetchSearchHistory((int)authUser.getMemberNo());
+       
+        System.out.println(list);
+        return ResponseEntity.ok(list);
     }
 }

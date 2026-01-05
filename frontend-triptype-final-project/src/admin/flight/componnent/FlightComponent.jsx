@@ -188,8 +188,8 @@ const FlightComponent = () => {
                         </div>
 
                         <div className="search-action-btns">
-                            <button className="action-btn search-btn" onClick={handleSearch}>검색</button>
-                            <button className="action-btn reset-btn" onClick={handleReset}>초기화</button>
+                            <button className="admin-action-btn admin-search-btn" onClick={handleSearch}>검색</button>
+                            <button className="admin-action-btn admin-reset-btn" onClick={handleReset}>초기화</button>
                         </div>
                     </div>
 
@@ -198,8 +198,8 @@ const FlightComponent = () => {
                             조회 결과 총 <strong>{ticket.length}</strong>건
                         </span>
                         <div className="action-group" style={{ display: 'flex', gap: '10px' }}>
-                            <button className="action-btn secondary-btn" onClick={fetchflight}>API 조회</button>
-                            <button className="action-btn danger-btn" onClick={handleBulkDelete}>
+                            <button className="admin-action-btn admin-secondary-btn" onClick={fetchflight}>API 조회</button>
+                            <button className="admin-action-btn admin-danger-btn" onClick={handleBulkDelete}>
                                 일괄 삭제 ({selectedTickets.length})
                             </button>
                         </div>

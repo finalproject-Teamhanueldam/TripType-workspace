@@ -1,9 +1,14 @@
 package com.kh.triptype.mypage.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.session.SqlSession;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
+
 import com.kh.triptype.mypage.model.dto.MyProfileRes;
 import com.kh.triptype.mypage.model.dto.MyProfileUpdateReq;
+import com.kh.triptype.mypage.model.dto.SearchHistoryDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -54,4 +59,9 @@ public class MyPageDao {
     public int withdrawMember(int memberNo) {
         return sqlSession.update("mypageMapper.withdrawMember", memberNo);
     }
+
+	public static List<SearchHistoryDto> fetchSearchHistory(SqlSessionTemplate sqlSession, int memberNo) {
+		
+		return sqlSession.selectList("mypageMapper.fetchSearchHistory", memberNo);
+	}
 }

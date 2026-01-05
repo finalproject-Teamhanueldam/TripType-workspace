@@ -25,7 +25,7 @@ const TopRatingAirlineComponent = () => {
         fetchTopRatingAirline();
     }, []);
 
-    if (!topRating || topRating.length === 0) return <div>데이터 없음</div>;
+    if (!topRating || topRating.length === 0) return <div style={{width : "400px"}}>데이터 없음</div>;
 
     const data = [
         ["항공사", "평균 평점"],
@@ -34,8 +34,13 @@ const TopRatingAirlineComponent = () => {
         ])
     ];
     const options = {
-        title : "평점 높은 항공사"
-    }
+        title : "평점 높은 항공사",
+        hAxis: {
+            minValue: 0,
+            maxValue: 5,
+            ticks: [0, 1, 2, 3, 4, 5]
+        }
+    };
 
     return (
         <div>

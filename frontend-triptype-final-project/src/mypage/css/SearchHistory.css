@@ -1,0 +1,115 @@
+/* 1. 컨테이너: 전체 레이아웃 */
+.sh-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+/* 3. 헤더 배지: 우측 상단 */
+.sh-card-header {
+    
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 25px;
+}
+
+.sh-count-badge {
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* 4. 테이블: th 영역 색감 혁신 */
+.sh-table-responsive {
+   
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+}
+
+.sh-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* th 영역: 칙칙함 제거 (Ice Blue & Navy) */
+.sh-data-table thead th {
+  background-color: #e8eeff; /* 아주 밝은 아이스 블루 */
+  color: #475569; /* 신뢰감 있는 짙은 슬레이트 */
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 18px 10px;
+  border-bottom: 2px solid #3b82f6; /* 핵심 포인트: 블루 라인 */
+  text-align: center;
+}
+
+.sh-data-table tbody td {
+  padding: 22px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 1rem;
+  color: #334155;
+  text-align: center;
+  vertical-align: middle;
+}
+
+
+.sh-data-table td.sh-cell-airport {
+  font-weight: 800;
+  color: #1e293b;
+  position: relative;
+}
+
+/* 출발 셀 오른쪽에 화살표 (공중에 띄움) */
+.sh-data-table td.sh-cell-airport:nth-child(1)::after {
+  content: "→";
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  transform: translate(50%, -55%);
+  color: #3b82f6;
+  font-weight: 500;
+  font-size: 1.3rem;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+/* 6. 디테일 스타일링 */
+.sh-cell-date {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* 마우스 호버 시 산뜻한 블루 틴트 */
+.sh-data-table tbody tr:hover {
+  background-color: #f5f9ff;
+  transition: background-color 0.2s ease;
+}
+
+.sh-empty-row {
+  padding: 100px !important;
+  color: #94a3b8;
+  font-size: 1rem;
+}
+
+/* 7. 푸터 안내 */
+.sh-footer-notice {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-align: left;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .sh-data-table td.sh-cell-airport:nth-child(1)::after {
+    display: none;
+  }
+}

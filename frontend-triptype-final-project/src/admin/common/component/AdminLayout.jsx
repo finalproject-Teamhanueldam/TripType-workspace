@@ -5,7 +5,7 @@ import AdminHeader from "./AdminHeader";
 import AuthSidebar from "./AuthSidebar";
 
 const AdminLayout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
     <>

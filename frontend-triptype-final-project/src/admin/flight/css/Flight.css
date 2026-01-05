@@ -164,7 +164,7 @@
 /* ============================= */
 /* 버튼 공통 스타일 + Hover 효과 */
 /* ============================= */
-.action-btn,
+.admin-action-btn,
 .admin-flight-delete-btn {
     transition: background-color 0.2s ease, 
                 transform 0.15s ease, 
@@ -172,7 +172,7 @@
 }
 
 /* 기본 버튼 */
-.action-btn {
+.admin-action-btn {
     padding: 0 15px;
     height: 40px;
     border-radius: 4px;
@@ -182,23 +182,23 @@
     border: none;
 }
 
-.action-btn:hover {
+.admin-action-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 3px 6px rgba(0,0,0,0.15);
 }
 
 /* 검색 */
-.search-btn {
+.admin-search-btn {
     background-color: #007bff;
     color: white;
 }
 
-.search-btn:hover {
+.admin-search-btn:hover {
     background-color: #0056b3;
 }
 
 /* 초기화 */
-.reset-btn {
+.admin-reset-btn {
     background-color: #6c757d;
     color: white;
 }
@@ -208,26 +208,27 @@
 }
 
 /* 보조 버튼 */
-.secondary-btn {
+.admin-secondary-btn {
     background-color: #007bff;
     color: white;
 }
 
-.secondary-btn:hover {
+.admin-secondary-btn:hover {
     background-color: #0056b3;
 }
 
 /* 위험 버튼 */
-.danger-btn {
+.admin-danger-btn {
     background-color: #dc3545;
     color: white;
 }
 
-.danger-btn:hover {
+.admin-danger-btn:hover {
     background-color: #b02a37;
 }
 
 /* 개별 삭제 버튼 */
+
 .admin-flight-delete-btn {
     background: #ff3a3a;
     color: white;

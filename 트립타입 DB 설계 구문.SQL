@@ -230,7 +230,8 @@ CREATE TABLE TB_REVIEW (
   REVIEW_CONTENT VARCHAR2(300) NOT NULL,
   REVIEW_CREATE_DATE DATE DEFAULT SYSDATE NOT NULL,
   REVIEW_MODIFY_DATE DATE DEFAULT SYSDATE NOT NULL,
-  REVIEW_STATUS CHAR(1) DEFAULT 'N' NOT NULL,
+  REVIEW_STATUS CHAR(1) DEFAULT 'Y' NOT NULL,
+  REVIEW_RATING NUMBER NOT NULL,
   MEMBER_NO NUMBER NOT NULL,
   AIRLINE_ID NUMBER NOT NULL,
 
@@ -238,7 +239,7 @@ CREATE TABLE TB_REVIEW (
   CONSTRAINT FK_REVIEW_MEMBER FOREIGN KEY (MEMBER_NO)
       REFERENCES TB_MEMBER(MEMBER_NO),
     CONSTRAINT FK_AIRLINE_ID FOREIGN KEY (AIRLINE_ID)
-      REFERENCES TB_FLIGHT_OFFER(FLIGHT_OFFER_ID)
+      REFERENCES TB_AIRLINE(AIRLINE_ID)
 );
 
 -- 10) SURVEY  (회원당 1행)
@@ -863,5 +864,268 @@ INSERT INTO TB_SEARCH_LOG (
 --    'N',
 --    SYSDATE
 --);
+
+INSERT INTO TB_MEMBER (
+    MEMBER_NO,
+    MEMBER_ID,
+    MEMBER_PASSWORD,
+    MEMBER_NAME,
+    MEMBER_BIRTH_DATE,
+    MEMBER_GENDER,
+    MEMBER_PHONE,
+    MEMBER_ROLE,
+    MEMBER_CREATE_AT,
+    MEMBER_WITHDRAWN_AT,
+    MEMBER_LAST_LOGIN_AT,
+    MEMBER_IS_ACTIVE,
+    MEMBER_LOGIN_FAIL_COUNT,
+    MEMBER_IS_LOCKED,
+    MEMBER_UNLOCK_TIME
+)
+SELECT
+    TB_MEMBER_SEQ.NEXTVAL,
+    'withdraw_user_' || LEVEL,
+    'hashed_pw',
+    '탈퇴회원' || LEVEL,
+    DATE '1990-01-01' + MOD(LEVEL, 100),
+    CASE WHEN MOD(LEVEL, 2) = 0 THEN 'M' ELSE 'F' END,
+    '010' || LPAD(LEVEL, 8, '0'),
+    'USER',
+    ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -MOD(LEVEL, 12)),
+    ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -MOD(LEVEL, 12)) + 30,
+    NULL,
+    'N',          -- ❌ 비활성
+    0,
+    'N',
+    SYSDATE
+FROM DUAL
+CONNECT BY LEVEL <= 30;
+
+INSERT INTO TB_MEMBER (
+    MEMBER_NO,
+    MEMBER_ID,
+    MEMBER_PASSWORD,
+    MEMBER_NAME,
+    MEMBER_BIRTH_DATE,
+    MEMBER_GENDER,
+    MEMBER_PHONE,
+    MEMBER_ROLE,
+    MEMBER_CREATE_AT,
+    MEMBER_WITHDRAWN_AT,
+    MEMBER_LAST_LOGIN_AT,
+    MEMBER_IS_ACTIVE,
+    MEMBER_LOGIN_FAIL_COUNT,
+    MEMBER_IS_LOCKED,
+    MEMBER_UNLOCK_TIME
+)
+SELECT
+    TB_MEMBER_SEQ.NEXTVAL,
+    'user_' || LEVEL,
+    'hashed_pw',
+    '일반회원' || LEVEL,
+    DATE '1990-01-01' + MOD(LEVEL, 100),
+    CASE WHEN MOD(LEVEL, 2) = 0 THEN 'M' ELSE 'F' END,
+    '010' || LPAD(LEVEL + 1000, 8, '0'),
+    'USER',
+    ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -MOD(LEVEL, 18)), -- 가입일 분산
+    NULL,                                             -- 탈퇴 안 함
+    TRUNC(SYSDATE - DBMS_RANDOM.VALUE(0, 7)),         -- 최근 로그인
+    'Y',                                              -- ✅ 활성
+    TRUNC(DBMS_RANDOM.VALUE(0, 3)),                    -- 로그인 실패 0~2
+    'N',
+    SYSDATE
+FROM DUAL
+CONNECT BY LEVEL <= 70;
+
+
+-- 리뷰 테이블 더미 데이터
+INSERT INTO TB_REVIEW (
+    REVIEW_NO,
+    REVIEW_CONTENT,
+    REVIEW_RATING,
+    REVIEW_CREATE_DATE,
+    REVIEW_MODIFY_DATE,
+    REVIEW_STATUS,
+    MEMBER_NO,
+    AIRLINE_ID
+)
+SELECT
+    TB_REVIEW_SEQ.NEXTVAL,
+
+    /* 리뷰 내용 랜덤 */
+    CASE TRUNC(DBMS_RANDOM.VALUE(1, 11))
+        WHEN 1 THEN '좌석이 넉넉해서 장거리 비행도 편안했습니다.'
+        WHEN 2 THEN '승무원 응대가 친절했고 전체적으로 만족스러웠어요.'
+        WHEN 3 THEN '기내식이 깔끔하고 맛도 괜찮았습니다.'
+        WHEN 4 THEN '출발과 도착이 모두 정시에 이루어졌습니다.'
+        WHEN 5 THEN '가격 대비 서비스 품질이 좋았습니다.'
+        WHEN 6 THEN '탑승 수속이 빠르고 안내가 명확했습니다.'
+        WHEN 7 THEN '좌석 간격이 조금 아쉬웠지만 무난했습니다.'
+        WHEN 8 THEN '기내가 청결했고 전반적으로 안정적인 비행이었습니다.'
+        WHEN 9 THEN '첫 이용이었는데 기대 이상이었습니다.'
+        WHEN 10 THEN '환승 안내가 잘 되어 불편함이 없었습니다.'
+    END AS REVIEW_CONTENT,
+
+    /* 평점: 3~5 랜덤 (가중치 현실적으로) */
+    CASE TRUNC(DBMS_RANDOM.VALUE(1, 6))
+        WHEN 1 THEN 3
+        WHEN 2 THEN 4
+        WHEN 3 THEN 4
+        WHEN 4 THEN 5
+        WHEN 5 THEN 5
+    END AS REVIEW_RATING,
+
+    /* 최근 6개월 내 랜덤 날짜 */
+    TRUNC(SYSDATE) - TRUNC(DBMS_RANDOM.VALUE(0, 180)),
+    TRUNC(SYSDATE) - TRUNC(DBMS_RANDOM.VALUE(0, 180)),
+
+    /* 전부 정상 리뷰 */
+    'Y' AS REVIEW_STATUS,
+
+    /* MEMBER_NO 1 ~ 30 랜덤 */
+    TRUNC(DBMS_RANDOM.VALUE(1, 31)),
+
+    /* AIRLINE_ID 1 ~ 20 랜덤 (← 골고루 아님) */
+    TRUNC(DBMS_RANDOM.VALUE(1, 21))
+
+FROM DUAL
+CONNECT BY LEVEL <= 100;
+
+-- 검색 테이블 더미데이터
+INSERT INTO TB_SEARCH_LOG (
+    SEARCH_LOG_NO,
+    SEARCH_LOG_ONE_WAY,
+    SEARCH_LOG_PASSENGER_COUNT,
+    SEARCH_LOG_DEPART_DATE,
+    SEARCH_LOG_RETURN_DATE,
+    SEARCH_LOG_DATE,
+    MEMBER_NO,
+    DEPART_IATA_CODE,
+    ARRIVE_IATA_CODE
+)
+SELECT
+    TB_SEARCH_LOG_SEQ.NEXTVAL,
+    SEARCH_LOG_ONE_WAY,
+    SEARCH_LOG_PASSENGER_COUNT,
+    SEARCH_LOG_DEPART_DATE,
+    SEARCH_LOG_RETURN_DATE,
+    SEARCH_LOG_DATE,
+    MEMBER_NO,
+    DEPART_IATA_CODE,
+    ARRIVE_IATA_CODE
+FROM (
+    SELECT
+        /* 편도 / 왕복 */
+        CASE
+            WHEN DBMS_RANDOM.VALUE(0, 1) < 0.6 THEN 'Y'
+            ELSE 'N'
+        END AS SEARCH_LOG_ONE_WAY,
+
+        /* 승객 수 */
+        TRUNC(DBMS_RANDOM.VALUE(1, 5)) AS SEARCH_LOG_PASSENGER_COUNT,
+
+        /* 출발일 */
+        TRUNC(SYSDATE + DBMS_RANDOM.VALUE(1, 90)) AS SEARCH_LOG_DEPART_DATE,
+
+        /* 왕복일 */
+        CASE
+            WHEN DBMS_RANDOM.VALUE(0, 1) < 0.6 THEN NULL
+            ELSE TRUNC(SYSDATE + DBMS_RANDOM.VALUE(3, 90))
+        END AS SEARCH_LOG_RETURN_DATE,
+
+        /* 검색일 */
+        TRUNC(SYSDATE - DBMS_RANDOM.VALUE(0, 30)) AS SEARCH_LOG_DATE,
+
+        /* MEMBER_NO (NULL 허용) */
+        CASE
+            WHEN DBMS_RANDOM.VALUE(0, 1) < 0.4 THEN NULL
+            ELSE TRUNC(DBMS_RANDOM.VALUE(1, 30))
+        END AS MEMBER_NO,
+
+        /* 출발 공항 */
+        DEPART_IATA_CODE,
+
+        /* 도착 공항 (출발 제외) */
+        CASE
+            WHEN DEPART_IATA_CODE = 'ICN' THEN
+                CASE TRUNC(DBMS_RANDOM.VALUE(1, 7))
+                    WHEN 1 THEN 'NRT'
+                    WHEN 2 THEN 'GMP'
+                    WHEN 3 THEN 'HND'
+                    WHEN 4 THEN 'DAD'
+                    WHEN 5 THEN 'HAN'
+                    WHEN 6 THEN 'PVG'
+                END
+            WHEN DEPART_IATA_CODE = 'GMP' THEN
+                CASE TRUNC(DBMS_RANDOM.VALUE(1, 7))
+                    WHEN 1 THEN 'ICN'
+                    WHEN 2 THEN 'NRT'
+                    WHEN 3 THEN 'HND'
+                    WHEN 4 THEN 'DAD'
+                    WHEN 5 THEN 'HAN'
+                    WHEN 6 THEN 'PVG'
+                END
+            WHEN DEPART_IATA_CODE = 'NRT' THEN
+                CASE TRUNC(DBMS_RANDOM.VALUE(1, 7))
+                    WHEN 1 THEN 'ICN'
+                    WHEN 2 THEN 'GMP'
+                    WHEN 3 THEN 'HND'
+                    WHEN 4 THEN 'DAD'
+                    WHEN 5 THEN 'HAN'
+                    WHEN 6 THEN 'PVG'
+                END
+            WHEN DEPART_IATA_CODE = 'HND' THEN
+                CASE TRUNC(DBMS_RANDOM.VALUE(1, 7))
+                    WHEN 1 THEN 'ICN'
+                    WHEN 2 THEN 'GMP'
+                    WHEN 3 THEN 'NRT'
+                    WHEN 4 THEN 'DAD'
+                    WHEN 5 THEN 'HAN'
+                    WHEN 6 THEN 'PVG'
+                END
+            WHEN DEPART_IATA_CODE = 'DAD' THEN
+                CASE TRUNC(DBMS_RANDOM.VALUE(1, 7))
+                    WHEN 1 THEN 'ICN'
+                    WHEN 2 THEN 'GMP'
+                    WHEN 3 THEN 'NRT'
+                    WHEN 4 THEN 'HND'
+                    WHEN 5 THEN 'HAN'
+                    WHEN 6 THEN 'PVG'
+                END
+            WHEN DEPART_IATA_CODE = 'HAN' THEN
+                CASE TRUNC(DBMS_RANDOM.VALUE(1, 7))
+                    WHEN 1 THEN 'ICN'
+                    WHEN 2 THEN 'GMP'
+                    WHEN 3 THEN 'NRT'
+                    WHEN 4 THEN 'HND'
+                    WHEN 5 THEN 'DAD'
+                    WHEN 6 THEN 'PVG'
+                END
+            WHEN DEPART_IATA_CODE = 'PVG' THEN
+                CASE TRUNC(DBMS_RANDOM.VALUE(1, 7))
+                    WHEN 1 THEN 'ICN'
+                    WHEN 2 THEN 'GMP'
+                    WHEN 3 THEN 'NRT'
+                    WHEN 4 THEN 'HND'
+                    WHEN 5 THEN 'DAD'
+                    WHEN 6 THEN 'HAN'
+                END
+        END AS ARRIVE_IATA_CODE
+    FROM (
+        /* 출발 공항 랜덤 */
+        SELECT
+            CASE TRUNC(DBMS_RANDOM.VALUE(1, 8))
+                WHEN 1 THEN 'ICN'
+                WHEN 2 THEN 'GMP'
+                WHEN 3 THEN 'NRT'
+                WHEN 4 THEN 'HND'
+                WHEN 5 THEN 'DAD'
+                WHEN 6 THEN 'HAN'
+                WHEN 7 THEN 'PVG'
+            END AS DEPART_IATA_CODE
+        FROM DUAL
+        CONNECT BY LEVEL <= 200
+    )
+);
 
 COMMIT;

@@ -24,7 +24,7 @@ const TopReviewAirlineComponent = () => {
         fetchTopReviewAirline();
     }, []);
 
-    if (!topReview || topReview.length === 0) return <div>데이터 없음</div>;
+    if (!topReview || topReview.length === 0) return <div style={{width : "400px"}}>데이터 없음</div>;
 
     const data = [
         ["항공사", "리뷰 수"],

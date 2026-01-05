@@ -52,5 +52,20 @@
 	    AND MEMBER_IS_ACTIVE = 'Y'
 	</update>
 	
+	<select id="fetchSearchHistory" parameterType="int" resultType="SearchHistoryDto">
+		SELECT
+			SEARCH_LOG_NO AS searchLogNo,
+		    DEPART_IATA_CODE AS departIata,
+		    ARRIVE_IATA_CODE AS arriveIata,
+		    SEARCH_LOG_DEPART_DATE AS departDate,
+		    SEARCH_LOG_RETURN_DATE AS returnDate,
+		    SEARCH_LOG_PASSENGER_COUNT AS passengerCount,
+		    SEARCH_LOG_DATE AS searchLogDate,
+		    MEMBER_NO AS memberNo
+		  FROM TB_SEARCH_LOG    
+		WHERE MEMBER_NO = #{memberNo}
+		ORDER BY SEARCH_LOG_DATE DESC
+	</select>
+	
 	
 </mapper>
