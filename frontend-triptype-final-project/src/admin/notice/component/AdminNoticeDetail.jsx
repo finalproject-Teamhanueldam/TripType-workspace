@@ -29,11 +29,13 @@ const AdminNoticeDetail = () => {
   const [totalCount, setTotalCount] = useState(0);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   // 공지사항 상세 조회
   const fetchNoticeDetail = async () => {
     if (!noticeId) return;
     try {
-      const res = await axios.get(`http://localhost:8001/triptype/admin/notice/${noticeId}`);
+      const res = await axios.get(`${API_BASE_URL}/admin/notice/${noticeId}`);
       console.log("공지 상세 응답:", res.data);
       console.log("attachments:", res.data.attachmentList);
       setNotice(res.data);
@@ -50,7 +52,7 @@ const AdminNoticeDetail = () => {
       const startRow = (currentPage - 1) * pageSize + 1;
       const endRow = currentPage * pageSize;
       const res = await axios.get(
-        `http://localhost:8001/triptype/admin/notice/${noticeId}/comment`,
+        `${API_BASE_URL}/admin/notice/${noticeId}/comment`,
         { params: { startRow, endRow, showDeleted: showDeleted ? "Y" : "N" } }
       );
 
@@ -102,7 +104,7 @@ const AdminNoticeDetail = () => {
     try {
       await Promise.all(
         checkedIds.map(id =>
-          axios.delete(`http://localhost:8001/triptype/admin/notice/${noticeId}/comment/${id}`)
+          axios.delete(`${API_BASE_URL}/admin/notice/${noticeId}/comment/${id}`)
         )
       );
       fetchComments();
@@ -176,7 +178,7 @@ const AdminNoticeDetail = () => {
       });
 
       await axios.put(
-        `http://localhost:8001/triptype/admin/notice/${noticeId}`,
+        `${API_BASE_URL}/admin/notice/${noticeId}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -236,7 +238,7 @@ const AdminNoticeDetail = () => {
                     .map(file => (
                       <li key={file.noticeAttachmentId} className="file-item">
                         <a
-                          href={`http://localhost:8001${file.noticeAttachmentUrl}`}
+                          href={`${API_BASE_URL}${file.noticeAttachmentUrl}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="file-name"

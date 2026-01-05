@@ -7,10 +7,12 @@ const TopSearchedDestinationComponent = () => {
     const [routes, setRoutes] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     useEffect(() => {
         const fetchPopularRoutes = async () => {
             
-            const url = "http://localhost:8001/triptype/admin/statistics/popular-routes";
+            const url = `${API_BASE_URL}/admin/statistics/popular-routes`;
            
             
             try {

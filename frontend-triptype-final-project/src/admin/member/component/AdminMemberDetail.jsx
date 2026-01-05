@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function AdminMemberDetail() {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const { memberNo } = useParams();
   const navigate = useNavigate();
 
@@ -24,7 +26,7 @@ function AdminMemberDetail() {
 
   useEffect(() => {
    axios
-    .get(`http://localhost:8001/triptype/admin/member/${memberNo}`, {
+    .get(`${API_BASE_URL}/admin/member/${memberNo}`, {
         headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         }
@@ -38,7 +40,7 @@ function AdminMemberDetail() {
   /* ===== 관리자 액션 ===== */
   const unlockAccount = async () => {
     await axios.put(
-      "http://localhost:8001/triptype/admin/member/unlock",
+      `${API_BASE_URL}/admin/member/unlock`,
       { memberNos: [Number(memberNo)] }
     );
 
@@ -49,7 +51,7 @@ function AdminMemberDetail() {
   const deactivateAccount = async () => {
     try{
       await axios.put(
-        "http://localhost:8001/triptype/admin/member/deactivate",
+        `${API_BASE_URL}/admin/member/deactivate`,
         { memberNos: [Number(memberNo)] },
         {
           headers: {

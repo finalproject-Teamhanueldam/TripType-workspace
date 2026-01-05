@@ -9,6 +9,9 @@ import axios from "axios"; // 🔹 추가
 import HighlightText from "../util/HighlightText";
 
 function AdminNoticeList() {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const navigate = useNavigate();
 
   // 🔹 더미 제거 → 서버 데이터
@@ -27,7 +30,7 @@ function AdminNoticeList() {
   /* ===== 공지 목록 조회 ===== */
   useEffect(() => {
     axios
-      .get("http://localhost:8001/triptype/admin/notice", {
+      .get(`${API_BASE_URL}/admin/notice`, {
         params: { 
           page,
           showDeleted: showDeleted ? "Y" : "N"
@@ -96,7 +99,7 @@ function AdminNoticeList() {
       await Promise.all(
         checked.map((id) =>
           axios.delete(
-            `http://localhost:8001/triptype/admin/notice/${id}`
+            `${API_BASE_URL}/admin/notice/${id}`
           )
         )
       );

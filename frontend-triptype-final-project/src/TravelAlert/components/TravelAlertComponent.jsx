@@ -7,6 +7,9 @@ import WorldMapComponent from "./WorldMapComponent";
 import TravelInfoModalComponent from "./TravelInfoModalComponent";
 
 const TravelAlert = () => {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   /* ================= 상태 ================= */
   const [continent, setContinent] = useState("아시아");
   const [open, setOpen] = useState(false);
@@ -30,7 +33,7 @@ const TravelAlert = () => {
     // 스프링 부트로 요청 시도하기
     const callApi = async () => {
       try {
-        let url = "http://localhost:8001/triptype/travelAlert/getTravelAlert";
+        let url = `${API_BASE_URL}/travelAlert/getTravelAlert`;
         const method = "get";
 
         const response = await axios({
@@ -93,7 +96,7 @@ const TravelAlert = () => {
 
     const callTravelInfoApi = async () => {
       try {
-        const url = "http://localhost:8001/triptype/travelAlert/getTravelInfo";
+        const url = `${API_BASE_URL}/travelAlert/getTravelInfo`;
         const method = "get";
 
         const response = await axios({

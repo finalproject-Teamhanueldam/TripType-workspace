@@ -5,11 +5,13 @@ import axios from "axios";
 const LoginChartComponent = () => {
         const [loginData, setLoginData] = useState(null);     
 
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
         useEffect(() => {
             const fetchLoginData = async () => {
                 try {
 
-                    const response = await axios.get("http://localhost:8001/triptype/admin/statistics/logindata");
+                    const response = await axios.get(`${API_BASE_URL}/admin/statistics/logindata`);
                     setLoginData(response.data);
                     
                 } catch (error) {

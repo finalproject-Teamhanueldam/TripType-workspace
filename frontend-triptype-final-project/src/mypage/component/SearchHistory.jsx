@@ -25,6 +25,7 @@ function SearchHistory() {
   const [searchHistory, setSearchHistory] = useState([]);
 
   useEffect(() => {
+    
     const fetchSearchHistory = async () => {
       try {
         const url = `${API_BASE_URL}/api/mypage/searchHistory`;

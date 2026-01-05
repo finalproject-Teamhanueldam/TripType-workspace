@@ -4,6 +4,9 @@ import { FaPen, FaTrashAlt } from "react-icons/fa";
 import axios from "axios";
 
 function NoticeComment({ noticeId }) {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   // jwt
   const authHeader = {
     headers: {
@@ -34,7 +37,7 @@ function NoticeComment({ noticeId }) {
 
   try {
       const res = await axios.get(
-    `http://localhost:8001/triptype/notice/${noticeId}/comment`,
+    `${API_BASE_URL}/notice/${noticeId}/comment`,
     {
       params: { startRow, endRow },
       ...authHeader
@@ -59,7 +62,7 @@ function NoticeComment({ noticeId }) {
 
     try {
     await axios.post(
-      `http://localhost:8001/triptype/notice/${noticeId}/comment`,
+      `${API_BASE_URL}/notice/${noticeId}/comment`,
       { noticeCommentContent: newText },
       authHeader
     );
@@ -76,7 +79,7 @@ function NoticeComment({ noticeId }) {
 
     try {
       await axios.put(
-        `http://localhost:8001/triptype/notice/${noticeId}/comment/${id}`,
+        `${API_BASE_URL}/notice/${noticeId}/comment/${id}`,
         { noticeCommentId: id,
           noticeCommentContent: editText },
         authHeader
@@ -96,7 +99,7 @@ function NoticeComment({ noticeId }) {
 
     try {
       await axios.delete(
-        `http://localhost:8001/triptype/notice/${noticeId}/comment/${id}`,
+        `${API_BASE_URL}/notice/${noticeId}/comment/${id}`,
         authHeader
       );
 

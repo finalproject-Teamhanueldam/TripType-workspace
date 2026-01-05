@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function UserNoticeDetail() {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const navigate = useNavigate();
   const { noticeId } = useParams();
 
@@ -48,7 +51,7 @@ function UserNoticeDetail() {
 
       try {
         const res = await fetch(
-          `http://localhost:8001/triptype/upload/notice/${storedFileName}`
+          `${API_BASE_URL}/upload/notice/${storedFileName}`
         );
         const text = await res.text();
         setTextPreview(text);
@@ -71,7 +74,7 @@ function UserNoticeDetail() {
   ========================= */
   useEffect(() => {
     axios
-      .get(`http://localhost:8001/triptype/notice/${noticeId}`)
+      .get(`${API_BASE_URL}/notice/${noticeId}`)
       .then((res) => setNotice(res.data))
       .catch((err) => console.error(err));
   }, [noticeId]);
@@ -91,7 +94,7 @@ function UserNoticeDetail() {
 
       try {
         const res = await axios.get(
-          `http://localhost:8001/triptype/notice/download/${storedFileName}`,
+          `${API_BASE_URL}/notice/download/${storedFileName}`,
           {
             responseType: 'blob', // 파일 다운로드용
             headers: {
@@ -153,7 +156,7 @@ function UserNoticeDetail() {
       previewFile.noticeAttachmentUrl.split("/").pop()
     );
 
-    const fileUrl = `http://localhost:8001/triptype/upload/notice/${storedFileName}`;
+    const fileUrl = `${API_BASE_URL}/upload/notice/${storedFileName}`;
     const type = getFileType(previewFile.noticeAttachmentUrl);
 
     if (type === "image") {

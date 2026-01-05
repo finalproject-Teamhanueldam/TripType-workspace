@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function UserNoticeList() {
+  
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const navigate = useNavigate();
   const [notices, setNotices] = useState([]);
 
@@ -11,7 +14,7 @@ function UserNoticeList() {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    axios.get("http://localhost:8001/triptype/notice", {
+    axios.get(`${API_BASE_URL}/notice`, {
       params: { page },
       withCredentials: true
     })

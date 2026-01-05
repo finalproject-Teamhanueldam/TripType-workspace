@@ -6,6 +6,9 @@ import "../css/AdminCommon.css";
 import "../css/AdminNoticeForm.css";
 
 function AdminNoticeForm() {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -53,7 +56,7 @@ function AdminNoticeForm() {
 
   try {
     await axios.post(
-      "http://localhost:8001/triptype/admin/notice",
+      `${API_BASE_URL}/admin/notice`,
       formData
     );
 

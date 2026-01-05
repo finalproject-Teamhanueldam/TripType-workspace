@@ -9,9 +9,11 @@ const AdminAirlineReviewListComponent = () => {
   const [filterAirline, setFilterAirline] = useState('');
   const [selectedAirline, setSelectedAirline] = useState(null);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const selectAirlineReviews = async () => {
     try {
-      const url = "http://localhost:8001/triptype/admin/review/airlineReviews";
+      const url = `${API_BASE_URL}/admin/review/airlineReviews`;
       const response = await axios.get(url);
       setSummaries(response.data);
     } catch (error) {

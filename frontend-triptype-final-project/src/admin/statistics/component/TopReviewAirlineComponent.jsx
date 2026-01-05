@@ -9,7 +9,9 @@ const TopReviewAirlineComponent = () => {
     useEffect(() => {
         const fetchTopReviewAirline = async () => {
 
-            const url = "http://localhost:8001/triptype/admin/statistics/topreviewairline";
+            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+            const url = `${API_BASE_URL}/admin/statistics/topreviewairline`;
 
              try {
                 const response = await axios.get(url);

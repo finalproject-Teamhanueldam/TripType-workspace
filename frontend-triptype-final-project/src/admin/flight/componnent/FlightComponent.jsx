@@ -30,6 +30,8 @@ const FlightComponent = () => {
         departDate: ''
     });
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     useEffect(() => {
         selectTickets();
     }, []);
@@ -37,7 +39,7 @@ const FlightComponent = () => {
     const selectTickets = async () => {
         try {
             const response = await axios.get(
-                "http://localhost:8001/triptype/admin/flight/selectTickets"
+                `${API_BASE_URL}/admin/flight/selectTickets`
             );
             setTickets(response.data);
             setAllTickets(response.data);
@@ -52,7 +54,7 @@ const FlightComponent = () => {
         if (!ok) return;
 
         try {
-            await axios.get("http://localhost:8001/triptype/admin/flight/fetchflight");
+            await axios.get(`${API_BASE_URL}/admin/flight/fetchflight`);
             alert("API 조회 성공! 최신 정보로 업데이트합니다.");
             selectTickets();
         } catch (error) {
@@ -65,7 +67,7 @@ const FlightComponent = () => {
     // 삭제 기능
     const deleteOffers = async (ids) => {
         await axios.post(
-            "http://localhost:8001/triptype/admin/flight/delete",
+            `${API_BASE_URL}/admin/flight/delete`,
             { flightOfferIds: ids }
         );
     };

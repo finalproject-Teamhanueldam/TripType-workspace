@@ -14,11 +14,13 @@ function AdminMemberList() {
   const [showInactive, setShowInactive] = useState(false);
   const [manageMode, setManageMode] = useState(false);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   /* =========================
      데이터 로딩 (백엔드 연동)
   ========================= */
   useEffect(() => {
-    axios.get("http://localhost:8001/triptype/admin/member", {
+    axios.get(`${API_BASE_URL}/admin/member`, {
       params: {
         keyword,
         showInactive
@@ -49,7 +51,7 @@ function AdminMemberList() {
     if (checked.length === 0) return;
 
     await axios.put(
-      "http://localhost:8001/triptype/admin/member/unlock",
+      `${API_BASE_URL}/admin/member/unlock`,
       { memberNos: checked }
     );
 
@@ -61,7 +63,7 @@ function AdminMemberList() {
     if (checked.length === 0) return;
 
     await axios.put(
-      "http://localhost:8001/triptype/admin/member/deactivate",
+      `${API_BASE_URL}/admin/member/deactivate`,
       { memberNos: checked }
     );
 

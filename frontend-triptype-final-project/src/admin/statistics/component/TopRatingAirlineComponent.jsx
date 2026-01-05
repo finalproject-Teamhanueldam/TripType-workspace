@@ -7,10 +7,12 @@ const TopRatingAirlineComponent = () => {
 
     const [topRating, setTopRatings] = useState([]);
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     useEffect(() => {
         const fetchTopRatingAirline = async () => {
 
-            const url = "http://localhost:8001/triptype/admin/statistics/topratingairline";
+            const url = `${API_BASE_URL}/admin/statistics/topratingairline`;
 
              try {
                 const response = await axios.get(url);

@@ -7,11 +7,13 @@ const MonthlySignupChartComponent = () => {
 
     const [monthlySignUp, setMonthlySignUp] = useState([]);  
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     useEffect(() => {    
 
         const fetchMonthlySignUp = async () => {
             try {
-                const response = await axios.get("http://localhost:8001/triptype/admin/statistics/monthlysignup");    
+                const response = await axios.get(`${API_BASE_URL}/admin/statistics/monthlysignup`);    
                 setMonthlySignUp(response.data);
 
             } catch (error) {

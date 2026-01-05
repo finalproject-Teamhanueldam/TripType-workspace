@@ -15,6 +15,8 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
   const [status, setStatus] = useState('Y');
   const [memberNo, setMemberNo] = useState('');
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     fetchReviews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -23,7 +25,7 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
   const fetchReviews = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8001/triptype/admin/review/airline/${airline.airlineId}`,
+        `${API_BASE_URL}/admin/review/airline/${airline.airlineId}`,
         { params: { status } }
       );
 
@@ -46,7 +48,7 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
 
     try {
       await axios.post(
-        `http://localhost:8001/triptype/admin/review/status`,
+        `${API_BASE_URL}/admin/review/status`,
         { reviewId }
       );
       await fetchReviews();
