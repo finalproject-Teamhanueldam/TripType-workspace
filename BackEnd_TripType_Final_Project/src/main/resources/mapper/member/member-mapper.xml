@@ -96,6 +96,7 @@
 	        MEMBER_UNLOCK_TIME
 	      FROM TB_MEMBER
 	     WHERE MEMBER_ID = #{memberId}
+	       AND MEMBER_IS_ACTIVE = 'Y'
 	</select>
 	
 	<update id="increaseLoginFailCount">
@@ -164,6 +165,10 @@
 	</select>
 	
 	<insert id="insertSocialMember" parameterType="Member">
+	  <selectKey keyProperty="memberNo" resultType="int" order="AFTER">
+        SELECT TB_MEMBER_SEQ.CURRVAL FROM DUAL
+      </selectKey>
+	  
 	  INSERT INTO TB_MEMBER (
 	    MEMBER_NO,
 	    MEMBER_ID,
@@ -187,5 +192,28 @@
 	  )
 	</insert>
 	
+	<!-- 소셜회원 탈퇴 후 재가입시 기존회원과 비교 -->
+	<select id="findByMemberIdIncludingWithdrawn" resultMap="memberResultMap">
+	  SELECT *
+	    FROM TB_MEMBER
+	   WHERE MEMBER_ID = #{memberId}
+	</select>
 	
+	<!-- 탈퇴 회원 재활성화 -->
+	<update id="reactivateMember" parameterType="int">
+	  UPDATE TB_MEMBER
+	     SET MEMBER_IS_ACTIVE = 'Y',
+	         MEMBER_WITHDRAWN_AT = NULL
+	   WHERE MEMBER_NO = #{memberNo}
+	</update>
+	
+	<!-- 생년월일, 성별 활성 여부 검증 단계 추가 -->
+	<select id="findMembersByNameAndBirth" resultType="Member">
+	    SELECT *
+	      FROM TB_MEMBER
+	     WHERE MEMBER_NAME = #{memberName}
+	       AND MEMBER_BIRTH_DATE >= TO_DATE(#{memberBirthDate}, 'YYYY-MM-DD')
+       	   AND MEMBER_BIRTH_DATE &lt; TO_DATE(#{memberBirthDate}, 'YYYY-MM-DD') + 1
+	       AND MEMBER_IS_ACTIVE = 'Y'
+	</select>
 </mapper>

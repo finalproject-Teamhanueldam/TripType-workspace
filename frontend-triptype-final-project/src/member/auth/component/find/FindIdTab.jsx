@@ -29,10 +29,16 @@ function FindIdTab() {
       setResultId(ids);
       setError("");
     } catch (e) {
-      setResultId(null);
-      setError(
-        e.response?.data?.message || "일치하는 회원 정보가 없습니다."
-      );
+        const code = e.response?.data?.message;
+
+        setResultId(null);
+
+        if (code === "NEED_PROFILE_INFO") {
+          setError("소셜 회원은 추가 정보 입력 후 이용할 수 있습니다.");
+          return;
+        }
+
+        setError("일치하는 회원 정보가 없습니다.");
     }
   };
 

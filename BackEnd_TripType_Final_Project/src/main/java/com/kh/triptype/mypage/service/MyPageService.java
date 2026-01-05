@@ -12,10 +12,12 @@ public interface MyPageService {
     MyProfileRes getMyProfile(int memberNo);
 
     int updateMyProfile(int memberNo, MyProfileUpdateReq req);
-    
+
     void changePassword(int memberNo, MyPasswordChangeReq req);
-    
+
     void withdraw(int memberNo, String password);
 
-	List<SearchHistoryDto> fetchSearchHistory(int memberNo);
+    List<SearchHistoryDto> fetchSearchHistory(int memberNo);
+
+    void unlinkSocial(int memberNo, String provider);
 }
