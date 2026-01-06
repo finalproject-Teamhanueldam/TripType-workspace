@@ -30,6 +30,29 @@ const AirlineListComponent = () => {
   const [result, setResult] = useState(0);
   const [airline, setAirline] = useState([]);
 
+  const airlineUrl = [
+      {'대한항공' : 'https://www.koreanair.com'},
+      {'아시아나항공' : 'https://www.flyasiana.com'},
+      {'제주항공' : 'https://www.jejuair.net'},
+      {'진에어' : 'https://www.jinair.com'},
+      {'티웨이항공' : 'https://www.twayair.com'},
+      {'에어부산' : 'https://www.airbusan.com'},
+      {'에어서울' : 'https://www.flyairseoul.com'},
+      {'전일본공수' : 'https://www.ana.co.jp'},
+      {'일본항공' : 'https://www.jal.co.jp'},
+      {'캐세이퍼시픽' : 'https://www.cathaypacific.com'},
+      {'싱가포르항공' : 'https://www.singaporeair.com'},
+      {'타이항공' : 'https://www.thaiairways.com'},
+      {'베트남항공' : 'https://www.vietnamairlines.com'},
+      {'유나이티드항공' : 'https://www.united.com'},
+      {'델타항공' : 'https://www.delta.com'},
+      {'아메리칸항공' : 'https://www.aa.com'},
+      {'루프트한자' : 'https://www.lufthansa.com'},
+      {'에어프랑스' : 'https://www.airfrance.com'},
+      {'KLM 네덜란드항공' : 'https://www.klm.com'},
+      {'에미레이트항공' : 'https://www.emirates.com'}
+  ];
+
   // ✅ 추천/인기노선처럼 searchId 없이 들어온 경우 대비
   const [runtimeSearchId, setRuntimeSearchId] = useState(searchId || null);
 
@@ -599,9 +622,11 @@ const AirlineListComponent = () => {
               setOpen={() => handleOpenModal(item)}
               showPlus={searchParams?.tripType === "ROUND"}
               onClick={() => goDetail(item)}
-              segments={item.segments} // ✅ MULTI/경유(편도) 표시용
+              segments={item.segments} // MULTI/경유
+              airlineUrl={airlineUrl[item.outbound.airlineName]} // ✅ 여기서 URL 매핑
             />
           ))}
+
         </main>
 
         <aside className="side-2">

@@ -98,6 +98,22 @@ function AdminMemberDetail() {
 
         <div className="detail-grid">
           <div>
+            <span>로그인 유형</span>
+            {member.isSocial === "Y" && member.hasPassword === "Y"
+              ? "일반 + 소셜 로그인"
+              : member.isSocial === "Y"
+              ? "소셜 로그인"
+              : "일반 로그인"}
+          </div>
+
+          <div>
+            <span>소셜 제공자</span>
+            {member.socialProviders || "-"}
+          </div>
+        </div>
+
+        <div className="detail-grid">
+          <div>
             <span>활성 상태</span>
             {member.memberIsActive === "Y" ? "활성" : "비활성"}
           </div>

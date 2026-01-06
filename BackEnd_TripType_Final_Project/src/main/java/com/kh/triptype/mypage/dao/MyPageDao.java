@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.kh.triptype.mypage.model.dto.MyProfileRes;
 import com.kh.triptype.mypage.model.dto.MyProfileUpdateReq;
 import com.kh.triptype.mypage.model.dto.SearchHistoryDto;
+import com.kh.triptype.mypage.model.dto.WishItemDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -62,6 +63,13 @@ public class MyPageDao {
     public List<SearchHistoryDto> fetchSearchHistory(int memberNo) {
         return sqlSession.selectList(
             NAMESPACE + "fetchSearchHistory",
+            memberNo
+        );
+    }
+    
+    public List<WishItemDto> selectWishlist(int memberNo) {
+        return sqlSession.selectList(
+            NAMESPACE + "selectWishlist",
             memberNo
         );
     }

@@ -111,6 +111,7 @@ function AdminMemberList() {
           <span>이메일</span>
           <span>이름</span>
           <span>권한</span>
+          <span>로그인</span>
           <span>활성</span>
           <span>잠금</span>
         </div>
@@ -135,6 +136,24 @@ function AdminMemberList() {
             <span>{m.memberId}</span>
             <span>{m.memberName}</span>
             <span>{m.memberRole}</span>
+
+            <span
+              className={
+                m.isSocial === "Y" && m.hasPassword === "Y"
+                  ? "login-mixed"
+                  : m.isSocial === "Y"
+                  ? "login-social"
+                  : "login-normal"
+              }
+              title={m.socialProviders}
+            >
+              {m.isSocial === "Y" && m.hasPassword === "Y"
+                ? "일반+소셜"
+                : m.isSocial === "Y"
+                ? "소셜"
+                : "일반"}
+            </span>
+
             <span className={m.memberIsActive === "Y"
                 ? "member-status-active"
                 : "member-status-inactive"}>

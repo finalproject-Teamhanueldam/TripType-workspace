@@ -50,14 +50,24 @@ public class AuthService {
                 false
             );
         }
-
-        // 2️ 탈퇴 계정 체크
-        if ("N".equals(member.getMemberIsActive())) {
+        
+        // 2️ 자체 탈퇴 계정 (withdrawn_at 기준)
+        if (member.getMemberWithdrawnAt() != null) {
             throw new LoginFailException(
                 "WITHDRAWN_ACCOUNT",
                 0,
                 false,
                 true
+            );
+        }
+
+        // 3️⃣ 관리자 비활성 계정
+        if ("N".equals(member.getMemberIsActive())) {
+            throw new LoginFailException(
+                "INACTIVE_ACCOUNT",
+                0,
+                false,
+                false
             );
         }
 

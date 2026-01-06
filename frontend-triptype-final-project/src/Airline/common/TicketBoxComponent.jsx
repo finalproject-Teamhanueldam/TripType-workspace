@@ -2,7 +2,6 @@ import { FaPlane, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 import "./TicketBoxComponent.css";
 import plus from "./images/plus.svg";
 
-// ✅ segments 추가
 const TicketBoxComponent = ({
   segment,
   returnSegment,
@@ -10,7 +9,7 @@ const TicketBoxComponent = ({
   setOpen,
   onClick,
   showPlus = false,
-  segments = null, // ✅ MULTI/경유(편도) 대응
+  segments = null,
 }) => {
   const AIRLINE_LOGO_MAP = {
     "대한항공": "대한항공.png",
@@ -36,19 +35,43 @@ const TicketBoxComponent = ({
     "트립타임 로고" : "트립타임 로고.png"
   };
 
-  const getAirlineLogo = (airlineName) => {
-        if(airlineName == null || airlineName == undefined)
-            airlineName = "트립타임 로고";
-        const fileName = AIRLINE_LOGO_MAP[airlineName];
-        return `/images/${fileName}`;
-    }
+  const AIRLINE_URL_MAP = {
+    "대한항공": "https://www.koreanair.com",
+    "아시아나항공": "https://www.flyasiana.com",
+    "제주항공": "https://www.jejuair.net",
+    "진에어": "https://www.jinair.com",
+    "티웨이항공": "https://www.twayair.com",
+    "에어부산": "https://www.airbusan.com",
+    "에어서울": "https://www.flyairseoul.com",
+    "전일본공수": "https://www.ana.co.jp",
+    "일본항공": "https://www.jal.co.jp",
+    "캐세이퍼시픽": "https://www.cathaypacific.com",
+    "싱가포르항공": "https://www.singaporeair.com",
+    "타이항공": "https://www.thaiairways.com",
+    "베트남항공": "https://www.vietnamairlines.com",
+    "유나이티드항공": "https://www.united.com",
+    "델타항공": "https://www.delta.com",
+    "아메리칸항공": "https://www.aa.com",
+    "루프트한자": "https://www.lufthansa.com",
+    "에어프랑스": "https://www.airfrance.com",
+    "KLM 네덜란드항공": "https://www.klm.com",
+    "에미레이트항공": "https://www.emirates.com"
+  };
 
-  // ✅ segments가 있으면 첫/마지막 세그먼트 기준으로 표시값 만들기
+  const getAirlineLogo = (airlineName) => {
+    if (!airlineName) airlineName = "트립타임 로고";
+    const fileName = AIRLINE_LOGO_MAP[airlineName];
+    return `/images/${fileName}`;
+  }
+
+  const getAirlineUrl = (airlineName) => {
+    return AIRLINE_URL_MAP[airlineName] || null;
+  }
+
   const safeSegments = Array.isArray(segments) && segments.length > 0 ? segments : null;
   const firstSeg = safeSegments ? safeSegments[0] : segment;
   const lastSeg = safeSegments ? safeSegments[safeSegments.length - 1] : segment;
 
-  // ✅ 경유/구간수 계산
   const segCount = safeSegments ? safeSegments.length : 1;
   const stops = Math.max(segCount - 1, 0);
 
@@ -58,45 +81,9 @@ const TicketBoxComponent = ({
     tripType === "ONEWAY" ? (stops > 0 ? `편도 · ${stops}회 경유` : "편도") :
     tripType === "ROUND" ? "왕복" : "해당없음";
 
-  /* 날짜 */
-  const findDay = (dateTime) => {
-    const date = new Date(dateTime);
-    return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
-  };
-
-  /* 요일 */
-  const findDate = (dateTime) => {
-    const day = new Date(dateTime).getDay();
-    return ["일", "월", "화", "수", "목", "금", "토"][day];
-  };
-
-  /* Duration 파싱 */
-  const parseDuration = (duration) => {
-    if (!duration || typeof duration !== "string") return { hours: 0, minutes: 0 };
-    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-    return {
-      hours: match?.[1] ? Number(match[1]) : 0,
-      minutes: match?.[2] ? Number(match[2]) : 0,
-    };
-  };
-
-  // ✅ duration은 “첫 세그먼트 duration”이 아니라,
-  // - 백엔드가 전체 duration을 segment.flightDuration에 주면 그대로 사용
-  // - 아니면 최소 대응으로 firstSeg.duration 표시(지금 구조 유지)
-  const { hours, minutes } = parseDuration(firstSeg?.flightDuration);
-
-  // ✅ 가격 계산: ROUND는 outbound + inbound, 그 외는 outbound(첫 구간) 기반
-  // (멀티 전체 합계가 있다면 firstSeg.totalPrice에 이미 들어오는 구조로 가정)
-  const basePrice = Number(firstSeg?.totalPrice || 0);
-  const returnPrice = Number(returnSegment?.totalPrice || 0);
-
-  const totalWon =
-    tripType === "ROUND"
-      ? 1600 * Math.floor(basePrice + returnPrice)
-      : 1600 * Math.floor(basePrice);
-
-  // 방어
   if (!firstSeg) return null;
+
+  const airlineUrl = getAirlineUrl(firstSeg.airlineName);
 
   return (
     <div className="ticket-box" onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
@@ -112,6 +99,21 @@ const TicketBoxComponent = ({
           <FaPlane className="icon-tiny" />
           {firstSeg.flightNumber}
         </div>
+
+      {
+        airlineUrl != null ? (
+          <a
+            href={airlineUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="airline-link"
+            onClick={(e) => e.stopPropagation()} // 클릭 시 부모 onClick 방지
+          >
+            항공사 방문
+          </a>
+        ) : <span>미지정 항공사</span>
+      }
+
       </div>
 
       <div className="ticket-divider" />
@@ -120,12 +122,11 @@ const TicketBoxComponent = ({
       <div className="ticket-detail-row">
         <div className="flight-block">
           <div className="date">
-            {findDay(firstSeg.departDate)} ({findDate(firstSeg.departDate)})
+            {new Date(firstSeg.departDate).toLocaleDateString("ko-KR")}
           </div>
           <div className="airport">
             <div>
-              {firstSeg.departCity}
-              <span className="airport-iata">({firstSeg.departAirportCode})</span>
+              {firstSeg.departCity} <span className="airport-iata">({firstSeg.departAirportCode})</span>
             </div>
             <span className="time">
               {new Date(firstSeg.departDate).toLocaleTimeString("ko-KR", { hour: "numeric", minute: "numeric" })}
@@ -139,23 +140,17 @@ const TicketBoxComponent = ({
             <FaClock className="duration-icon-clock" />
             <div className="flight-line" />
           </div>
-
-          <div className="duration">
-            {hours}시간 {minutes}분
-          </div>
-
-          {/* ✅ MULTI/경유 정보 */}
+          <div className="duration">{firstSeg.flightDuration}</div>
           <div className="via-tag">{tripTypeLabel}</div>
         </div>
 
         <div className="flight-block">
           <div className="date">
-            {findDay(lastSeg.arriveDate)} ({findDate(lastSeg.arriveDate)})
+            {new Date(lastSeg.arriveDate).toLocaleDateString("ko-KR")}
           </div>
           <div className="airport">
             <div>
-              {lastSeg.arriveCity}
-              <span className="airport-iata">({lastSeg.arriveAirportCode})</span>
+              {lastSeg.arriveCity} <span className="airport-iata">({lastSeg.arriveAirportCode})</span>
             </div>
             <span className="time">
               {new Date(lastSeg.arriveDate).toLocaleTimeString("ko-KR", { hour: "numeric", minute: "numeric" })}
@@ -168,19 +163,11 @@ const TicketBoxComponent = ({
       <div className="extra-info-row">
         <div className="sub-info">
           <div className="seat-status">
-            잔여 좌석
-            <span className="status-value highlight">
-              {firstSeg.extraSeat}
-            </span>
-          </div>
-          <div className="terminal-info">
-            {/* <FaMapMarkerAlt className="icon-tiny" />
-            터미널 정보 */}
+            잔여 좌석 <span className="status-value highlight">{firstSeg.extraSeat}</span>
           </div>
         </div>
-
         <div className="price-wrapper">
-          <span className="price">{totalWon.toLocaleString()}원</span>
+          <span className="price">{firstSeg.totalPrice?.toLocaleString()}원</span>
         </div>
       </div>
 
