@@ -103,7 +103,7 @@ const Header = () => {
             </li>
           </ul>
 
-          <Link className="heart-icon" to="/myPage/wishlist">
+          <Link className="heart-icon" to="/mypage/wishlist">
             <AiFillHeart className="heart-icon-svg"/>
           </Link>
 

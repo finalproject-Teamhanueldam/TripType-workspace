@@ -22,7 +22,7 @@ public class AuthService {
     private final MemberDao memberDao;
     private final JwtProvider jwtProvider;
     private final BCryptPasswordEncoder passwordEncoder;
-    private static final long INACTIVITY_HOURS = 12; // 발표용
+    private static final long INACTIVITY_HOURS = 2; // 발표용
     
 // GlobalExceptionHandler + LoginFailResponse
 //    switch (data?.message) {
