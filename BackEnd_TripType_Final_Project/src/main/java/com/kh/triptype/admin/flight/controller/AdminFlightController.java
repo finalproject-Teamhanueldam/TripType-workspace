@@ -17,7 +17,7 @@ import com.kh.triptype.admin.flight.service.AdminFlightService;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@CrossOrigin(origins="http://localhost:5173")
+@CrossOrigin(origins="http://192.168.150.180:5173")
 @RestController
 @RequestMapping("/admin/flight")
 public class AdminFlightController {

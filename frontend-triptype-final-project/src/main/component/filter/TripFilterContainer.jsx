@@ -13,6 +13,9 @@ import MultiTrip from "./triptypes/MultiTrip";
 import { AIRPORTS } from "../data/Airports";
 
 const TripFilterContainer = ({ tripType, setTripType, passengers }) => {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const navigate = useNavigate();
 
   // ✅ CalendarPanel을 "기준 컨테이너" 안에서 absolute로 정확히 위치시키기 위한 래퍼
@@ -253,7 +256,7 @@ const TripFilterContainer = ({ tripType, setTripType, passengers }) => {
       const token = localStorage.getItem("accessToken"); // <-- 키 이름 맞추기
 
       const { data } = await axios.post(
-        "http://localhost:8001/triptype/api/flights/search",
+        `${API_BASE_URL}/api/flights/search`,
         searchParams,
         {
           // ✅ 로그인 상태면 Authorization 헤더 전송

@@ -106,7 +106,7 @@
    Table (정렬 핵심 영역)
 ================================ */
 .detail-table {
-  width: 100%;
+  width: 962px;
   border-collapse: collapse;
   table-layout: fixed; /* ⭐ 헤더/바디 정렬 핵심 */
   font-size: 14px;

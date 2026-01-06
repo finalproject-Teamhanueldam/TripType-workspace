@@ -19,7 +19,7 @@ import com.kh.triptype.admin.review.service.AdminReviewService;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@CrossOrigin(origins="http://localhost:5173")
+@CrossOrigin(origins="http://192.168.150.180:5173")
 @RestController
 @RequestMapping("/admin/review")
 public class AdminReviewController {

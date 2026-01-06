@@ -10,6 +10,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const AirlineListComponent = () => {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const navigate = useNavigate();
   const locationState = useLocation().state || {};
   const { searchParams, res, searchId } = locationState;
@@ -222,7 +225,7 @@ const AirlineListComponent = () => {
 
       isPollingRef.current = true;
 
-      const url = `http://localhost:8001/triptype/api/flights/search/${sid}`;
+      const url = `${API_BASE_URL}/api/flights/search/${sid}`;
       console.log("[POLL START] sid =", sid, "url =", url);
 
       // ✅ 무한 폴링 방지: 최대 60회(=60초) 시도
@@ -311,7 +314,7 @@ const AirlineListComponent = () => {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       const { data } = await axios.post(
-        "http://localhost:8001/triptype/api/flights/search",
+        `${API_BASE_URL}/api/flights/search`,
         searchParams,
         { headers }
       );
@@ -364,7 +367,7 @@ const AirlineListComponent = () => {
       // 4) fallback
       try {
         const response = await axios.get(
-          "http://localhost:8001/triptype/airline/list",
+          `${API_BASE_URL}/airline/list`,
           { params: { ...searchParams, sortType } }
         );
         applyFlights(response.data);

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.triptype.mail.service.EmailAuthService;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://192.168.150.180:5173")
 @RestController
 @RequestMapping("/mail/auth")
 public class EmailAuthController {

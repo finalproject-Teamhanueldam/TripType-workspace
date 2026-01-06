@@ -16,7 +16,7 @@ import com.kh.triptype.travelAlert.controller.TravelAlertController;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins="http://localhost:5173")
+@CrossOrigin(origins="http://192.168.150.180:5173")
 @RestController
 @RequestMapping("/admin/statistics")
 @RequiredArgsConstructor

@@ -52,9 +52,9 @@ const AdminAirlineReviewListComponent = () => {
             >
               <div className="card-airline-name">{item.airlineName}</div>
               <div className="card-info">
-                <span className="card-rating">
+                {/* <span className="card-rating">
                   ★ {Number(item.avgRating || 0).toFixed(1)}
-                </span>
+                </span> */}
                 <span className="card-count">
                   리뷰 {Number(item.reviewCount || 0).toLocaleString()}건
                 </span>

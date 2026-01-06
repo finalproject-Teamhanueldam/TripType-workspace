@@ -106,7 +106,7 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
                 <tr>
                   <th>회원번호</th>
                   <th>리뷰내용</th>
-                  <th>평점</th>
+                  {/* <th>평점</th> */}
                   <th>작성/수정일</th>
                   <th>관리</th>
                 </tr>
@@ -128,9 +128,9 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
                         {rev.reviewContent}
                       </td>
 
-                      <td className="rating-cell">
+                      {/* <td className="rating-cell">
                         ★ {rev.reviewRating}
-                      </td>
+                      </td> */}
                       
                       <td className="date-cell">
                         <div className="date-block">

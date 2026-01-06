@@ -5,6 +5,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const ReviewComponent = ({ outbound, inbound, segments, tripType }) => {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   // ✅ flightOfferId 안전 추출 (MULTI/ONEWAY/ROUND 모두 대응)
   const flightOfferId = useMemo(() => {
     // 1) segments가 있으면 첫 세그먼트 기준
@@ -66,7 +69,7 @@ const ReviewComponent = ({ outbound, inbound, segments, tripType }) => {
       }
 
       const response = await axios.get(
-        "http://localhost:8001/triptype/airline/review/select",
+        `${API_BASE_URL}/airline/review/select`,
         { params: { flightOfferId } }
       );
       setReviews(response.data);
@@ -101,7 +104,7 @@ const ReviewComponent = ({ outbound, inbound, segments, tripType }) => {
 
     try {
       await axios.post(
-        "http://localhost:8001/triptype/airline/review",
+        `${API_BASE_URL}/airline/review`,
         { reviewContent: text, flightOfferId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -134,7 +137,7 @@ const ReviewComponent = ({ outbound, inbound, segments, tripType }) => {
       }
 
       const response = await axios({
-        url: "http://localhost:8001/triptype/airline/review/update",
+        url: `${API_BASE_URL}/airline/review/update`,
         method: "post",
         headers: { Authorization: `Bearer ${token}` },
         data: {
@@ -170,7 +173,7 @@ const ReviewComponent = ({ outbound, inbound, segments, tripType }) => {
       }
 
       const response = await axios({
-        url: "http://localhost:8001/triptype/airline/review/delete",
+        url: `${API_BASE_URL}/airline/review/delete`,
         method: "post",
         headers: { Authorization: `Bearer ${token}` },
         data: {
