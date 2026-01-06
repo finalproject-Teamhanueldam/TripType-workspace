@@ -13,6 +13,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.kh.triptype.auth.jwt.JwtAuthenticationFilter;
+import com.kh.triptype.auth.oauth.OAuth2SuccessHandler;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class SecurityConfig {
 
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler; 
 	
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -33,7 +35,10 @@ public class SecurityConfig {
             .cors(cors -> {}) // ⭐ 아래 Bean과 연결됨
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
-
+            .oauth2Login(oauth2 -> oauth2
+            	    .successHandler(oAuth2SuccessHandler)
+            	)
+            
             // 인증 실패 시 OAuth redirect 금지 (마이페이지 관련 문제 때문에 추가)
             .exceptionHandling(e -> e
                 .authenticationEntryPoint((request, response, authException) -> {

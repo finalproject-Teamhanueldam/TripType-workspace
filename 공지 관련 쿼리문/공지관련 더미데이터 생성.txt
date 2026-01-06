@@ -66,18 +66,7 @@ SELECT
 FROM TB_NOTICE
 WHERE NOTICE_IS_IMPORTANT = 'Y';
 
-
-
-
-
-
-
-
-
-
--- 시연시 이거로 바꾸면댐 
--- 아래 구문은 주석이라고 가정
--- 3개 계정 사용 
+-- 3개 계정 사용 (1,2,3 번 회원이 반드시 있어야함)
 INSERT INTO TB_NOTICE_COMMENT (
   NOTICE_COMMENT_ID,
   NOTICE_COMMENT_CONTENT,

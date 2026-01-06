@@ -1,0 +1,19 @@
+.wish-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.wish-title {
+  font-weight: 600;
+}
+
+.wish-sub {
+  font-size: 13px;
+  color: #888;
+}
+
+.wish-price {
+  font-weight: bold;
+}
