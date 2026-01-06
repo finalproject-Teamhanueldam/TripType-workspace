@@ -49,8 +49,8 @@ function Wishlist() {
 
                 <div className="wish-right">
                   <div className="wish-price">
-                    {item.totalPrice
-                    ? `₩${item.totalPrice.toLocaleString()}`
+                    {item.totalPrice != null
+                    ? `₩${item.totalPrice}`
                     : "가격 정보 없음"}
                   </div>
                 </div>
