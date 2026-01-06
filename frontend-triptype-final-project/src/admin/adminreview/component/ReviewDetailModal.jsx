@@ -35,7 +35,7 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
 
       setReviews(sorted);
     } catch (error) {
-      console.error("리뷰 상세 조회 실패", error);
+      console.error("댓글 상세 조회 실패", error);
     }
   };
 
@@ -44,7 +44,7 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
   );
 
   const handleStatusChange = async (reviewId) => {
-    if (!window.confirm("리뷰 상태를 변경하시겠습니까?")) return;
+    if (!window.confirm("댓글 상태를 변경하시겠습니까?")) return;
 
     try {
       await axios.post(
@@ -54,7 +54,7 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
       await fetchReviews();
       onRefresh?.();
     } catch (error) {
-      console.error("리뷰 상태 변경 실패", error);
+      console.error("댓글 상태 변경 실패", error);
     }
   };
 
@@ -62,7 +62,7 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>{airline.airlineName} 리뷰 상세내역</h3>
+          <h3>{airline.airlineName} 댓글 상세내역</h3>
           <button className="modal-close-btn" onClick={onClose}>×</button>
         </div>
 
@@ -73,13 +73,13 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
                 className={`tab-btn ${status === 'Y' ? 'active' : ''}`}
                 onClick={() => setStatus('Y')}
               >
-                정상 리뷰
+                정상 댓글
               </button>
               <button
                 className={`tab-btn ${status === 'N' ? 'active-del' : ''}`}
                 onClick={() => setStatus('N')}
               >
-                삭제된 리뷰
+                삭제된 댓글
               </button>
             </div>
 
@@ -105,7 +105,7 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
               <thead>
                 <tr>
                   <th>회원번호</th>
-                  <th>리뷰내용</th>
+                  <th>댓글내용</th>
                   {/* <th>평점</th> */}
                   <th>작성/수정일</th>
                   <th>관리</th>
@@ -116,7 +116,7 @@ const ReviewDetailModal = ({ airline, onClose, onRefresh }) => {
                 {filteredReviews.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="empty-cell">
-                      표시할 리뷰가 없습니다.
+                      표시할 댓글이 없습니다.
                     </td>
                   </tr>
                 ) : (

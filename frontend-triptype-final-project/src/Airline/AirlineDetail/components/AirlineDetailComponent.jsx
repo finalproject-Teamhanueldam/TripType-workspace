@@ -11,6 +11,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const AirlineDetailComponent = () => {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const navigate = useNavigate();
   const location = useLocation();
   const { offerId } = useParams();
@@ -90,7 +93,7 @@ const AirlineDetailComponent = () => {
 
     const fetchDetail = async () => {
       try {
-        const DETAIL_URL = `http://localhost:8001/triptype/api/flights/offer/${offerId}`;
+        const DETAIL_URL = `${API_BASE_URL}/api/flights/offer/${offerId}`;
 
         const token = localStorage.getItem("accessToken");
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
@@ -157,7 +160,7 @@ const AirlineDetailComponent = () => {
         if (wishOfferId === null || wishOfferId === undefined) return;
 
         const response = await axios.get(
-          "http://localhost:8001/triptype/airline/wish/check",
+          `${API_BASE_URL}/airline/wish/check`,
           {
             params: { flightOfferId: wishOfferId },
             headers: { Authorization: `Bearer ${token}` },
@@ -181,7 +184,10 @@ const AirlineDetailComponent = () => {
   // ✅ 최종 데이터 없으면 종료
   if (!firstSeg) {
     return <div>데이터를 찾을 수 없습니다.</div>;
+
   }
+
+  console.log("결과 : " + segments);
 
   const toggleWish = async () => {
     try {
@@ -197,7 +203,7 @@ const AirlineDetailComponent = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:8001/triptype/airline/wish/toggle",
+        `${API_BASE_URL}/airline/wish/toggle`,
         { flightOfferId: wishOfferId },
         { headers: { Authorization: `Bearer ${token}` } }
       );

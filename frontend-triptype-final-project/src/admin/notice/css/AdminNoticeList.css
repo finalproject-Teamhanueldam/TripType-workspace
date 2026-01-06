@@ -207,7 +207,7 @@
 }
 
 /* ===== Search ===== */
-.search-box {
+.admin-search-box {
   position: relative;
   display: flex;
   align-items: center;
@@ -219,7 +219,7 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.search-box:focus-within {
+.admin-search-box:focus-within {
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
@@ -232,7 +232,7 @@
   pointer-events: none;
 }
 
-.search-input {
+.admin-search-input {
   width: 220px;
   height: 100%;
   border: none;

@@ -5,6 +5,9 @@ import "../css/Wishlist.css";
 import "../css/MyPageCommon.css";
 
 function Wishlist() {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const [list, setList] = useState([]);
 
   useEffect(() => {
@@ -13,7 +16,7 @@ function Wishlist() {
       if (!token) return;
 
       const res = await axios.get(
-        "http://localhost:8001/triptype/api/mypage/wishlist",
+        `${API_BASE_URL}/api/mypage/wishlist`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

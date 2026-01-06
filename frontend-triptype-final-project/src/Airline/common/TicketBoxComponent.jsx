@@ -22,7 +22,7 @@ const TicketBoxComponent = ({
     "전일본공수": "전일본공수.png",
     "일본항공": "일본항공.png",
     "캐세이퍼시픽": "캐세이퍼시픽.png",
-    "싱가포르항공": "싱가포르항공.png",
+    "싱가포르항공": "싱가폴항공.png",
     "타이항공": "타이항공.png",
     "베트남항공": "베트남항공.png",
     "유나이티드항공": "유나이티드항공.png",
@@ -66,6 +66,15 @@ const TicketBoxComponent = ({
 
   const getAirlineUrl = (airlineName) => {
     return AIRLINE_URL_MAP[airlineName] || null;
+  }
+
+  const formatDuration = (duration) => {
+    // duration: "PT2H20M"
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+    if (!match) return duration;
+    const hours = match[1] ? parseInt(match[1]) : 0;
+    const minutes = match[2] ? parseInt(match[2]) : 0;
+    return `${hours > 0 ? hours + "시간 " : ""}${minutes > 0 ? minutes + "분" : ""}`.trim();
   }
 
   const safeSegments = Array.isArray(segments) && segments.length > 0 ? segments : null;
@@ -140,7 +149,7 @@ const TicketBoxComponent = ({
             <FaClock className="duration-icon-clock" />
             <div className="flight-line" />
           </div>
-          <div className="duration">{firstSeg.flightDuration}</div>
+          <div className="duration">{formatDuration(firstSeg.flightDuration)}</div>
           <div className="via-tag">{tripTypeLabel}</div>
         </div>
 
@@ -167,7 +176,7 @@ const TicketBoxComponent = ({
           </div>
         </div>
         <div className="price-wrapper">
-          <span className="price">{firstSeg.totalPrice?.toLocaleString()}원</span>
+          <span className="price">{(Math.floor(firstSeg.totalPrice) * 1690).toLocaleString()}원</span>
         </div>
       </div>
 

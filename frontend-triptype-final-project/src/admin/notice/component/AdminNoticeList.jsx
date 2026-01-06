@@ -133,10 +133,10 @@ function AdminNoticeList() {
             총 {pageInfo?.listCount ?? 0}건
           </span>
 
-          <div className="search-box">
+          <div className="admin-search-box">
             <FaSearch className="search-icon" />
             <input
-              className="search-input"
+              className="admin-search-input"
               placeholder="공지 제목 또는 내용 검색"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}

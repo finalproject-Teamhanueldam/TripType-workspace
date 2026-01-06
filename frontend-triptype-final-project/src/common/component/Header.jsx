@@ -5,6 +5,9 @@ import { AiFillHeart } from "react-icons/ai";
 import { toast } from "react-toastify";
 
 const Header = () => {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  
   const navigate = useNavigate();
 
   const [isLogin, setIsLogin] = useState(false);
@@ -68,7 +71,7 @@ const Header = () => {
         <div className="header-left">
           <Link to="/">
             <img
-              src="http://localhost:8001/triptype/logo_image/TripType_logo.png"
+              src={`${API_BASE_URL}/logo_image/TripType_logo.png`}
               alt="TripType Logo"
             />
           </Link>

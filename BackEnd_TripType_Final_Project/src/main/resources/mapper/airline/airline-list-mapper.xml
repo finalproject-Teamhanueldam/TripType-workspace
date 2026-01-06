@@ -318,7 +318,7 @@
       #{flightOfferId}
     )
   </insert>
-
+  
   <!-- 리뷰 조회 -->
   <select id="selectReview" parameterType="_int" resultMap="ReviewResultMap">
     SELECT

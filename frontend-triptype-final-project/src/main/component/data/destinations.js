@@ -1,10 +1,14 @@
 // src/features/recommend/data/destinations.js
 
 // ✅ 리액트(dev:5173)에서 백엔드(static:8001) 이미지 불러오기
-const BACKEND_ORIGIN =
-  import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8001";
+// const BACKEND_ORIGIN =
+//   import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:8001";
 
-const BASE = `${BACKEND_ORIGIN}/triptype/tripplace`;
+//const BASE = `${BACKEND_ORIGIN}/triptype/tripplace`;
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const BASE = `${API_BASE_URL}/tripplace`;
 
 export const DESTINATIONS = [
   { id: 1, name: "발리", sub: "휴양 · 힐링", price: "₩512,000~", img: `${BASE}/vali.jfif`, iata: "DPS", axes: ["RELAX"] },

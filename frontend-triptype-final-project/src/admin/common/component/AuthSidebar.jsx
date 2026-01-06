@@ -24,7 +24,7 @@ const AuthSidebar = ({ isOpen, onClose }) => {
         <tbody>
           <tr onClick={() => move("/admin/statistics")}><td>통계</td></tr>
           <tr onClick={() => move("/admin/flight")}><td>항공권 관리</td></tr>
-          <tr onClick={() => move("/admin/airlinereview")}><td>리뷰 관리</td></tr>
+          <tr onClick={() => move("/admin/airlinereview")}><td>댓글 관리</td></tr>
           <tr onClick={() => move("/admin/member")}><td>회원 관리</td></tr>
           <tr onClick={() => move("/admin/notice")}><td>공지사항 관리</td></tr>
         </tbody>

@@ -23,17 +23,6 @@
 	        a.AIRLINE_ID,
 	        a.AIRLINE_AIRLINE_NAME AS AIRLINE_NAME,
 	
-	        /* 리뷰 상태 Y 인 것만 평균 */
-	        ROUND(
-	            AVG(
-	                CASE
-	                    WHEN r.REVIEW_STATUS = 'Y' THEN r.REVIEW_RATING
-	                    ELSE NULL
-	                END
-	            ),
-	            2
-	        ) AS AVG_RATING,
-	
 	        /* 리뷰 상태 Y 인 것만 카운트 */
 	        COUNT(
 	            CASE
@@ -61,7 +50,6 @@
 	    SELECT
 	        R.REVIEW_NO,
 	        R.REVIEW_CONTENT,
-	        R.REVIEW_RATING,
 	        R.REVIEW_CREATE_DATE,
 	        R.REVIEW_MODIFY_DATE,
 	        R.REVIEW_STATUS,
@@ -70,10 +58,8 @@
 	        A.AIRLINE_AIRLINE_NAME AS AIRLINE_NAME,
 	
 	        /* 항공사 기준 리뷰 수 */
-	        COUNT(*) OVER (PARTITION BY A.AIRLINE_ID) AS REVIEW_COUNT,
+	        COUNT(*) OVER (PARTITION BY A.AIRLINE_ID) AS REVIEW_COUNT
 	
-	        /* 항공사 기준 평균 평점 */
-	        ROUND(AVG(R.REVIEW_RATING) OVER (PARTITION BY A.AIRLINE_ID), 1) AS AVG_RATING
 	
 	    FROM TB_REVIEW R
 	    JOIN TB_AIRLINE A

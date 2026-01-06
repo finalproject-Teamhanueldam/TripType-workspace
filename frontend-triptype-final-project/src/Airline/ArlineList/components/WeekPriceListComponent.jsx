@@ -3,6 +3,8 @@ import axios from "axios";
 
 const WeekPriceList = ({ setActiveFilter, searchParams}) => {
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     // 일주일간 최저가 상단 데이터 State
     const [ weekPrice, setWeekPrice ] = useState([]);
 
@@ -48,7 +50,7 @@ const WeekPriceList = ({ setActiveFilter, searchParams}) => {
     const weeklyPriceRender = async () => {
         try {
         const response = await axios.get(
-            "http://localhost:8001/triptype/airline/weeklyPrice",
+            `${API_BASE_URL}/airline/weeklyPrice`,
             { params: { ...searchParams } }
         );
 

@@ -238,7 +238,7 @@ const AdminNoticeDetail = () => {
                     .map(file => (
                       <li key={file.noticeAttachmentId} className="file-item">
                         <a
-                          href={`${API_BASE_URL}${file.noticeAttachmentUrl}`}
+                          href={`${API_BASE_URL}/${file.noticeAttachmentUrl}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="file-name"
@@ -289,7 +289,7 @@ const AdminNoticeDetail = () => {
           <button
             className="btn btn-danger"
             onClick={async () => {
-              await axios.delete(`http://localhost:8001/triptype/admin/notice/${noticeId}`);
+              await axios.delete(`${API_BASE_URL}/admin/notice/${noticeId}`);
               alert("삭제되었습니다.");
               navigate("/admin/notice");
             }}
